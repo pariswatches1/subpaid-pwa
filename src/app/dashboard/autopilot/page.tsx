@@ -53,7 +53,10 @@ export default function AutopilotPage() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <button className="flex items-center gap-2 text-[#1a1a2e]/60 hover:text-[#1a1a2e] transition-colors">
+          <button
+            onClick={() => window.location.href = '/dashboard/settings/notifications'}
+            className="flex items-center gap-2 text-[#1a1a2e]/60 hover:text-[#1a1a2e] transition-colors"
+          >
             <Settings className="w-5 h-5" />
             Settings
           </button>
@@ -186,7 +189,10 @@ export default function AutopilotPage() {
                     <Clock className="w-4 h-4" />
                     <span>Next: {invoice.nextAction}</span>
                   </div>
-                  <button className="text-sm text-[#1a1a2e] font-medium hover:text-[#9FE870] transition-colors flex items-center gap-1">
+                  <button
+                    onClick={() => alert(`Invoice ${invoice.id}\nClient: ${invoice.client}\nAmount: ${formatCurrency(invoice.amount)}\n${invoice.daysOverdue} days overdue\nCurrent step: ${invoice.currentStep + 1}/5\nNext: ${invoice.nextAction}`)}
+                    className="text-sm text-[#1a1a2e] font-medium hover:text-[#9FE870] transition-colors flex items-center gap-1"
+                  >
                     Details
                     <ChevronRight className="w-4 h-4" />
                   </button>
@@ -197,7 +203,10 @@ export default function AutopilotPage() {
           
           {/* Enable for new invoice */}
           <div className="p-4 bg-[#9FE870]/10 border-t border-[#9FE870]/20">
-            <button className="w-full flex items-center justify-center gap-2 text-[#1a1a2e] font-medium">
+            <button
+              onClick={() => window.location.href = '/dashboard/invoices'}
+              className="w-full flex items-center justify-center gap-2 text-[#1a1a2e] font-medium hover:text-[#9FE870] transition-colors"
+            >
               <Zap className="w-4 h-4" />
               Enable Autopilot for New Invoice
             </button>
@@ -218,10 +227,26 @@ export default function AutopilotPage() {
               SAM speaks naturally, captures promise-to-pay dates, and logs all conversations.
             </p>
             <div className="flex gap-3">
-              <button className="bg-[#54A0FF] text-white px-4 py-2 rounded-full font-medium hover:shadow-lg transition-all">
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch('/api/sam-agent/test', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ testPhone: '+1555000000' }),
+                    });
+                    if (res.ok) alert('Test call initiated! SAM will call your test number momentarily.');
+                    else alert('Failed to initiate test call');
+                  } catch { alert('Failed to initiate test call'); }
+                }}
+                className="bg-[#54A0FF] text-white px-4 py-2 rounded-full font-medium hover:shadow-lg transition-all"
+              >
                 Test SAM Now
               </button>
-              <button className="bg-white text-[#1a1a2e] px-4 py-2 rounded-full font-medium hover:bg-[#1a1a2e]/5 transition-all">
+              <button
+                onClick={() => alert('SAM Script Configuration:\n\n1. Introduction: "Hi, this is SAM calling on behalf of [Company]"\n2. Payment inquiry: "I\'m reaching out regarding invoice [ID]"\n3. Promise-to-pay: "When can we expect payment?"\n4. Closing: "Thank you for your time"\n\nCustomize scripts in Settings > Autopilot > Scripts.')}
+                className="bg-white text-[#1a1a2e] px-4 py-2 rounded-full font-medium hover:bg-[#1a1a2e]/5 transition-all"
+              >
                 Configure Scripts
               </button>
             </div>

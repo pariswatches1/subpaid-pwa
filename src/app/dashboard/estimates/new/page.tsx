@@ -1,11 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Plus, Trash2, Save, Send, FileText } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Plus, Trash2, Save, Send, FileText, Loader2 } from 'lucide-react';
 
 export default function NewEstimatePage() {
+  const router = useRouter();
   const [items, setItems] = useState([{ description: '', quantity: 1, rate: 0 }]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [clientId, setClientId] = useState('');
+  const [projectName, setProjectName] = useState('');
+  const [validUntil, setValidUntil] = useState('');
+  const [notes, setNotes] = useState('');
+  const [estimateDate, setEstimateDate] = useState('');
+
+  useEffect(() => {
+    setEstimateDate(new Date().toISOString().split('T')[0]);
+  }, []);
 
   const addItem = () => setItems([...items, { description: '', quantity: 1, rate: 0 }]);
   const removeItem = (index: number) => items.length > 1 && setItems(items.filter((_, i) => i !== index));
@@ -17,6 +30,50 @@ export default function NewEstimatePage() {
 
   const calculateTotal = () => items.reduce((sum, item) => sum + (item.quantity * item.rate), 0);
   const formatCurrency = (amount: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(amount);
+
+  const handleSubmit = async (status: 'draft' | 'sent') => {
+    if (!clientId) {
+      setError('Please select a client');
+      return;
+    }
+    if (items.every(item => !item.description.trim())) {
+      setError('Please add at least one line item');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/estimates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientId,
+          projectName,
+          lineItems: items.map(item => ({
+            description: item.description,
+            quantity: item.quantity,
+            rate: item.rate,
+          })),
+          status,
+          validUntil,
+          notes,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to save estimate');
+      }
+
+      router.push('/dashboard/estimates');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save estimate. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -37,6 +94,12 @@ export default function NewEstimatePage() {
         </div>
       </div>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
+
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           {/* Client */}
@@ -45,11 +108,16 @@ export default function NewEstimatePage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Select Client *</label>
-                <select className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#9FE870] outline-none">
+                <select
+                  value={clientId}
+                  onChange={(e) => { setClientId(e.target.value); setError(''); }}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#9FE870] outline-none"
+                >
                   <option value="">Choose a client...</option>
-                  <option>ABC General Contractors</option>
-                  <option>Metro Builders Inc</option>
-                  <option>Smith Builders</option>
+                  <option value="1">ABC General Contractors</option>
+                  <option value="2">Metro Builders Inc</option>
+                  <option value="3">Smith Builders</option>
+                  <option value="4">Downtown Development LLC</option>
                 </select>
               </div>
             </div>
@@ -61,19 +129,30 @@ export default function NewEstimatePage() {
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
-                <input type="text" placeholder="e.g., Office Renovation" className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#9FE870] outline-none" />
+                <input
+                  type="text"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  placeholder="e.g., Office Renovation"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#9FE870] outline-none"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Estimate Number</label>
-                <input type="text" defaultValue="EST-003" readOnly className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50" />
+                <input type="text" defaultValue="Auto-generated" readOnly className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                <input type="date" defaultValue={new Date().toISOString().split('T')[0]} className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#9FE870] outline-none" />
+                <input type="date" value={estimateDate} readOnly className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Valid Until</label>
-                <input type="date" className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#9FE870] outline-none" />
+                <input
+                  type="date"
+                  value={validUntil}
+                  onChange={(e) => setValidUntil(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#9FE870] outline-none"
+                />
               </div>
             </div>
           </div>
@@ -126,7 +205,13 @@ export default function NewEstimatePage() {
           {/* Notes */}
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h2 className="font-semibold text-[#1a1a2e] mb-4">Notes & Terms</h2>
-            <textarea rows={3} placeholder="Add terms, conditions, or notes..." className="w-full px-4 py-3 rounded-lg border border-gray-200 resize-none" />
+            <textarea
+              rows={3}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add terms, conditions, or notes..."
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 resize-none"
+            />
           </div>
         </div>
 
@@ -141,10 +226,19 @@ export default function NewEstimatePage() {
           </div>
 
           <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-3">
-            <button className="w-full bg-[#9FE870] text-[#1a1a2e] py-3 rounded-lg font-semibold flex items-center justify-center gap-2">
-              <Send className="w-5 h-5" /> Save & Send
+            <button
+              onClick={() => handleSubmit('sent')}
+              disabled={isSubmitting}
+              className="w-full bg-[#9FE870] text-[#1a1a2e] py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition-all disabled:opacity-50"
+            >
+              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+              {isSubmitting ? 'Saving...' : 'Save & Send'}
             </button>
-            <button className="w-full bg-gray-100 text-[#1a1a2e] py-3 rounded-lg font-medium flex items-center justify-center gap-2">
+            <button
+              onClick={() => handleSubmit('draft')}
+              disabled={isSubmitting}
+              className="w-full bg-gray-100 text-[#1a1a2e] py-3 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-gray-200 transition-all disabled:opacity-50"
+            >
               <Save className="w-5 h-5" /> Save as Draft
             </button>
           </div>

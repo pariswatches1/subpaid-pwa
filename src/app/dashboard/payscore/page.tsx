@@ -120,7 +120,30 @@ export default function PayScorePage() {
             <p className="text-[#1a1a2e]/60">GC payment reliability ratings</p>
           </div>
         </div>
-        <button className="bg-[#9FE870] text-[#1a1a2e] px-4 py-2 rounded-full font-medium hover:shadow-lg transition-all flex items-center gap-2">
+        <button
+          onClick={async () => {
+            const gcName = prompt('Enter GC name to rate:');
+            if (!gcName) return;
+            const rating = prompt('Overall rating (1-5):');
+            if (!rating) return;
+            try {
+              const res = await fetch('/api/payscore/ratings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  gcName,
+                  paymentTimeliness: parseInt(rating),
+                  communication: parseInt(rating),
+                  overallRating: parseInt(rating),
+                  review: `Rated ${gcName} a ${rating}/5`,
+                }),
+              });
+              if (res.ok) alert(`Rating submitted for ${gcName}`);
+              else alert('Failed to submit rating');
+            } catch { alert('Failed to submit rating'); }
+          }}
+          className="bg-[#9FE870] text-[#1a1a2e] px-4 py-2 rounded-full font-medium hover:shadow-lg transition-all flex items-center gap-2"
+        >
           <Star className="w-4 h-4" />
           Rate a GC
         </button>
@@ -277,10 +300,16 @@ export default function PayScorePage() {
 
             {/* Actions */}
             <div className="flex gap-3">
-              <button className="flex-1 bg-[#9FE870] text-[#1a1a2e] py-3 rounded-full font-semibold hover:shadow-lg transition-all">
+              <button
+                onClick={() => window.location.href = '/dashboard/invoices/new'}
+                className="flex-1 bg-[#9FE870] text-[#1a1a2e] py-3 rounded-full font-semibold hover:shadow-lg transition-all"
+              >
                 Create Invoice
               </button>
-              <button className="flex-1 bg-[#1a1a2e] text-white py-3 rounded-full font-semibold hover:bg-[#1e4400] transition-all">
+              <button
+                onClick={() => alert(`Payment history for ${selectedGC.name}:\n- ${selectedGC.invoiceCount} invoices\n- ${selectedGC.avgPaymentDays} day avg payment\n- ${selectedGC.onTimeRate}% on-time rate\n- ${formatCurrency(selectedGC.totalPaid)} total collected\n- Last payment: ${selectedGC.lastPayment}`)}
+                className="flex-1 bg-[#1a1a2e] text-white py-3 rounded-full font-semibold hover:bg-[#2a2a3e] transition-all"
+              >
                 View History
               </button>
             </div>

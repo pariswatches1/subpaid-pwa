@@ -64,9 +64,14 @@ const demoData = {
 export default function DashboardPage() {
   const [data] = useState(demoData);
   const [mounted, setMounted] = useState(false);
+  const [greeting, setGreeting] = useState('Welcome');
 
   useEffect(() => {
     setMounted(true);
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting('Good morning');
+    else if (hour < 17) setGreeting('Good afternoon');
+    else setGreeting('Good evening');
   }, []);
 
   const formatCurrency = (amount: number) => {
@@ -96,7 +101,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#1a1a2e]">Good morning, {data.user.name}</h1>
+          <h1 className="text-2xl font-bold text-[#1a1a2e]">{greeting}, {data.user.name}</h1>
           <p className="text-[#1a1a2e]/60">Here's what's happening with your jobs today</p>
         </div>
         <Link

@@ -221,10 +221,39 @@ export default function PaymentProphetPage() {
 
             {/* Actions */}
             <div className="flex gap-3">
-              <button className="flex-1 bg-[#9FE870] text-[#1a1a2e] py-3 rounded-full font-semibold hover:shadow-lg transition-all">
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch('/api/sam-agent/activate', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        invoiceId: selectedInvoice.id,
+                        followUpDays: [7, 14, 21],
+                      }),
+                    });
+                    if (res.ok) alert(`SAM Agent activated for ${selectedInvoice.id}. Automated calls scheduled.`);
+                    else alert('Failed to activate SAM Agent');
+                  } catch { alert('Failed to activate SAM Agent'); }
+                }}
+                className="flex-1 bg-[#9FE870] text-[#1a1a2e] py-3 rounded-full font-semibold hover:shadow-lg transition-all"
+              >
                 Activate SAM Agent
               </button>
-              <button className="flex-1 bg-[#1a1a2e] text-white py-3 rounded-full font-semibold hover:bg-[#1e4400] transition-all">
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch(`/api/invoices/${selectedInvoice.id}/remind`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ method: 'email' }),
+                    });
+                    if (res.ok) alert(`Payment reminder sent to ${selectedInvoice.client} for ${selectedInvoice.id}`);
+                    else alert('Failed to send reminder');
+                  } catch { alert('Failed to send reminder'); }
+                }}
+                className="flex-1 bg-[#1a1a2e] text-white py-3 rounded-full font-semibold hover:bg-[#2a2a3e] transition-all"
+              >
                 Send Reminder
               </button>
             </div>

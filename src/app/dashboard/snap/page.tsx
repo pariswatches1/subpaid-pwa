@@ -277,11 +277,37 @@ export default function SnapToInvoicePage() {
 
           {/* Actions */}
           <div className="flex flex-wrap gap-3">
-            <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#9FE870] text-[#1a1a2e] px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all">
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/invoices', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      clientId: '1',
+                      lineItems: invoice.items.map((item: InvoiceLineItem) => ({
+                        description: item.description,
+                        quantity: item.quantity,
+                        rate: item.rate,
+                      })),
+                      dueDate: '2026-03-03',
+                      status: 'sent',
+                      notes: invoice.description,
+                    }),
+                  });
+                  if (res.ok) alert('Invoice sent to ABC General Contractors!');
+                  else alert('Failed to send invoice. Please try again.');
+                } catch { alert('Failed to send invoice. Please try again.'); }
+              }}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#9FE870] text-[#1a1a2e] px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all"
+            >
               <Send className="w-5 h-5" />
               Send Invoice
             </button>
-            <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#1a1a2e] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#2a2a3e] transition-all">
+            <button
+              onClick={() => window.location.href = '/dashboard/invoices/new'}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#1a1a2e] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#2a2a3e] transition-all"
+            >
               <FileText className="w-5 h-5" />
               Edit Details
             </button>

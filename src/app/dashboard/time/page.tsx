@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Clock, Plus, Calendar, Users, X, Loader2 } from 'lucide-react';
 
 const initialTimeEntries = [
@@ -30,14 +30,21 @@ export default function TimeTrackingPage() {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [todayDate, setTodayDate] = useState('');
   const [formData, setFormData] = useState({
     employeeId: '',
     jobId: '',
-    date: new Date().toISOString().split('T')[0],
+    date: '',
     hours: '',
     description: '',
     billable: true,
   });
+
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    setTodayDate(today);
+    setFormData(prev => ({ ...prev, date: today }));
+  }, []);
 
   const totalHoursToday = timeEntries.reduce((a, b) => a + b.hours, 0);
   const activeWorkers = timeEntries.filter(e => e.status === 'active').length;
@@ -87,7 +94,7 @@ export default function TimeTrackingPage() {
       }]);
 
       setShowModal(false);
-      setFormData({ employeeId: '', jobId: '', date: new Date().toISOString().split('T')[0], hours: '', description: '', billable: true });
+      setFormData({ employeeId: '', jobId: '', date: todayDate, hours: '', description: '', billable: true });
     } catch {
       setError('Failed to add time entry. Please try again.');
     } finally {

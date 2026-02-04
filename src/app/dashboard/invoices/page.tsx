@@ -102,11 +102,17 @@ export default function InvoicesPage() {
             className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border border-[#1a1a2e]/10 focus:border-[#9FE870] focus:outline-none"
           />
         </div>
-        <button className="px-4 py-3 bg-white border border-[#1a1a2e]/10 rounded-xl flex items-center gap-2 hover:bg-[#1a1a2e]/5 transition-all">
+        <button
+          onClick={() => setFilter(filter === 'all' ? 'pending' : 'all')}
+          className="px-4 py-3 bg-white border border-[#1a1a2e]/10 rounded-xl flex items-center gap-2 hover:bg-[#1a1a2e]/5 transition-all"
+        >
           <Filter className="w-5 h-5 text-[#1a1a2e]/60" />
           <span className="text-[#1a1a2e]">Filter</span>
         </button>
-        <button className="px-4 py-3 bg-white border border-[#1a1a2e]/10 rounded-xl flex items-center gap-2 hover:bg-[#1a1a2e]/5 transition-all">
+        <button
+          onClick={() => alert('Export feature: Invoice data will be exported as CSV. Coming soon.')}
+          className="px-4 py-3 bg-white border border-[#1a1a2e]/10 rounded-xl flex items-center gap-2 hover:bg-[#1a1a2e]/5 transition-all"
+        >
           <Download className="w-5 h-5 text-[#1a1a2e]/60" />
           <span className="text-[#1a1a2e]">Export</span>
         </button>
@@ -144,11 +150,28 @@ export default function InvoicesPage() {
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-end gap-2">
                     {invoice.status !== 'paid' && (
-                      <button className="p-2 text-[#1a1a2e]/60 hover:text-[#9FE870] transition-colors" title="Send Reminder">
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await fetch(`/api/invoices/${invoice.id}/remind`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ method: 'email' }),
+                            });
+                            if (res.ok) alert(`Payment reminder sent to ${invoice.client}`);
+                            else alert('Failed to send reminder');
+                          } catch { alert('Failed to send reminder'); }
+                        }}
+                        className="p-2 text-[#1a1a2e]/60 hover:text-[#9FE870] transition-colors"
+                        title="Send Reminder"
+                      >
                         <Send className="w-4 h-4" />
                       </button>
                     )}
-                    <button className="p-2 text-[#1a1a2e]/60 hover:text-[#1a1a2e] transition-colors">
+                    <button
+                      onClick={() => alert(`Invoice ${invoice.id}\nClient: ${invoice.client}\nProject: ${invoice.project}\nAmount: ${formatCurrency(invoice.amount)}\nStatus: ${invoice.status}`)}
+                      className="p-2 text-[#1a1a2e]/60 hover:text-[#1a1a2e] transition-colors"
+                    >
                       <MoreVertical className="w-4 h-4" />
                     </button>
                   </div>

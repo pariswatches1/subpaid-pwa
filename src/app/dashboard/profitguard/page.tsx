@@ -353,10 +353,55 @@ export default function ProfitGuardPage() {
 
           {/* Action Buttons */}
           <div className="flex gap-3">
-            <button className="flex-1 py-3 bg-[#9FE870] text-[#1a1a2e] font-semibold rounded-xl hover:shadow-lg transition-all">
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/profitguard/bids', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      projectName: `${selectedGC.name} Bid`,
+                      totalBidAmount: calc.recommendedBid,
+                      laborCost: inputs.labor,
+                      materialCost: inputs.materials,
+                      overheadPercentage: (inputs.overhead / (inputs.materials + inputs.labor)) * 100,
+                      desiredProfitMargin: inputs.targetProfit,
+                    }),
+                  });
+                  if (res.ok) alert(`Bid of ${formatCurrency(calc.recommendedBid)} saved for ${selectedGC.name}`);
+                  else alert('Failed to save bid. Please try again.');
+                } catch { alert('Failed to save bid. Please try again.'); }
+              }}
+              className="flex-1 py-3 bg-[#9FE870] text-[#1a1a2e] font-semibold rounded-xl hover:shadow-lg transition-all"
+            >
               Use This Bid
             </button>
-            <button className="flex-1 py-3 bg-white border border-[#1a1a2e]/10 text-[#1a1a2e] font-medium rounded-xl hover:bg-[#F8FAFC] transition-all">
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/estimates', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      clientId: '1',
+                      projectName: `${selectedGC.name} - ProfitGuard Estimate`,
+                      lineItems: [
+                        { description: 'Materials', quantity: 1, rate: inputs.materials },
+                        { description: 'Labor', quantity: 1, rate: inputs.labor },
+                        { description: 'Overhead', quantity: 1, rate: inputs.overhead },
+                        { description: 'Working Capital Adjustment', quantity: 1, rate: Math.round(calc.workingCapitalCost) },
+                        { description: 'Risk Buffer', quantity: 1, rate: Math.round(calc.riskBuffer) },
+                      ],
+                      markup: inputs.targetProfit,
+                      status: 'draft',
+                    }),
+                  });
+                  if (res.ok) alert('Estimate saved as draft. View it in the Estimates page.');
+                  else alert('Failed to save estimate. Please try again.');
+                } catch { alert('Failed to save estimate. Please try again.'); }
+              }}
+              className="flex-1 py-3 bg-white border border-[#1a1a2e]/10 text-[#1a1a2e] font-medium rounded-xl hover:bg-[#F8FAFC] transition-all"
+            >
               Save as Estimate
             </button>
           </div>

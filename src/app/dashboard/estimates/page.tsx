@@ -278,7 +278,7 @@ export default function EstimatesPage() {
                       {formatCurrency(estimate.total)}
                     </p>
                     <p className="text-xs text-[#1a1a2e]/50">
-                      Valid until {new Date(estimate.validUntil).toLocaleDateString()}
+                      Valid until {new Date(estimate.validUntil).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </p>
                   </div>
                   {estimate.status === 'accepted' && estimate.convertedToInvoice && (

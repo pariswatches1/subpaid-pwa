@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BadgeCheck,
   FileText,
@@ -66,11 +66,17 @@ const performanceMetrics = {
 
 export default function PreQualPage() {
   const [activeTab, setActiveTab] = useState<'documents' | 'shared' | 'metrics'>('documents');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const formatDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   const getDaysUntil = (dateStr: string) => {
+    if (!mounted) return 0;
     const diff = new Date(dateStr).getTime() - new Date().getTime();
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };

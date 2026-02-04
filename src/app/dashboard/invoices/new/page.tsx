@@ -1,13 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Plus, Trash2, Camera, Save, Send } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Camera, Save, Send, Loader2 } from 'lucide-react';
 
 export default function NewInvoicePage() {
+  const router = useRouter();
   const [items, setItems] = useState([
     { description: '', quantity: 1, rate: 0 },
   ]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [clientId, setClientId] = useState('');
+  const [projectName, setProjectName] = useState('');
+  const [dueDate, setDueDate] = useState('');
+  const [notes, setNotes] = useState('');
+  const [issueDate, setIssueDate] = useState('');
+
+  useEffect(() => {
+    setIssueDate(new Date().toISOString().split('T')[0]);
+  }, []);
 
   const addItem = () => {
     setItems([...items, { description: '', quantity: 1, rate: 0 }]);
@@ -33,6 +46,41 @@ export default function NewInvoicePage() {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(amount);
   };
 
+  const handleSubmit = async (status: 'draft' | 'sent') => {
+    setError('');
+    if (!clientId) {
+      setError('Please select a client.');
+      return;
+    }
+    if (items.every(item => !item.description)) {
+      setError('Please add at least one line item with a description.');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/invoices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientId,
+          lineItems: items,
+          status,
+          dueDate,
+          notes,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to create invoice');
+      }
+      router.push('/dashboard/invoices');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -56,6 +104,12 @@ export default function NewInvoicePage() {
         </div>
       </div>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
+
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Main Form */}
         <div className="lg:col-span-2 space-y-6">
@@ -67,7 +121,11 @@ export default function NewInvoicePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Select Client *
                 </label>
-                <select className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#9FE870] focus:ring-2 focus:ring-[#9FE870]/20 outline-none">
+                <select
+                  value={clientId}
+                  onChange={(e) => setClientId(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#9FE870] focus:ring-2 focus:ring-[#9FE870]/20 outline-none"
+                >
                   <option value="">Choose a client...</option>
                   <option value="1">ABC General Contractors</option>
                   <option value="2">Metro Builders Inc</option>
@@ -76,7 +134,10 @@ export default function NewInvoicePage() {
                   <option value="5">Thompson Construction</option>
                 </select>
               </div>
-              <button className="text-[#54A0FF] text-sm font-medium hover:underline">
+              <button
+                onClick={() => alert('To add a new client, visit the Clients page.')}
+                className="text-[#54A0FF] text-sm font-medium hover:underline"
+              >
                 + Add New Client
               </button>
             </div>
@@ -92,6 +153,8 @@ export default function NewInvoicePage() {
                 </label>
                 <input
                   type="text"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
                   placeholder="e.g., Office Renovation"
                   className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#9FE870] focus:ring-2 focus:ring-[#9FE870]/20 outline-none"
                 />
@@ -113,7 +176,8 @@ export default function NewInvoicePage() {
                 </label>
                 <input
                   type="date"
-                  defaultValue={new Date().toISOString().split('T')[0]}
+                  value={issueDate}
+                  onChange={(e) => setIssueDate(e.target.value)}
                   className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#9FE870] focus:ring-2 focus:ring-[#9FE870]/20 outline-none"
                 />
               </div>
@@ -123,6 +187,8 @@ export default function NewInvoicePage() {
                 </label>
                 <input
                   type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
                   className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#9FE870] focus:ring-2 focus:ring-[#9FE870]/20 outline-none"
                 />
               </div>
@@ -218,6 +284,8 @@ export default function NewInvoicePage() {
             <h2 className="font-semibold text-[#1a1a2e] mb-4">Notes</h2>
             <textarea
               rows={3}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
               placeholder="Add any notes or payment instructions..."
               className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#9FE870] focus:ring-2 focus:ring-[#9FE870]/20 outline-none resize-none"
             />
@@ -243,11 +311,19 @@ export default function NewInvoicePage() {
 
           {/* Actions */}
           <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-3">
-            <button className="w-full bg-[#9FE870] text-[#1a1a2e] py-3 rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2">
-              <Send className="w-5 h-5" /> Save & Send
+            <button
+              onClick={() => handleSubmit('sent')}
+              disabled={isSubmitting}
+              className="w-full bg-[#9FE870] text-[#1a1a2e] py-3 rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />} Save & Send
             </button>
-            <button className="w-full bg-gray-100 text-[#1a1a2e] py-3 rounded-lg font-medium hover:bg-gray-200 transition-all flex items-center justify-center gap-2">
-              <Save className="w-5 h-5" /> Save as Draft
+            <button
+              onClick={() => handleSubmit('draft')}
+              disabled={isSubmitting}
+              className="w-full bg-gray-100 text-[#1a1a2e] py-3 rounded-lg font-medium hover:bg-gray-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Save as Draft
             </button>
           </div>
 

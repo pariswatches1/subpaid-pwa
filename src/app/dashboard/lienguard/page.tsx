@@ -193,7 +193,10 @@ export default function LienGuardPage() {
             <p className="text-[#1a1a2e]/60">Protect your payment rights automatically</p>
           </div>
         </div>
-        <button className="flex items-center gap-2 bg-[#9FE870] text-[#1a1a2e] px-4 py-2 rounded-full font-medium hover:shadow-lg transition-all">
+        <button
+          onClick={() => alert('Add Project form coming soon. Use the API at POST /api/lien-guard/projects to create a project.')}
+          className="flex items-center gap-2 bg-[#9FE870] text-[#1a1a2e] px-4 py-2 rounded-full font-medium hover:shadow-lg transition-all"
+        >
           <Plus className="w-4 h-4" />
           Add Project
         </button>
@@ -235,7 +238,10 @@ export default function LienGuardPage() {
                 have lien deadlines within 2 weeks. Take action to protect your payment rights.
               </p>
             </div>
-            <button className="px-4 py-2 bg-[#FF6B6B] text-white rounded-lg font-medium hover:bg-[#FF5252] transition-all">
+            <button
+              onClick={() => setFilterStatus('at-risk')}
+              className="px-4 py-2 bg-[#FF6B6B] text-white rounded-lg font-medium hover:bg-[#FF5252] transition-all"
+            >
               View Urgent
             </button>
           </div>
@@ -392,7 +398,10 @@ export default function LienGuardPage() {
                         </div>
                       </div>
                       {!selectedProject.preliminaryNotice.sent && (
-                        <button className="flex items-center gap-2 px-4 py-2 bg-[#FF9F43] text-white rounded-lg font-medium hover:bg-[#FF8F33] transition-all">
+                        <button
+                          onClick={() => alert(`Preliminary notice generated for ${selectedProject.projectName}. It will be sent to ${selectedProject.gcName}.`)}
+                          className="flex items-center gap-2 px-4 py-2 bg-[#FF9F43] text-white rounded-lg font-medium hover:bg-[#FF8F33] transition-all"
+                        >
                           <Send className="w-4 h-4" />
                           Generate & Send
                         </button>
@@ -426,7 +435,10 @@ export default function LienGuardPage() {
                         </div>
                       </div>
                       {selectedProject.mechanicsLien.daysRemaining > 0 && (
-                        <button className="flex items-center gap-2 px-4 py-2 bg-[#1a1a2e] text-white rounded-lg font-medium hover:bg-[#2a2a3e] transition-all">
+                        <button
+                          onClick={() => alert(`Mechanics lien preparation started for ${selectedProject.projectName}. Deadline: ${formatDate(selectedProject.mechanicsLien.deadline)}.`)}
+                          className="flex items-center gap-2 px-4 py-2 bg-[#1a1a2e] text-white rounded-lg font-medium hover:bg-[#2a2a3e] transition-all"
+                        >
                           <FileText className="w-4 h-4" />
                           Prepare Lien
                         </button>
@@ -483,7 +495,10 @@ export default function LienGuardPage() {
               SMS and email alerts are active for all projects.
             </p>
           </div>
-          <button className="px-4 py-2 bg-white text-[#1a1a2e] rounded-lg font-medium hover:bg-[#F8FAFC] transition-all border border-[#1a1a2e]/10">
+          <button
+            onClick={() => alert('Alert preferences: Email and SMS notifications at 30, 14, 7, and 3 days before deadlines. Customize in Settings > Notifications.')}
+            className="px-4 py-2 bg-white text-[#1a1a2e] rounded-lg font-medium hover:bg-[#F8FAFC] transition-all border border-[#1a1a2e]/10"
+          >
             Manage Alerts
           </button>
         </div>

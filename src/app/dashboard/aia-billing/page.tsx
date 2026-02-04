@@ -336,21 +336,33 @@ export default function AIABillingPage() {
               <div className="p-6 border-t border-[#1a1a2e]/10 flex flex-wrap gap-3">
                 {selectedApp.status === 'draft' && (
                   <>
-                    <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#9FE870] text-[#1a1a2e] px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all">
+                    <button
+                      onClick={() => alert(`Application #${selectedApp.applicationNumber} submitted to ${selectedApp.gc} for ${formatCurrency(selectedApp.netPayment)}`)}
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#9FE870] text-[#1a1a2e] px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all"
+                    >
                       <Send className="w-5 h-5" />
                       Submit to GC
                     </button>
-                    <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-[#1a1a2e]/10 text-[#1a1a2e] px-6 py-3 rounded-full font-medium hover:bg-[#F8FAFC] transition-all">
+                    <button
+                      onClick={() => alert(`Editing Application #${selectedApp.applicationNumber}. Full editor coming soon.`)}
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-[#1a1a2e]/10 text-[#1a1a2e] px-6 py-3 rounded-full font-medium hover:bg-[#F8FAFC] transition-all"
+                    >
                       <Edit className="w-5 h-5" />
                       Edit
                     </button>
                   </>
                 )}
-                <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-[#1a1a2e]/10 text-[#1a1a2e] px-6 py-3 rounded-full font-medium hover:bg-[#F8FAFC] transition-all">
+                <button
+                  onClick={() => alert(`Preview G702 Application #${selectedApp.applicationNumber}\n\nProject: ${selectedApp.project}\nGC: ${selectedApp.gc}\nPeriod To: ${formatDate(selectedApp.periodTo)}\nContract: ${formatCurrency(selectedApp.currentContract)}\nCompleted: ${selectedApp.completedPercent}%\nNet Payment Due: ${formatCurrency(selectedApp.netPayment)}`)}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-[#1a1a2e]/10 text-[#1a1a2e] px-6 py-3 rounded-full font-medium hover:bg-[#F8FAFC] transition-all"
+                >
                   <Eye className="w-5 h-5" />
                   Preview G702
                 </button>
-                <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-[#1a1a2e]/10 text-[#1a1a2e] px-6 py-3 rounded-full font-medium hover:bg-[#F8FAFC] transition-all">
+                <button
+                  onClick={() => alert(`G702 PDF for Application #${selectedApp.applicationNumber} will be generated and downloaded. PDF generation coming soon.`)}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-[#1a1a2e]/10 text-[#1a1a2e] px-6 py-3 rounded-full font-medium hover:bg-[#F8FAFC] transition-all"
+                >
                   <Download className="w-5 h-5" />
                   Download PDF
                 </button>
