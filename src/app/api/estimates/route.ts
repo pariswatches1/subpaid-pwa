@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       markup,
       total,
       status: body.status || 'draft',
-      validUntil: body.validUntil || body.valid_until || null,
+      validUntil: body.validUntil || body.valid_until || undefined,
       createdAt: new Date().toISOString(),
     };
 

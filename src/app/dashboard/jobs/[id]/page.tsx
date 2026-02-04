@@ -24,7 +24,7 @@ const jobsData: Record<string, {
     name: 'Riverside Apartments - Electrical',
     client: 'ABC General Contractors',
     address: '123 Business Ave, San Francisco, CA 94102',
-    status: 'in-progress',
+    status: 'active',
     startDate: 'Jan 5, 2026',
     endDate: 'Feb 15, 2026',
     budget: 85000,
@@ -45,7 +45,7 @@ const jobsData: Record<string, {
     name: 'Downtown Office Tower - HVAC',
     client: 'Metro Builders Inc',
     address: '456 Oak Street, Oakland, CA 94612',
-    status: 'in-progress',
+    status: 'active',
     startDate: 'Dec 10, 2025',
     endDate: 'Mar 30, 2026',
     budget: 125000,
@@ -85,7 +85,7 @@ const jobsData: Record<string, {
     name: 'Highland Mall - Fire Suppression',
     client: 'Highland Construction',
     address: '1200 Highland Ave, San Jose, CA 95110',
-    status: 'in-progress',
+    status: 'active',
     startDate: 'Jan 20, 2026',
     endDate: 'Apr 15, 2026',
     budget: 45000,
@@ -166,8 +166,9 @@ export default function JobDetailPage() {
     switch (job.status) {
       case 'completed':
         return <span className="px-3 py-1 bg-[#22C55E]/10 text-[#22C55E] text-sm font-medium rounded-full">Completed</span>;
+      case 'active':
       case 'in-progress':
-        return <span className="px-3 py-1 bg-[#54A0FF]/10 text-[#54A0FF] text-sm font-medium rounded-full">In Progress</span>;
+        return <span className="px-3 py-1 bg-[#54A0FF]/10 text-[#54A0FF] text-sm font-medium rounded-full">Active</span>;
       case 'scheduled':
         return <span className="px-3 py-1 bg-[#F8BF24]/10 text-[#b8860b] text-sm font-medium rounded-full">Scheduled</span>;
       default:

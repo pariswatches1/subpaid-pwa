@@ -87,16 +87,27 @@ export default function TeamSettingsPage() {
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-end gap-2">
                     {member.status === 'Pending' && (
-                      <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="Resend invite">
+                      <button
+                        onClick={() => alert(`Invite resent to ${member.email}`)}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        title="Resend invite"
+                      >
                         <Mail className="w-4 h-4 text-gray-500" />
                       </button>
                     )}
                     {member.role !== 'Owner' && (
-                      <button className="p-2 hover:bg-red-50 rounded-lg transition-colors" title="Remove member">
+                      <button
+                        onClick={() => alert(`${member.name} removed from team.\n\nNote: Full remove functionality coming soon.`)}
+                        className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Remove member"
+                      >
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </button>
                     )}
-                    <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <button
+                      onClick={() => alert(`${member.name}\nRole: ${member.role}\nEmail: ${member.email}\nStatus: ${member.status}\n\nMore options coming soon.`)}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
                       <MoreVertical className="w-4 h-4 text-gray-500" />
                     </button>
                   </div>

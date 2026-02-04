@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       id: generateId(),
       invoiceNumber,
       clientId,
-      jobId: body.jobId || null,
+      jobId: body.jobId || undefined,
       userId,
       lineItems: lineItems.map((item: { description?: string; quantity?: number; rate?: number; amount?: number }, index: number) => ({
         id: String(index + 1),

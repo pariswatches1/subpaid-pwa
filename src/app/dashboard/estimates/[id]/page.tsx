@@ -19,36 +19,80 @@ const estimatesData: Record<string, {
 }> = {
   'EST-001': {
     id: 'EST-001',
-    client: 'ABC General Contractors',
-    clientEmail: 'billing@abccontractors.com',
-    project: 'Office Renovation Phase 2',
-    amount: 28500,
-    status: 'pending',
-    date: 'Jan 28, 2026',
-    validUntil: 'Feb 28, 2026',
+    client: 'Metro Builders Inc',
+    clientEmail: 'billing@metrobuilders.com',
+    project: 'Highland Shopping Center - Electrical',
+    amount: 38016,
+    status: 'sent',
+    date: 'Feb 1, 2026',
+    validUntil: 'Mar 15, 2026',
     items: [
-      { description: 'Electrical rough-in (Phase 2)', quantity: 60, rate: 85, amount: 5100 },
-      { description: 'Sub-panel installation', quantity: 2, rate: 1800, amount: 3600 },
-      { description: 'Outlet installation', quantity: 40, rate: 125, amount: 5000 },
-      { description: 'Data/comm wiring', quantity: 30, rate: 150, amount: 4500 },
-      { description: 'Materials', quantity: 1, rate: 10300, amount: 10300 },
+      { description: 'Electrical Panel Installation', quantity: 4, rate: 2500, amount: 10000 },
+      { description: 'Lighting & Fixture Installation', quantity: 120, rate: 85, amount: 10200 },
+      { description: 'Wiring & Conduit (labor)', quantity: 200, rate: 75, amount: 15000 },
     ],
-    notes: 'Estimate valid for 30 days. 50% deposit required to begin work.',
+    notes: 'Estimate valid for 30 days. 50% deposit required to begin work. Subtotal: $35,200 + Tax: $2,816.',
   },
   'EST-002': {
     id: 'EST-002',
-    client: 'Metro Builders Inc',
-    clientEmail: 'ap@metrobuilders.com',
-    project: 'Warehouse Lighting Upgrade',
-    amount: 15800,
-    status: 'approved',
-    date: 'Jan 15, 2026',
+    client: 'Downtown Development LLC',
+    clientEmail: 'projects@downtowndev.com',
+    project: 'Riverside Apartments - Phase 2',
+    amount: 103680,
+    status: 'accepted',
+    date: 'Jan 20, 2026',
+    validUntil: 'Feb 28, 2026',
+    items: [
+      { description: 'Per-unit electrical rough-in', quantity: 24, rate: 3500, amount: 84000 },
+      { description: 'Common area electrical', quantity: 1, rate: 12000, amount: 12000 },
+    ],
+    notes: 'Converted to Invoice INV-015.',
+  },
+  'EST-003': {
+    id: 'EST-003',
+    client: 'Smith Builders',
+    clientEmail: 'john@smithbuilders.com',
+    project: 'Office Renovation - Conference Room',
+    amount: 8532,
+    status: 'draft',
+    date: 'Feb 2, 2026',
+    validUntil: 'Mar 1, 2026',
+    items: [
+      { description: 'Lighting upgrade', quantity: 8, rate: 450, amount: 3600 },
+      { description: 'Power outlet installation', quantity: 12, rate: 150, amount: 1800 },
+      { description: 'AV system wiring', quantity: 1, rate: 2500, amount: 2500 },
+    ],
+    notes: 'Subtotal: $7,900 + Tax: $632.',
+  },
+  'EST-004': {
+    id: 'EST-004',
+    client: 'ABC General Contractors',
+    clientEmail: 'accounts@abcgc.com',
+    project: 'Warehouse Expansion',
+    amount: 50976,
+    status: 'declined',
+    date: 'Jan 10, 2026',
     validUntil: 'Feb 15, 2026',
     items: [
-      { description: 'LED fixture installation', quantity: 48, rate: 225, amount: 10800 },
-      { description: 'Wiring and circuits', quantity: 1, rate: 3500, amount: 3500 },
-      { description: 'Materials', quantity: 1, rate: 1500, amount: 1500 },
+      { description: 'High-bay LED fixtures', quantity: 40, rate: 650, amount: 26000 },
+      { description: 'Power distribution panel', quantity: 2, rate: 5500, amount: 11000 },
+      { description: 'Installation labor', quantity: 120, rate: 85, amount: 10200 },
     ],
+  },
+  'EST-005': {
+    id: 'EST-005',
+    client: 'Thompson Construction',
+    clientEmail: 'mike@thompsonconstruction.com',
+    project: 'Medical Office Build-out',
+    amount: 24300,
+    status: 'expired',
+    date: 'Jan 5, 2026',
+    validUntil: 'Jan 20, 2026',
+    items: [
+      { description: 'Medical-grade electrical installation', quantity: 1, rate: 18000, amount: 18000 },
+      { description: 'Emergency power circuit', quantity: 1, rate: 4500, amount: 4500 },
+    ],
+    notes: 'Subtotal: $22,500 + Tax: $1,800.',
   },
 };
 
@@ -76,22 +120,40 @@ export default function EstimateDetailPage() {
 
   const getStatusBadge = () => {
     switch (estimate.status) {
-      case 'approved':
+      case 'accepted':
         return (
           <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#22C55E]/10 text-[#22C55E] text-sm font-medium rounded-full">
-            <CheckCircle className="w-4 h-4" /> Approved
+            <CheckCircle className="w-4 h-4" /> Accepted
           </span>
         );
-      case 'pending':
+      case 'sent':
         return (
-          <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#F8BF24]/10 text-[#b8860b] text-sm font-medium rounded-full">
-            <Clock className="w-4 h-4" /> Pending
+          <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#54A0FF]/10 text-[#54A0FF] text-sm font-medium rounded-full">
+            <Clock className="w-4 h-4" /> Sent
+          </span>
+        );
+      case 'draft':
+        return (
+          <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#1a1a2e]/10 text-[#1a1a2e]/70 text-sm font-medium rounded-full">
+            <Clock className="w-4 h-4" /> Draft
           </span>
         );
       case 'declined':
         return (
           <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#EF4444]/10 text-[#EF4444] text-sm font-medium rounded-full">
             <XCircle className="w-4 h-4" /> Declined
+          </span>
+        );
+      case 'expired':
+        return (
+          <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#1a1a2e]/10 text-[#1a1a2e]/40 text-sm font-medium rounded-full">
+            <XCircle className="w-4 h-4" /> Expired
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#F8BF24]/10 text-[#b8860b] text-sm font-medium rounded-full">
+            <Clock className="w-4 h-4" /> {estimate.status}
           </span>
         );
     }
@@ -116,7 +178,7 @@ export default function EstimateDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {estimate.status === 'pending' && (
+          {(estimate.status === 'sent' || estimate.status === 'draft') && (
             <button
               onClick={async () => {
                 try {
@@ -136,7 +198,7 @@ export default function EstimateDetailPage() {
               <Send className="w-4 h-4" /> Send to Client
             </button>
           )}
-          {estimate.status === 'approved' && (
+          {estimate.status === 'accepted' && (
             <button
               onClick={() => {
                 window.location.href = `/dashboard/invoices/new?fromEstimate=${estimate.id}&client=${encodeURIComponent(estimate.client)}&amount=${estimate.amount}`;

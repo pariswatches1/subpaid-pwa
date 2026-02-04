@@ -90,14 +90,15 @@ export default function PreQualPage() {
             Verified
           </span>
         );
-      case 'expiring':
+      case 'expiring': {
         const days = expirationDate ? getDaysUntil(expirationDate) : 0;
         return (
-          <span className="flex items-center gap-1 px-2 py-1 bg-[#FF9F43]/10 text-[#FF9F43] text-xs font-medium rounded-full">
+          <span className="flex items-center gap-1 px-2 py-1 bg-[#FF9F43]/10 text-[#FF9F43] text-xs font-medium rounded-full" suppressHydrationWarning>
             <AlertTriangle className="w-3 h-3" />
-            Expires in {days}d
+            {mounted ? `Expires in ${days}d` : 'Expiring soon'}
           </span>
         );
+      }
       case 'expired':
         return (
           <span className="flex items-center gap-1 px-2 py-1 bg-[#FF6B6B]/10 text-[#FF6B6B] text-xs font-medium rounded-full">

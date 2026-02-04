@@ -17,22 +17,51 @@ const paymentsData: Record<string, {
   'PAY-001': {
     id: 'PAY-001',
     invoiceId: 'INV-001',
-    client: 'ABC General Contractors',
+    client: 'Metro Builders Inc',
     amount: 12400,
     date: 'Jan 28, 2026',
-    method: 'ACH Transfer',
+    method: 'ACH',
     status: 'completed',
     reference: 'REF-123456789',
   },
   'PAY-002': {
     id: 'PAY-002',
     invoiceId: 'INV-005',
-    client: 'Thompson Construction',
-    amount: 3200,
-    date: 'Feb 1, 2026',
-    method: 'Credit Card',
+    client: 'Smith Builders',
+    amount: 8500,
+    date: 'Jan 25, 2026',
+    method: 'Check',
     status: 'completed',
-    reference: 'ch_3MqLfB2eZvKYlo2C0',
+    reference: 'CHK-45678',
+  },
+  'PAY-003': {
+    id: 'PAY-003',
+    invoiceId: 'INV-008',
+    client: 'Downtown Development',
+    amount: 45000,
+    date: 'Jan 20, 2026',
+    method: 'Wire',
+    status: 'completed',
+    reference: 'WIRE-789012',
+  },
+  'PAY-004': {
+    id: 'PAY-004',
+    invoiceId: 'INV-003',
+    client: 'ABC General Contractors',
+    amount: 20000,
+    date: 'Pending',
+    method: '-',
+    status: 'pending',
+  },
+  'PAY-005': {
+    id: 'PAY-005',
+    invoiceId: 'INV-010',
+    client: 'Thompson Construction',
+    amount: 15600,
+    date: 'Jan 15, 2026',
+    method: 'ACH',
+    status: 'completed',
+    reference: 'REF-345678901',
   },
 };
 
@@ -73,8 +102,8 @@ export default function PaymentDetailPage() {
         <div className="lg:col-span-2">
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-6">
-              <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#22C55E]/10 text-[#22C55E] text-sm font-medium rounded-full">
-                <CheckCircle className="w-4 h-4" /> Completed
+              <span className={`inline-flex items-center gap-2 px-3 py-1 text-sm font-medium rounded-full ${payment.status === 'completed' ? 'bg-[#22C55E]/10 text-[#22C55E]' : 'bg-[#F8BF24]/10 text-[#b8860b]'}`}>
+                <CheckCircle className="w-4 h-4" /> {payment.status === 'completed' ? 'Completed' : 'Pending'}
               </span>
               <p className="text-3xl font-bold text-[#22C55E]">{formatCurrency(payment.amount)}</p>
             </div>

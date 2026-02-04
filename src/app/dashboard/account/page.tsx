@@ -123,7 +123,7 @@ export default function AccountPage() {
             <h2 className="font-semibold text-[#1a1a2e]">Company Information</h2>
           </div>
           <Link
-            href="/dashboard/account/company"
+            href="/dashboard/settings/profile"
             className="text-[#54A0FF] text-sm font-medium hover:underline"
           >
             Edit

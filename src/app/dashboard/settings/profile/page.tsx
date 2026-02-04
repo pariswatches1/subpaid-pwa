@@ -38,7 +38,10 @@ export default function ProfileSettingsPage() {
             <User className="w-12 h-12 text-gray-400" />
           </div>
           <div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#1a1a2e] text-white rounded-lg hover:bg-[#1a1a2e]/90 transition-colors">
+            <button
+              onClick={() => alert('Photo upload coming soon. Supported formats: JPG, PNG, GIF (max 5MB).')}
+              className="flex items-center gap-2 px-4 py-2 bg-[#1a1a2e] text-white rounded-lg hover:bg-[#1a1a2e]/90 transition-colors"
+            >
               <Upload className="w-4 h-4" />
               Upload Photo
             </button>

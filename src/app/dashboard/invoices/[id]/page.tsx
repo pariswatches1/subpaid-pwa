@@ -75,6 +75,37 @@ const invoiceData: Record<string, {
     ],
     notes: 'Please remit payment as soon as possible.',
   },
+  'INV-004': {
+    id: 'INV-004',
+    client: 'Downtown Development',
+    clientEmail: 'billing@downtowndev.com',
+    clientPhone: '(555) 456-7890',
+    project: 'Plumbing Rough-in',
+    amount: 11500,
+    status: 'pending',
+    date: 'Jan 28, 2026',
+    dueDate: 'Feb 13, 2026',
+    items: [
+      { description: 'Plumbing rough-in labor', quantity: 80, rate: 95, amount: 7600 },
+      { description: 'Pipe and fittings', quantity: 1, rate: 2400, amount: 2400 },
+      { description: 'Permits and inspections', quantity: 1, rate: 1500, amount: 1500 },
+    ],
+  },
+  'INV-005': {
+    id: 'INV-005',
+    client: 'Thompson Construction',
+    clientEmail: 'ap@thompsonconstruction.com',
+    clientPhone: '(555) 567-8901',
+    project: 'Lighting Installation',
+    amount: 3200,
+    status: 'pending',
+    date: 'Feb 1, 2026',
+    dueDate: 'Feb 8, 2026',
+    items: [
+      { description: 'LED fixture installation', quantity: 16, rate: 150, amount: 2400 },
+      { description: 'Wiring and switches', quantity: 1, rate: 800, amount: 800 },
+    ],
+  },
 };
 
 export default function InvoiceDetailPage() {

@@ -70,12 +70,12 @@ export async function POST(request: NextRequest) {
     const newRating = {
       id: generateId(),
       gcName: name,
-      gcEmail: gcEmail || gc_email || null,
+      gcEmail: gcEmail || gc_email || undefined,
       paymentTimeliness: timelinessNum,
       communication: communicationNum,
       overallRating: overallNum,
-      review: review || null,
-      avgPaymentDays: avgPaymentDays || avg_payment_days || null,
+      review: review || undefined,
+      avgPaymentDays: avgPaymentDays || avg_payment_days || undefined,
       userId,
       createdAt: new Date().toISOString(),
     };

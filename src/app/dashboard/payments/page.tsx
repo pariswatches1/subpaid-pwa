@@ -25,7 +25,10 @@ export default function PaymentsPage() {
           <h1 className="text-2xl font-bold text-[#1a1a2e]">Payments</h1>
           <p className="text-[#1a1a2e]/60">Track all incoming payments</p>
         </div>
-        <button className="bg-[#1a1a2e] text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2">
+        <button
+          onClick={() => alert('Payment data will be exported as CSV. Export feature coming soon.')}
+          className="bg-[#1a1a2e] text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2"
+        >
           <Download className="w-4 h-4" />
           Export
         </button>
@@ -55,7 +58,10 @@ export default function PaymentsPage() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1a1a2e]/40" />
           <input type="text" placeholder="Search payments..." className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border border-gray-200" />
         </div>
-        <button className="px-4 py-3 bg-white border border-gray-200 rounded-xl flex items-center gap-2">
+        <button
+          onClick={() => alert('Filter options: All, Completed, Pending. Filter feature coming soon.')}
+          className="px-4 py-3 bg-white border border-gray-200 rounded-xl flex items-center gap-2"
+        >
           <Filter className="w-5 h-5" /> Filter
         </button>
       </div>
