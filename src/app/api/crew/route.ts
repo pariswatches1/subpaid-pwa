@@ -63,10 +63,10 @@ export async function POST(request: NextRequest) {
     const newMember = {
       id: generateId(),
       name,
-      email: email || null,
-      phone: phone || null,
+      email: email || undefined,
+      phone: phone || undefined,
       role,
-      hourlyRate: hourlyRate || hourly_rate ? parseFloat(hourlyRate || hourly_rate) : null,
+      hourlyRate: hourlyRate || hourly_rate ? parseFloat(hourlyRate || hourly_rate) : undefined,
       status: 'active',
       userId,
       createdAt: new Date().toISOString(),
