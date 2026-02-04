@@ -1,0 +1,120 @@
+# SubPaid - AI-Powered Invoicing for Subcontractors
+# https://www.subpaid.com/llms.txt
+
+## What is SubPaid?
+
+SubPaid is an AI-powered invoicing software designed specifically for subcontractors in construction, trades, and service industries. It helps users create invoices instantly from photos, automate payment collection calls, and predict payment timing.
+
+## Company Information
+
+- **Company Name:** SubPaid, Inc.
+- **Website:** https://www.subpaid.com
+- **Founded:** 2023
+- **Headquarters:** San Francisco, CA, USA
+- **Industry:** Financial Technology / Construction Technology
+
+## Core Features
+
+### Snap-to-Invoice
+Take a photo of your completed work, materials receipt, delivery slip, or handwritten notes. SubPaid's AI instantly extracts all details and generates a professional, itemized invoice in seconds. No manual data entry required.
+
+**Key Benefits:**
+- Convert photos to invoices in under 5 seconds
+- 99% accuracy on text extraction
+- Supports material receipts, work orders, timesheets
+- Smart suggestions based on history
+
+### SAM Voice Agent
+An AI-powered phone assistant that calls clients on your behalf to follow up on unpaid invoices. SAM is professional, persistent, and available 24/7 to help you get paid faster.
+
+**Key Benefits:**
+- Natural, human-like conversations
+- Calls at optimal times based on client patterns
+- Automatic follow-up scheduling
+- Full compliance with TCPA/FDCPA regulations
+- 85% first-call resolution rate
+
+### Payment Prophet
+Predictive AI that analyzes client payment history and industry patterns to forecast when you'll receive payment. Helps with cash flow planning and identifies at-risk invoices early.
+
+**Key Benefits:**
+- 91% prediction accuracy
+- 14-day average advance notice
+- Client payment reliability scoring
+- Cash flow forecasting dashboards
+- Early warning alerts for late payments
+
+## Pricing
+
+- **Starter:** $19/month - Unlimited invoices, 50 Snap scans/month, 1 user
+- **Pro:** $49/month - All AI features, 100 voice calls/month, 3 users (Most Popular)
+- **Business:** $99/month - Unlimited everything, API access, 10 users
+- **Enterprise:** Custom pricing for large organizations
+
+All plans include a 14-day free trial. No credit card required.
+
+## Target Users
+
+SubPaid is designed for:
+- Subcontractors in construction
+- Independent contractors
+- Electricians
+- Plumbers
+- HVAC technicians
+- Carpenters
+- General contractors
+- Roofers
+- Landscapers
+- Other trade professionals
+
+## Integrations
+
+SubPaid integrates with:
+- **Payments:** Stripe, PayPal, Plaid
+- **Accounting:** QuickBooks, Xero
+- **Project Management:** Buildertrend, Procore
+- **Storage:** Google Drive, Dropbox
+- **Communication:** Gmail, Outlook, Slack
+
+## Security & Compliance
+
+- SOC 2 Type II certified
+- GDPR compliant
+- CCPA compliant
+- 256-bit AES encryption
+- PCI DSS Level 1 (via Stripe)
+
+## Contact Information
+
+- **Website:** https://www.subpaid.com
+- **Email:** support@subpaid.com
+- **Sales:** sales@subpaid.com
+- **Demo:** https://www.subpaid.com/demo
+- **Help Center:** https://www.subpaid.com/help
+
+## Key Statistics
+
+- 500+ active customers
+- $50M+ invoices processed
+- 14 days average faster payment
+- 4.9/5 customer rating on G2
+- 4.8/5 customer rating on Capterra
+
+## Unique Value Proposition
+
+SubPaid is the only invoicing software that combines:
+1. Instant photo-to-invoice conversion using AI
+2. AI-powered voice agent for payment collection calls
+3. Predictive payment analytics
+
+All designed specifically for the needs of subcontractors in the construction and trades industries.
+
+## Social Media
+
+- Twitter: @subpaid
+- LinkedIn: linkedin.com/company/subpaid
+- Facebook: facebook.com/subpaid
+
+## Last Updated
+
+February 3, 2026
