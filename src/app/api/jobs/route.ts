@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     const userId = getMockUserId();
     const body = await request.json();
 
-    const { title, name, clientId, description, startDate, endDate, status, address, budget } = body;
+    const { title, name, clientId, description, startDate, endDate, status } = body;
     const jobTitle = title || name;
 
     // Validation
@@ -67,11 +67,9 @@ export async function POST(request: NextRequest) {
       id: generateId(),
       title: jobTitle,
       clientId,
-      description: description || '',
-      startDate: startDate || null,
-      endDate: endDate || null,
-      address: address || '',
-      budget: budget ? parseFloat(budget) : null,
+      description: description || undefined,
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
       status: status || 'active',
       userId,
       createdAt: new Date().toISOString(),

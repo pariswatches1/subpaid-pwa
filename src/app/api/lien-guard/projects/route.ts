@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       contractAmount: contractAmount ? parseFloat(contractAmount) : 0,
       startDate,
       preliminaryNoticeSent: body.preliminary_notice_sent || false,
-      preliminaryNoticeDate: null,
+      preliminaryNoticeDate: undefined,
       lienDeadline: lienDeadline.toISOString().split('T')[0],
       status: 'active',
       userId,
