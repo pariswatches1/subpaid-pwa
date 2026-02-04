@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import {
   Menu,
@@ -36,6 +36,26 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [featuresOpen, setFeaturesOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
+  const featuresTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const resourcesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleFeaturesEnter = () => {
+    if (featuresTimeoutRef.current) clearTimeout(featuresTimeoutRef.current);
+    setFeaturesOpen(true);
+  };
+
+  const handleFeaturesLeave = () => {
+    featuresTimeoutRef.current = setTimeout(() => setFeaturesOpen(false), 150);
+  };
+
+  const handleResourcesEnter = () => {
+    if (resourcesTimeoutRef.current) clearTimeout(resourcesTimeoutRef.current);
+    setResourcesOpen(true);
+  };
+
+  const handleResourcesLeave = () => {
+    resourcesTimeoutRef.current = setTimeout(() => setResourcesOpen(false), 150);
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50">
@@ -52,10 +72,12 @@ export function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1">
             {/* Features Dropdown */}
-            <div className="relative">
+            <div
+              className="relative"
+              onMouseEnter={handleFeaturesEnter}
+              onMouseLeave={handleFeaturesLeave}
+            >
               <button
-                onMouseEnter={() => setFeaturesOpen(true)}
-                onMouseLeave={() => setFeaturesOpen(false)}
                 className="flex items-center gap-1 px-4 py-2 text-gray-600 hover:text-[#1a1a2e] font-medium transition-colors"
               >
                 Features
@@ -63,33 +85,31 @@ export function Navbar() {
               </button>
 
               {featuresOpen && (
-                <div
-                  onMouseEnter={() => setFeaturesOpen(true)}
-                  onMouseLeave={() => setFeaturesOpen(false)}
-                  className="absolute top-full left-0 w-80 bg-white rounded-xl shadow-xl border border-gray-200 py-4 mt-2"
-                >
-                  {features.map((feature) => (
-                    <Link
-                      key={feature.name}
-                      href={feature.href}
-                      className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="w-10 h-10 bg-[#9FE870]/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <feature.icon className="w-5 h-5 text-[#1a1a2e]" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-[#1a1a2e]">{feature.name}</p>
-                        <p className="text-sm text-gray-500">{feature.description}</p>
-                      </div>
-                    </Link>
-                  ))}
-                  <div className="border-t border-gray-100 mt-2 pt-2 px-4">
-                    <Link
-                      href="/features"
-                      className="text-[#54A0FF] text-sm font-medium hover:underline"
-                    >
-                      View all features →
-                    </Link>
+                <div className="absolute top-full left-0 w-80 pt-2">
+                  <div className="bg-white rounded-xl shadow-xl border border-gray-200 py-4">
+                    {features.map((feature) => (
+                      <Link
+                        key={feature.name}
+                        href={feature.href}
+                        className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="w-10 h-10 bg-[#9FE870]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <feature.icon className="w-5 h-5 text-[#1a1a2e]" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-[#1a1a2e]">{feature.name}</p>
+                          <p className="text-sm text-gray-500">{feature.description}</p>
+                        </div>
+                      </Link>
+                    ))}
+                    <div className="border-t border-gray-100 mt-2 pt-2 px-4">
+                      <Link
+                        href="/features"
+                        className="text-[#54A0FF] text-sm font-medium hover:underline"
+                      >
+                        View all features →
+                      </Link>
+                    </div>
                   </div>
                 </div>
               )}
@@ -103,10 +123,12 @@ export function Navbar() {
             </Link>
 
             {/* Resources Dropdown */}
-            <div className="relative">
+            <div
+              className="relative"
+              onMouseEnter={handleResourcesEnter}
+              onMouseLeave={handleResourcesLeave}
+            >
               <button
-                onMouseEnter={() => setResourcesOpen(true)}
-                onMouseLeave={() => setResourcesOpen(false)}
                 className="flex items-center gap-1 px-4 py-2 text-gray-600 hover:text-[#1a1a2e] font-medium transition-colors"
               >
                 Resources
@@ -114,26 +136,24 @@ export function Navbar() {
               </button>
 
               {resourcesOpen && (
-                <div
-                  onMouseEnter={() => setResourcesOpen(true)}
-                  onMouseLeave={() => setResourcesOpen(false)}
-                  className="absolute top-full left-0 w-72 bg-white rounded-xl shadow-xl border border-gray-200 py-4 mt-2"
-                >
-                  {resources.map((resource) => (
-                    <Link
-                      key={resource.name}
-                      href={resource.href}
-                      className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="w-10 h-10 bg-[#54A0FF]/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <resource.icon className="w-5 h-5 text-[#1a1a2e]" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-[#1a1a2e]">{resource.name}</p>
-                        <p className="text-sm text-gray-500">{resource.description}</p>
-                      </div>
-                    </Link>
-                  ))}
+                <div className="absolute top-full left-0 w-72 pt-2">
+                  <div className="bg-white rounded-xl shadow-xl border border-gray-200 py-4">
+                    {resources.map((resource) => (
+                      <Link
+                        key={resource.name}
+                        href={resource.href}
+                        className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="w-10 h-10 bg-[#54A0FF]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <resource.icon className="w-5 h-5 text-[#1a1a2e]" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-[#1a1a2e]">{resource.name}</p>
+                          <p className="text-sm text-gray-500">{resource.description}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
