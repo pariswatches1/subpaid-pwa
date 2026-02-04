@@ -1,54 +1,84 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { mockDb, generateId, getMockUserId } from '@/lib/db';
 
-// Mock database for crew members
-let crewMembers = [
-  {
-    id: '1',
-    name: 'Jose Martinez',
-    email: 'jose@company.com',
-    phone: '(555) 123-4567',
-    role: 'Lead Electrician',
-    hourlyRate: 45,
-    status: 'active',
-    createdAt: new Date().toISOString(),
-  },
-];
+// GET /api/crew - List all crew members
+export async function GET(request: NextRequest) {
+  try {
+    const userId = getMockUserId();
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
 
-export async function GET() {
-  return NextResponse.json(crewMembers);
+    let crew = mockDb.crewMembers.filter(member => member.userId === userId);
+
+    if (status) {
+      crew = crew.filter(member => member.status === status);
+    }
+
+    // Sort by name
+    crew.sort((a, b) => a.name.localeCompare(b.name));
+
+    return NextResponse.json(crew);
+  } catch (error) {
+    console.error('Error fetching crew:', error);
+    return NextResponse.json({ error: 'Failed to fetch crew members' }, { status: 500 });
+  }
 }
 
+// POST /api/crew - Add new crew member
 export async function POST(request: NextRequest) {
   try {
+    const userId = getMockUserId();
     const body = await request.json();
 
-    // Validate required fields
-    if (!body.name) {
+    const { name, email, phone, role, hourlyRate, hourly_rate } = body;
+
+    // Validation
+    if (!name) {
       return NextResponse.json(
-        { message: 'Name is required' },
+        { error: 'Name is required' },
         { status: 400 }
       );
     }
 
-    // Create new crew member
+    if (!role) {
+      return NextResponse.json(
+        { error: 'Role is required' },
+        { status: 400 }
+      );
+    }
+
+    // Check for duplicate email if provided
+    if (email) {
+      const existingMember = mockDb.crewMembers.find(
+        m => m.email === email && m.userId === userId
+      );
+      if (existingMember) {
+        return NextResponse.json(
+          { error: 'A crew member with this email already exists' },
+          { status: 409 }
+        );
+      }
+    }
+
     const newMember = {
-      id: String(Date.now()),
-      name: body.name,
-      email: body.email || '',
-      phone: body.phone || '',
-      role: body.role || 'Crew Member',
-      hourlyRate: body.hourly_rate || body.hourlyRate || 0,
+      id: generateId(),
+      name,
+      email: email || null,
+      phone: phone || null,
+      role,
+      hourlyRate: hourlyRate || hourly_rate ? parseFloat(hourlyRate || hourly_rate) : null,
       status: 'active',
+      userId,
       createdAt: new Date().toISOString(),
     };
 
-    crewMembers.push(newMember);
+    mockDb.crewMembers.push(newMember);
 
     return NextResponse.json(newMember, { status: 201 });
   } catch (error) {
-    console.error('Error creating crew member:', error);
+    console.error('Error adding crew member:', error);
     return NextResponse.json(
-      { message: 'Failed to add crew member' },
+      { error: 'Failed to add crew member. Please try again.' },
       { status: 500 }
     );
   }

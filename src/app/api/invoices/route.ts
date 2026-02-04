@@ -1,73 +1,115 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { mockDb, generateId, generateInvoiceNumber, getMockUserId } from '@/lib/db';
 
-// Mock database for invoices
-let invoices = [
-  {
-    id: '1',
-    invoiceNumber: 'INV-001',
-    clientId: '1',
-    clientName: 'Metro Builders Inc',
-    amount: 8500,
-    status: 'sent',
-    dueDate: '2026-02-06',
-    lineItems: [],
-    createdAt: new Date().toISOString(),
-  },
-];
+// GET /api/invoices - List all invoices
+export async function GET(request: NextRequest) {
+  try {
+    const userId = getMockUserId();
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    const clientId = searchParams.get('clientId');
 
-export async function GET() {
-  return NextResponse.json(invoices);
+    let invoices = mockDb.invoices.filter(inv => inv.userId === userId);
+
+    if (status) {
+      invoices = invoices.filter(inv => inv.status === status);
+    }
+    if (clientId) {
+      invoices = invoices.filter(inv => inv.clientId === clientId);
+    }
+
+    // Include client data
+    const invoicesWithClient = invoices.map(inv => ({
+      ...inv,
+      client: mockDb.clients.find(c => c.id === inv.clientId),
+    }));
+
+    return NextResponse.json(invoicesWithClient);
+  } catch (error) {
+    console.error('Error fetching invoices:', error);
+    return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 });
+  }
 }
 
+// POST /api/invoices - Create new invoice
 export async function POST(request: NextRequest) {
   try {
+    const userId = getMockUserId();
     const body = await request.json();
 
-    // Validate required fields
-    if (!body.client_id && !body.clientId) {
-      return NextResponse.json(
-        { message: 'Client is required' },
-        { status: 400 }
-      );
-    }
-
-    if (!body.line_items && !body.lineItems) {
-      return NextResponse.json(
-        { message: 'At least one line item is required' },
-        { status: 400 }
-      );
-    }
-
-    // Calculate total from line items
+    const clientId = body.client_id || body.clientId;
     const lineItems = body.line_items || body.lineItems || [];
-    const total = lineItems.reduce((sum: number, item: { amount?: number; total?: number }) =>
-      sum + (item.amount || item.total || 0), 0
+    const dueDate = body.due_date || body.dueDate;
+
+    // Validation
+    if (!clientId) {
+      return NextResponse.json(
+        { error: 'Client is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!lineItems || lineItems.length === 0) {
+      return NextResponse.json(
+        { error: 'At least one line item is required' },
+        { status: 400 }
+      );
+    }
+
+    // Verify client exists
+    const client = mockDb.clients.find(c => c.id === clientId);
+    if (!client) {
+      return NextResponse.json(
+        { error: 'Client not found' },
+        { status: 404 }
+      );
+    }
+
+    // Calculate totals
+    const subtotal = lineItems.reduce(
+      (sum: number, item: { quantity?: number; rate?: number; amount?: number; total?: number }) =>
+        sum + (item.quantity && item.rate ? item.quantity * item.rate : item.amount || item.total || 0),
+      0
     );
+    const tax = body.tax || 0;
+    const total = subtotal + tax;
 
     // Generate invoice number
-    const invoiceNumber = `INV-${String(invoices.length + 1).padStart(3, '0')}`;
+    const invoiceNumber = generateInvoiceNumber(mockDb.invoices.length);
 
-    // Create new invoice
     const newInvoice = {
-      id: String(Date.now()),
+      id: generateId(),
       invoiceNumber,
-      clientId: body.client_id || body.clientId,
-      clientName: body.clientName || 'Unknown Client',
-      amount: total,
-      lineItems,
-      status: body.status || 'draft',
-      dueDate: body.due_date || body.dueDate || null,
+      clientId,
+      jobId: body.jobId || null,
+      userId,
+      lineItems: lineItems.map((item: { description?: string; quantity?: number; rate?: number; amount?: number }, index: number) => ({
+        id: String(index + 1),
+        description: item.description || '',
+        quantity: item.quantity || 1,
+        rate: item.rate || item.amount || 0,
+        total: item.quantity && item.rate ? item.quantity * item.rate : item.amount || 0,
+      })),
+      subtotal,
+      tax,
+      total,
+      dueDate: dueDate ? new Date(dueDate).toISOString() : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
       notes: body.notes || '',
+      status: body.status || 'draft',
+      autopilotEnabled: body.autopilotEnabled || false,
       createdAt: new Date().toISOString(),
     };
 
-    invoices.push(newInvoice);
+    mockDb.invoices.push(newInvoice);
 
-    return NextResponse.json(newInvoice, { status: 201 });
-  } catch (error) {
-    console.error('Error creating invoice:', error);
     return NextResponse.json(
-      { message: 'Failed to create invoice' },
+      { ...newInvoice, client },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error('Create invoice error:', error);
+    return NextResponse.json(
+      { error: 'Failed to create invoice. Please try again.' },
       { status: 500 }
     );
   }

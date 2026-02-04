@@ -1,54 +1,89 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { mockDb, generateId, getMockUserId } from '@/lib/db';
 
-// Mock database for lien guard projects
-let projects = [
-  {
-    id: '1',
-    name: 'Highland Shopping Center - Electrical',
-    address: '1234 Highland Ave, Denver, CO 80202',
-    gcName: 'Metro Builders Inc',
-    contractAmount: 125000,
-    startDate: '2025-08-01',
-    preliminaryNoticeSent: true,
-    createdAt: new Date().toISOString(),
-  },
-];
+// GET /api/lien-guard/projects - List LienGuard projects
+export async function GET(request: NextRequest) {
+  try {
+    const userId = getMockUserId();
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
 
-export async function GET() {
-  return NextResponse.json(projects);
+    let projects = mockDb.lienGuardProjects.filter(p => p.userId === userId);
+
+    if (status) {
+      projects = projects.filter(p => p.status === status);
+    }
+
+    // Sort by start date descending
+    projects.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+
+    return NextResponse.json(projects);
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 });
+  }
 }
 
+// POST /api/lien-guard/projects - Create new LienGuard project
 export async function POST(request: NextRequest) {
   try {
+    const userId = getMockUserId();
     const body = await request.json();
 
-    // Validate required fields
-    if (!body.name) {
+    const name = body.name;
+    const address = body.address;
+    const gcName = body.gc_name || body.gcName;
+    const contractAmount = body.contract_amount || body.contractAmount;
+    const startDate = body.start_date || body.startDate || new Date().toISOString().split('T')[0];
+
+    // Validation
+    if (!name) {
       return NextResponse.json(
-        { message: 'Project name is required' },
+        { error: 'Project name is required' },
         { status: 400 }
       );
     }
 
-    // Create new project
+    if (!address) {
+      return NextResponse.json(
+        { error: 'Project address is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!gcName) {
+      return NextResponse.json(
+        { error: 'General contractor name is required' },
+        { status: 400 }
+      );
+    }
+
+    // Calculate lien deadline (varies by state, default 90 days from start)
+    const lienDeadline = new Date(startDate);
+    lienDeadline.setDate(lienDeadline.getDate() + 90);
+
     const newProject = {
-      id: String(Date.now()),
-      name: body.name,
-      address: body.address || '',
-      gcName: body.gc_name || body.gcName || '',
-      contractAmount: body.contract_amount || body.contractAmount || 0,
-      startDate: body.start_date || body.startDate || new Date().toISOString().split('T')[0],
+      id: generateId(),
+      name,
+      address,
+      gcName,
+      contractAmount: contractAmount ? parseFloat(contractAmount) : 0,
+      startDate,
       preliminaryNoticeSent: body.preliminary_notice_sent || false,
+      preliminaryNoticeDate: null,
+      lienDeadline: lienDeadline.toISOString().split('T')[0],
+      status: 'active',
+      userId,
       createdAt: new Date().toISOString(),
     };
 
-    projects.push(newProject);
+    mockDb.lienGuardProjects.push(newProject);
 
     return NextResponse.json(newProject, { status: 201 });
   } catch (error) {
     console.error('Error creating project:', error);
     return NextResponse.json(
-      { message: 'Failed to add project' },
+      { error: 'Failed to add project. Please try again.' },
       { status: 500 }
     );
   }

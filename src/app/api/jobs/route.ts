@@ -1,60 +1,92 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { mockDb, generateId, getMockUserId } from '@/lib/db';
 
-// Mock database for jobs
-let jobs = [
-  {
-    id: '1',
-    name: 'Downtown Office Tower - Electrical',
-    clientId: '1',
-    clientName: 'ABC General Contractors',
-    address: '123 Main St, Denver, CO 80202',
-    startDate: '2025-01-15',
-    endDate: '2025-06-30',
-    budget: 125000,
-    description: 'Complete electrical installation for 10-story office building',
-    status: 'active',
-    createdAt: new Date().toISOString(),
-  },
-];
+// GET /api/jobs - List all jobs
+export async function GET(request: NextRequest) {
+  try {
+    const userId = getMockUserId();
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    const clientId = searchParams.get('clientId');
 
-export async function GET() {
-  return NextResponse.json(jobs);
+    let jobs = mockDb.jobs.filter(job => job.userId === userId);
+
+    if (status) {
+      jobs = jobs.filter(job => job.status === status);
+    }
+    if (clientId) {
+      jobs = jobs.filter(job => job.clientId === clientId);
+    }
+
+    // Include client data
+    const jobsWithClient = jobs.map(job => ({
+      ...job,
+      client: mockDb.clients.find(c => c.id === job.clientId),
+    }));
+
+    return NextResponse.json(jobsWithClient);
+  } catch (error) {
+    console.error('Error fetching jobs:', error);
+    return NextResponse.json({ error: 'Failed to fetch jobs' }, { status: 500 });
+  }
 }
 
+// POST /api/jobs - Create new job
 export async function POST(request: NextRequest) {
   try {
+    const userId = getMockUserId();
     const body = await request.json();
 
-    // Validate required fields
-    if (!body.name || !body.clientId) {
+    const { title, name, clientId, description, startDate, endDate, status, address, budget } = body;
+    const jobTitle = title || name;
+
+    // Validation
+    if (!jobTitle) {
       return NextResponse.json(
-        { message: 'Job name and client are required' },
+        { error: 'Job title/name is required' },
+        { status: 400 }
+      );
+    }
+    if (!clientId) {
+      return NextResponse.json(
+        { error: 'Client is required' },
         { status: 400 }
       );
     }
 
-    // Create new job
+    // Verify client exists
+    const client = mockDb.clients.find(c => c.id === clientId);
+    if (!client) {
+      return NextResponse.json(
+        { error: 'Client not found' },
+        { status: 404 }
+      );
+    }
+
     const newJob = {
-      id: String(Date.now()),
-      name: body.name,
-      clientId: body.clientId,
-      clientName: body.clientName || 'Unknown Client',
-      address: body.address || '',
-      startDate: body.startDate || null,
-      endDate: body.endDate || null,
-      budget: body.budget || null,
-      description: body.description || '',
-      status: 'active',
+      id: generateId(),
+      title: jobTitle,
+      clientId,
+      description: description || '',
+      startDate: startDate || null,
+      endDate: endDate || null,
+      address: address || '',
+      budget: budget ? parseFloat(budget) : null,
+      status: status || 'active',
+      userId,
       createdAt: new Date().toISOString(),
     };
 
-    jobs.push(newJob);
+    mockDb.jobs.push(newJob);
 
-    return NextResponse.json(newJob, { status: 201 });
-  } catch (error) {
-    console.error('Error creating job:', error);
     return NextResponse.json(
-      { message: 'Failed to create job' },
+      { ...newJob, client },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error('Create job error:', error);
+    return NextResponse.json(
+      { error: 'Failed to create job. Please try again.' },
       { status: 500 }
     );
   }
