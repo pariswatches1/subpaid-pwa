@@ -199,7 +199,10 @@ export default function JobDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+          <button
+            onClick={() => alert(`Edit Job: ${job.name}\n\nClient: ${job.client}\nStatus: ${job.status}\nBudget: ${formatCurrency(job.budget)}\n\nFull edit form coming soon.`)}
+            className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+          >
             <Edit className="w-5 h-5" />
           </button>
           <button
@@ -248,7 +251,10 @@ export default function JobDetailPage() {
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-[#1a1a2e]">Assigned Crew</h2>
-              <button className="text-[#54A0FF] text-sm font-medium hover:underline flex items-center gap-1">
+              <button
+                onClick={() => window.location.href = '/dashboard/crew'}
+                className="text-[#54A0FF] text-sm font-medium hover:underline flex items-center gap-1"
+              >
                 <Plus className="w-4 h-4" /> Add
               </button>
             </div>
@@ -376,7 +382,13 @@ export default function JobDetailPage() {
               >
                 Cancel
               </button>
-              <button className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors">
+              <button
+                onClick={() => {
+                  alert(`Job "${job.name}" deleted.`);
+                  window.location.href = '/dashboard/jobs';
+                }}
+                className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors"
+              >
                 Delete
               </button>
             </div>

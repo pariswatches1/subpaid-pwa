@@ -68,10 +68,16 @@ export default function AIABillingDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2 bg-white border border-gray-200 rounded-lg font-medium hover:bg-gray-50 flex items-center gap-2">
+          <button
+            onClick={() => alert(`G702/G703 PDF for Application #${application.applicationNo}\n\nProject: ${application.project}\nClient: ${application.client}\nContract: ${formatCurrency(application.contractAmount)}\nThis Application: ${formatCurrency(application.currentBilled)}\nAmount Due: ${formatCurrency(amountDue)}\n\nPDF generation coming soon.`)}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg font-medium hover:bg-gray-50 flex items-center gap-2"
+          >
             <Download className="w-4 h-4" /> Download G702/G703
           </button>
-          <button className="px-4 py-2 bg-[#9FE870] text-[#1a1a2e] rounded-lg font-medium hover:shadow-lg flex items-center gap-2">
+          <button
+            onClick={() => alert(`Application #${application.applicationNo} submitted to ${application.client} for ${formatCurrency(amountDue)}`)}
+            className="px-4 py-2 bg-[#9FE870] text-[#1a1a2e] rounded-lg font-medium hover:shadow-lg flex items-center gap-2"
+          >
             <Send className="w-4 h-4" /> Submit
           </button>
         </div>

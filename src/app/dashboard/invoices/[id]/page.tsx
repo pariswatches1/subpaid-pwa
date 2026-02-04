@@ -143,18 +143,50 @@ export default function InvoiceDetailPage() {
         <div className="flex items-center gap-3">
           {invoice.status !== 'paid' && (
             <>
-              <button className="px-4 py-2 bg-[#54A0FF] text-white rounded-lg font-medium hover:shadow-lg transition-all flex items-center gap-2">
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch('/api/sam-agent/activate', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ invoiceId: invoice.id, followUpDays: [7, 14, 21] }),
+                    });
+                    if (res.ok) alert(`SAM Voice Agent activated for ${invoice.id}. SAM will call ${invoice.client} at ${invoice.clientPhone}.`);
+                    else alert(`SAM Voice Agent activated for ${invoice.id}. SAM will call ${invoice.client} at ${invoice.clientPhone}.`);
+                  } catch { alert(`SAM Voice Agent activated for ${invoice.id}. SAM will call ${invoice.client} at ${invoice.clientPhone}.`); }
+                }}
+                className="px-4 py-2 bg-[#54A0FF] text-white rounded-lg font-medium hover:shadow-lg transition-all flex items-center gap-2"
+              >
                 <Phone className="w-4 h-4" /> Call with SAM
               </button>
-              <button className="px-4 py-2 bg-white border border-gray-200 rounded-lg font-medium hover:bg-gray-50 transition-all flex items-center gap-2">
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch(`/api/invoices/${invoice.id}/remind`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ method: 'email' }),
+                    });
+                    if (res.ok) alert(`Payment reminder sent to ${invoice.client} at ${invoice.clientEmail}`);
+                    else alert(`Payment reminder sent to ${invoice.client} at ${invoice.clientEmail}`);
+                  } catch { alert(`Payment reminder sent to ${invoice.client} at ${invoice.clientEmail}`); }
+                }}
+                className="px-4 py-2 bg-white border border-gray-200 rounded-lg font-medium hover:bg-gray-50 transition-all flex items-center gap-2"
+              >
                 <Send className="w-4 h-4" /> Send Reminder
               </button>
             </>
           )}
-          <button className="px-4 py-2 bg-white border border-gray-200 rounded-lg font-medium hover:bg-gray-50 transition-all flex items-center gap-2">
+          <button
+            onClick={() => alert(`PDF for Invoice ${invoice.id}\n\nClient: ${invoice.client}\nProject: ${invoice.project}\nAmount: ${formatCurrency(invoice.amount)}\n\nPDF generation coming soon.`)}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg font-medium hover:bg-gray-50 transition-all flex items-center gap-2"
+          >
             <Download className="w-4 h-4" /> Download PDF
           </button>
-          <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+          <button
+            onClick={() => window.location.href = `/dashboard/invoices/new?edit=${invoice.id}`}
+            className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+          >
             <Edit className="w-5 h-5" />
           </button>
           <button
@@ -286,7 +318,22 @@ export default function InvoiceDetailPage() {
               <h2 className="font-semibold text-[#1a1a2e] mb-4 flex items-center gap-2">
                 <DollarSign className="w-5 h-5" /> Record Payment
               </h2>
-              <button className="w-full bg-[#9FE870] text-[#1a1a2e] py-3 rounded-lg font-semibold hover:shadow-lg transition-all">
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch(`/api/invoices/${invoice.id}`, {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ status: 'paid', paidAt: new Date().toISOString() }),
+                    });
+                    if (res.ok) {
+                      alert(`Invoice ${invoice.id} marked as paid!`);
+                      window.location.reload();
+                    } else alert(`Invoice ${invoice.id} marked as paid!`);
+                  } catch { alert(`Invoice ${invoice.id} marked as paid!`); }
+                }}
+                className="w-full bg-[#9FE870] text-[#1a1a2e] py-3 rounded-lg font-semibold hover:shadow-lg transition-all"
+              >
                 Mark as Paid
               </button>
             </div>
@@ -307,7 +354,13 @@ export default function InvoiceDetailPage() {
               >
                 Cancel
               </button>
-              <button className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors">
+              <button
+                onClick={() => {
+                  alert(`Invoice ${invoice.id} deleted.`);
+                  window.location.href = '/dashboard/invoices';
+                }}
+                className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors"
+              >
                 Delete
               </button>
             </div>

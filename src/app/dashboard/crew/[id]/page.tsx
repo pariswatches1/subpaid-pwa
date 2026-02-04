@@ -83,7 +83,10 @@ export default function CrewMemberPage() {
             </div>
           </div>
         </div>
-        <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+        <button
+          onClick={() => alert(`Edit ${member.name}\n\nRole: ${member.role}\nEmail: ${member.email}\nPhone: ${member.phone}\nHourly Rate: ${formatCurrency(member.hourlyRate)}/hr\n\nFull edit form coming soon.`)}
+          className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+        >
           <Edit className="w-5 h-5" />
         </button>
       </div>

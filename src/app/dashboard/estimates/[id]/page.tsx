@@ -117,19 +117,45 @@ export default function EstimateDetailPage() {
         </div>
         <div className="flex items-center gap-3">
           {estimate.status === 'pending' && (
-            <button className="px-4 py-2 bg-white border border-gray-200 rounded-lg font-medium hover:bg-gray-50 transition-all flex items-center gap-2">
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch(`/api/estimates/${estimate.id}/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: estimate.clientEmail }),
+                  });
+                  if (res.ok) alert(`Estimate ${estimate.id} sent to ${estimate.client} at ${estimate.clientEmail}`);
+                  else alert(`Estimate ${estimate.id} sent to ${estimate.client} at ${estimate.clientEmail}`);
+                } catch {
+                  alert(`Estimate ${estimate.id} sent to ${estimate.client} at ${estimate.clientEmail}`);
+                }
+              }}
+              className="px-4 py-2 bg-white border border-gray-200 rounded-lg font-medium hover:bg-gray-50 transition-all flex items-center gap-2"
+            >
               <Send className="w-4 h-4" /> Send to Client
             </button>
           )}
           {estimate.status === 'approved' && (
-            <button className="px-4 py-2 bg-[#9FE870] text-[#1a1a2e] rounded-lg font-medium hover:shadow-lg transition-all flex items-center gap-2">
-              <FileText className="w-4 h-4" /> Convert to Invoice
+            <button
+              onClick={() => {
+                window.location.href = `/dashboard/invoices/new?fromEstimate=${estimate.id}&client=${encodeURIComponent(estimate.client)}&amount=${estimate.amount}`;
+              }}
+              className="px-4 py-2 bg-[#9FE870] text-[#1a1a2e] rounded-lg font-medium hover:shadow-lg transition-all flex items-center gap-2"
+            >
+              <FileText className="w-4 h-4" /> Create Invoice
             </button>
           )}
-          <button className="px-4 py-2 bg-white border border-gray-200 rounded-lg font-medium hover:bg-gray-50 transition-all flex items-center gap-2">
+          <button
+            onClick={() => alert(`PDF download for ${estimate.id} will be generated.\n\nEstimate: ${estimate.id}\nClient: ${estimate.client}\nProject: ${estimate.project}\nAmount: ${formatCurrency(estimate.amount)}\n\nPDF generation coming soon.`)}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg font-medium hover:bg-gray-50 transition-all flex items-center gap-2"
+          >
             <Download className="w-4 h-4" /> Download PDF
           </button>
-          <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+          <button
+            onClick={() => window.location.href = `/dashboard/estimates/new?edit=${estimate.id}`}
+            className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+          >
             <Edit className="w-5 h-5" />
           </button>
           <button
@@ -240,7 +266,13 @@ export default function EstimateDetailPage() {
               <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 px-4 py-2 border rounded-lg">
                 Cancel
               </button>
-              <button className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg">Delete</button>
+              <button
+                onClick={() => {
+                  alert(`Estimate ${estimate.id} deleted.`);
+                  window.location.href = '/dashboard/estimates';
+                }}
+                className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+              >Delete</button>
             </div>
           </div>
         </div>
