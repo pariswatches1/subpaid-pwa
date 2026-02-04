@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, Briefcase, Edit, Trash2, MapPin, Calendar, DollarSign, Clock, User, FileText, Plus } from 'lucide-react';
+import { ArrowLeft, Briefcase, Edit, Trash2, MapPin, Calendar, DollarSign, Clock, User, FileText, Plus, Loader2 } from 'lucide-react';
 
 const jobsData: Record<string, {
   id: string;
@@ -21,19 +21,19 @@ const jobsData: Record<string, {
 }> = {
   '1': {
     id: '1',
-    name: 'Office Renovation - Main Building',
+    name: 'Riverside Apartments - Electrical',
     client: 'ABC General Contractors',
     address: '123 Business Ave, San Francisco, CA 94102',
     status: 'in-progress',
     startDate: 'Jan 5, 2026',
     endDate: 'Feb 15, 2026',
-    budget: 45000,
-    spent: 28500,
-    description: 'Complete electrical renovation of the main office building including panel upgrade, new circuits, and LED lighting installation.',
+    budget: 85000,
+    spent: 45000,
+    description: 'Complete electrical rough-in and finish for 24-unit apartment complex. Includes panel installation, branch circuits, lighting, and receptacles for all units.',
     crew: [
-      { name: 'Mike Rodriguez', role: 'Lead Electrician' },
-      { name: 'James Wilson', role: 'Electrician' },
-      { name: 'Sarah Chen', role: 'Apprentice' },
+      { name: 'Jose Martinez', role: 'Lead Electrician' },
+      { name: 'Carlos Rivera', role: 'Electrician' },
+      { name: 'David Chen', role: 'Apprentice' },
     ],
     invoices: [
       { id: 'INV-001', amount: 12400, status: 'paid' },
@@ -42,16 +42,58 @@ const jobsData: Record<string, {
   },
   '2': {
     id: '2',
-    name: 'Residential Wiring - New Construction',
+    name: 'Downtown Office Tower - HVAC',
     client: 'Metro Builders Inc',
     address: '456 Oak Street, Oakland, CA 94612',
-    status: 'scheduled',
-    startDate: 'Feb 20, 2026',
-    budget: 32000,
-    spent: 0,
-    description: 'Full electrical installation for new 4-bedroom residential construction including service entrance, panel, and rough-in.',
+    status: 'in-progress',
+    startDate: 'Dec 10, 2025',
+    endDate: 'Mar 30, 2026',
+    budget: 125000,
+    spent: 75000,
+    description: 'Full HVAC system installation for 12-story office tower. Includes ductwork, air handling units, controls, and rooftop equipment.',
     crew: [
-      { name: 'Mike Rodriguez', role: 'Lead Electrician' },
+      { name: 'Mike Thompson', role: 'HVAC Technician' },
+      { name: 'Sarah Kim', role: 'HVAC Technician' },
+      { name: 'Jose Martinez', role: 'Lead Electrician' },
+      { name: 'Tom Wilson', role: 'Apprentice' },
+    ],
+    invoices: [
+      { id: 'INV-004', amount: 11500, status: 'pending' },
+    ],
+  },
+  '3': {
+    id: '3',
+    name: 'Smith Residence - Plumbing',
+    client: 'Smith Builders',
+    address: '789 Elm Drive, Berkeley, CA 94704',
+    status: 'completed',
+    startDate: 'Nov 15, 2025',
+    endDate: 'Dec 20, 2025',
+    budget: 12000,
+    spent: 12000,
+    description: 'Complete plumbing rough-in and finish for single-family home new construction. Includes water supply, DWV, gas piping, and fixture installation.',
+    crew: [
+      { name: 'Carlos Rivera', role: 'Electrician' },
+      { name: 'David Chen', role: 'Apprentice' },
+    ],
+    invoices: [
+      { id: 'INV-003', amount: 12000, status: 'paid' },
+    ],
+  },
+  '4': {
+    id: '4',
+    name: 'Highland Mall - Fire Suppression',
+    client: 'Highland Construction',
+    address: '1200 Highland Ave, San Jose, CA 95110',
+    status: 'in-progress',
+    startDate: 'Jan 20, 2026',
+    endDate: 'Apr 15, 2026',
+    budget: 45000,
+    spent: 8500,
+    description: 'Fire suppression system installation for new retail mall wing. Includes sprinkler system, fire alarms, and emergency lighting throughout 15,000 sq ft space.',
+    crew: [
+      { name: 'Mike Thompson', role: 'HVAC Technician' },
+      { name: 'Tom Wilson', role: 'Apprentice' },
     ],
     invoices: [],
   },
@@ -60,12 +102,53 @@ const jobsData: Record<string, {
 export default function JobDetailPage() {
   const params = useParams();
   const jobId = params.id as string;
-  const job = jobsData[jobId];
+  const staticJob = jobsData[jobId];
+  const [job, setJob] = useState(staticJob || null);
+  const [loading, setLoading] = useState(!staticJob);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  useEffect(() => {
+    if (!staticJob) {
+      // Try fetching from API for dynamically created jobs
+      fetch(`/api/jobs/${jobId}`)
+        .then(res => {
+          if (res.ok) return res.json();
+          throw new Error('Not found');
+        })
+        .then(data => {
+          setJob({
+            id: data.id,
+            name: data.title || data.name || 'Untitled Job',
+            client: data.client?.name || data.clientName || 'Unknown Client',
+            address: data.address || 'No address provided',
+            status: data.status || 'active',
+            startDate: data.startDate ? new Date(data.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Not set',
+            endDate: data.endDate ? new Date(data.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : undefined,
+            budget: data.budget || 0,
+            spent: data.spent || 0,
+            description: data.description || 'No description provided.',
+            crew: data.crew || [],
+            invoices: data.invoices || [],
+          });
+          setLoading(false);
+        })
+        .catch(() => {
+          setLoading(false);
+        });
+    }
+  }, [jobId, staticJob]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(amount);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 text-[#9FE870] animate-spin" />
+      </div>
+    );
+  }
 
   if (!job) {
     return (
