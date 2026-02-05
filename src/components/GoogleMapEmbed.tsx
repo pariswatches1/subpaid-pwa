@@ -8,7 +8,7 @@ interface GoogleMapEmbedProps {
 }
 
 export function GoogleMapEmbed({ address, height = 400, zoom = 15, className = '' }: GoogleMapEmbedProps) {
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyDGgYcWvy6MSEZ5dtg1d6_ur1bgEGgYDZM';
   const encodedAddress = encodeURIComponent(address);
 
   if (!apiKey) {
