@@ -12,6 +12,7 @@ import { GoogleMapEmbed } from '@/components/GoogleMapEmbed';
 import { ContractorCard } from '@/components/directory/ContractorCard';
 import { ClaimBusinessModal } from '@/components/directory/ClaimBusinessModal';
 import type { Contractor } from '@/lib/db';
+import { getStateName, getDataSourceLabel, getDataSourceFullName, type StateCode } from '@/lib/states-config';
 
 function getPayScoreColor(score: number): string {
   if (score >= 85) return 'bg-[#22C55E]';
@@ -139,7 +140,7 @@ export default function ContractorProfilePage({ params }: { params: { id: string
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Link href="/directory" className="hover:text-[#54A0FF]">Directory</Link>
               <ChevronRight className="w-4 h-4" />
-              <span>{contractor.state === 'FL' ? 'Florida' : 'California'}</span>
+              <span>{getStateName(contractor.state as StateCode)}</span>
               <ChevronRight className="w-4 h-4" />
               <span>{contractor.city}</span>
               <ChevronRight className="w-4 h-4" />
@@ -275,7 +276,7 @@ export default function ContractorProfilePage({ params }: { params: { id: string
                   <div className="mt-4 pt-4 border-t border-gray-100">
                     <p className="text-xs text-gray-400">
                       Data sourced from{' '}
-                      {contractor.state === 'FL' ? 'Florida DBPR' : 'California CSLB'}.{' '}
+                      {getDataSourceLabel(contractor.state as StateCode)}.{' '}
                       {contractor.sourceUrl && (
                         <a href={contractor.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-[#54A0FF] hover:underline">
                           View official record →
@@ -384,7 +385,7 @@ export default function ContractorProfilePage({ params }: { params: { id: string
                           <FileText className="w-4 h-4" /> Data Source
                         </span>
                         <span className="font-medium text-[#1a1a2e] text-xs">
-                          {contractor.state === 'FL' ? 'FL DBPR' : 'CA CSLB'}
+                          {getDataSourceLabel(contractor.state as StateCode)}
                         </span>
                       </div>
                     </div>

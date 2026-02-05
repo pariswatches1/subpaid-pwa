@@ -5,6 +5,7 @@ import { Search, Filter, ChevronDown, MapPin, Building2, ArrowRight, Loader2 } f
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { ContractorCard } from '@/components/directory/ContractorCard';
+import { STATES, ALL_STATE_CODES } from '@/lib/states-config';
 import type { Contractor } from '@/lib/db';
 
 const ITEMS_PER_PAGE = 21;
@@ -75,12 +76,6 @@ export default function DirectoryPage() {
 
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
-  const stateCounts = {
-    all: total,
-    FL: 0,
-    CA: 0,
-  };
-
   return (
     <>
       <Navbar />
@@ -96,7 +91,7 @@ export default function DirectoryPage() {
               Find Licensed Contractors
             </h1>
             <p className="text-lg text-white/70 max-w-2xl mx-auto mb-8">
-              Search verified contractors across Florida and California. View PayScores, license details, and reviews.
+              Search verified contractors across all 10 states. View PayScores, license details, and reviews.
             </p>
 
             {/* Search Bar */}
@@ -118,16 +113,18 @@ export default function DirectoryPage() {
           <div className="max-w-6xl mx-auto px-4">
             <div className="flex items-center justify-between py-4">
               {/* State Tabs */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide pb-1 flex-nowrap">
                 {[
                   { value: 'all', label: 'All States' },
-                  { value: 'FL', label: '🟠 Florida' },
-                  { value: 'CA', label: '🔵 California' },
+                  ...ALL_STATE_CODES.map((code) => ({
+                    value: code,
+                    label: `${STATES[code].emoji} ${STATES[code].name}`,
+                  })),
                 ].map((tab) => (
                   <button
                     key={tab.value}
                     onClick={() => setStateFilter(tab.value)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                       stateFilter === tab.value
                         ? 'bg-[#1a1a2e] text-white'
                         : 'text-gray-600 hover:bg-gray-100'

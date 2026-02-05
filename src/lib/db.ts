@@ -1,6 +1,8 @@
 // Mock database for development
 // In production, replace with Prisma client
 
+import { StateCode, DataSourceCode } from './states-config';
+
 // Contractor data is loaded lazily below after mockDb is created
 
 export interface User {
@@ -159,7 +161,7 @@ export interface Contractor {
   website?: string;
   address: string;
   city: string;
-  state: 'FL' | 'CA';
+  state: StateCode;
   zipCode: string;
   county?: string;
   issueDate: string;
@@ -170,7 +172,7 @@ export interface Contractor {
   avgPaymentDays?: number;
   claimed: boolean;
   claimedByUserId?: string;
-  dataSource: 'FL_DBPR' | 'CA_CSLB';
+  dataSource: DataSourceCode;
   sourceUrl?: string;
   verified: boolean;
   verifiedAt?: string;

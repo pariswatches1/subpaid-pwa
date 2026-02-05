@@ -9,8 +9,17 @@
     "lint": "next lint",
     "scrape:florida": "npx tsx scripts/scrapers/florida-dbpr.ts",
     "scrape:california": "npx tsx scripts/scrapers/california-cslb.ts",
-    "scrape:all": "npm run scrape:florida && npm run scrape:california",
-    "build:contractors": "npx tsx scripts/build-database.ts"
+    "scrape:arizona": "npx tsx scripts/scrapers/arizona-roc.ts",
+    "scrape:northcarolina": "npx tsx scripts/scrapers/northcarolina-nclbgc.ts",
+    "scrape:texas": "npx tsx scripts/scrapers/texas-tdlr.ts",
+    "scrape:georgia": "npx tsx scripts/scrapers/georgia-sos.ts",
+    "scrape:ohio": "npx tsx scripts/scrapers/ohio-ocilb.ts",
+    "scrape:pennsylvania": "npx tsx scripts/scrapers/pennsylvania-ag.ts",
+    "scrape:illinois": "npx tsx scripts/scrapers/illinois-idfpr.ts",
+    "scrape:newyork": "npx tsx scripts/scrapers/newyork-county.ts",
+    "scrape:all": "npm run scrape:florida && npm run scrape:california && npm run scrape:arizona && npm run scrape:northcarolina && npm run scrape:texas && npm run scrape:georgia && npm run scrape:ohio && npm run scrape:pennsylvania && npm run scrape:illinois && npm run scrape:newyork",
+    "build:contractors": "npx tsx scripts/build-database.ts",
+    "generate:mock": "node scripts/generate-all-states.js"
   },
   "dependencies": {
     "next": "14.2.21",

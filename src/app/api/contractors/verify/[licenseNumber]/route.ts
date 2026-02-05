@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { mockDb } from '@/lib/db';
+import { getDataSourceFullName, type StateCode } from '@/lib/states-config';
 
 export async function GET(
   request: NextRequest,
@@ -38,9 +39,7 @@ export async function GET(
     licenseType: contractor.licenseType,
     verified: true,
     verifiedAt: new Date().toISOString(),
-    source: contractor.state === 'FL'
-      ? 'Florida Department of Business and Professional Regulation (DBPR)'
-      : 'California Contractors State License Board (CSLB)',
+    source: getDataSourceFullName(contractor.state as StateCode),
     sourceUrl: contractor.sourceUrl,
   };
 

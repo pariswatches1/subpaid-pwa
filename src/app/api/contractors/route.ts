@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
     filters: {
       licenseTypes: allLicenseTypes,
       cities: allCities,
-      states: ['FL', 'CA'],
+      states: Array.from(new Set(mockDb.contractors.map((c) => c.state))).sort(),
     },
   });
 }
