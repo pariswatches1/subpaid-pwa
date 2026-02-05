@@ -1,7 +1,7 @@
 'use client';
 
-// Custom SVG illustration component for blog posts
-// Each blog gets a unique, on-brand illustration — no stock photos needed
+// Rich, detailed SVG illustrations for blog posts
+// Construction-themed with characters, tools, and site elements
 
 interface BlogImageProps {
   slug: string;
@@ -9,769 +9,843 @@ interface BlogImageProps {
   size?: 'card' | 'featured' | 'hero';
 }
 
-// Color palette
-const colors = {
-  navy: '#1a1a2e',
-  green: '#9FE870',
-  blue: '#54A0FF',
-  orange: '#FF9F43',
-  skyLight: '#E8F4F8',
-  skyMid: '#D4EBF2',
-  sky: '#A8D8EA',
-};
-
 export function BlogImage({ slug, className = '', size = 'card' }: BlogImageProps) {
   const h = size === 'hero' ? 320 : size === 'featured' ? 300 : 192;
   const w = size === 'featured' ? 600 : 400;
-
-  const illustration = getIllustration(slug);
+  const config = getConfig(slug);
 
   return (
     <div className={`relative overflow-hidden ${className}`} style={{ minHeight: h }}>
-      <svg
-        viewBox={`0 0 ${w} ${h}`}
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full"
-        preserveAspectRatio="xMidYMid slice"
-      >
-        {/* Background gradient */}
+      <svg viewBox={`0 0 ${w} ${h}`} fill="none" xmlns="http://www.w3.org/2000/svg"
+        className="w-full h-full" preserveAspectRatio="xMidYMid slice">
         <defs>
-          <linearGradient id={`bg-${slug}`} x1="0" y1="0" x2={w} y2={h} gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor={illustration.bgFrom} />
-            <stop offset="100%" stopColor={illustration.bgTo} />
+          <linearGradient id={`sky-${slug}`} x1="0" y1="0" x2="0" y2={h} gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor={config.skyTop} />
+            <stop offset="60%" stopColor={config.skyMid} />
+            <stop offset="100%" stopColor={config.skyBot} />
           </linearGradient>
-          <linearGradient id={`accent-${slug}`} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor={illustration.accentFrom} />
-            <stop offset="100%" stopColor={illustration.accentTo} />
+          <linearGradient id={`ground-${slug}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={config.groundTop} />
+            <stop offset="100%" stopColor={config.groundBot} />
           </linearGradient>
         </defs>
-        <rect width={w} height={h} fill={`url(#bg-${slug})`} />
 
-        {/* Decorative circles */}
-        <circle cx={w * 0.85} cy={h * 0.15} r={h * 0.3} fill="white" opacity="0.06" />
-        <circle cx={w * 0.1} cy={h * 0.9} r={h * 0.2} fill="white" opacity="0.04" />
+        {/* Sky */}
+        <rect width={w} height={h} fill={`url(#sky-${slug})`} />
 
-        {/* Illustration content */}
-        {illustration.render(w, h)}
+        {/* Clouds */}
+        <Cloud x={w * 0.1} y={h * 0.08} s={0.8} />
+        <Cloud x={w * 0.6} y={h * 0.12} s={0.6} />
+        <Cloud x={w * 0.85} y={h * 0.06} s={0.5} />
+
+        {/* Background city/construction skyline */}
+        <Skyline w={w} h={h} color={config.buildingColor} />
+
+        {/* Crane */}
+        <Crane x={w * 0.78} y={h * 0.12} h={h} color={config.craneColor} />
+
+        {/* Ground */}
+        <rect x={0} y={h * 0.72} width={w} height={h * 0.28} fill={`url(#ground-${slug})`} />
+        <rect x={0} y={h * 0.72} width={w} height={4} fill={config.groundLine} opacity="0.4" />
+
+        {/* Construction barriers/cones on ground */}
+        <Cone x={w * 0.08} y={h * 0.72} />
+        <Barrier x={w * 0.88} y={h * 0.72} />
+
+        {/* Main illustration content */}
+        {config.render(w, h)}
+
+        {/* Bottom label banner */}
+        <rect x={w * 0.15} y={h * 0.86} width={w * 0.7} height={h * 0.11} rx={h * 0.055} fill="white" opacity="0.92" />
+        <rect x={w * 0.15} y={h * 0.86} width={w * 0.7} height={h * 0.11} rx={h * 0.055} stroke="#e2e8f0" strokeWidth="1" fill="none" />
+        <text x={w * 0.5} y={h * 0.93} textAnchor="middle" fill="#1a1a2e" fontSize={size === 'featured' ? 14 : 11} fontWeight="600" fontFamily="system-ui, sans-serif">
+          {config.label}
+        </text>
       </svg>
     </div>
   );
 }
 
-interface IllustrationConfig {
-  bgFrom: string;
-  bgTo: string;
-  accentFrom: string;
-  accentTo: string;
+/* ─── Shared sub-components ─── */
+
+function Cloud({ x, y, s }: { x: number; y: number; s: number }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <ellipse cx={0} cy={0} rx={30} ry={12} fill="white" opacity="0.7" />
+      <ellipse cx={-15} cy={3} rx={18} ry={10} fill="white" opacity="0.6" />
+      <ellipse cx={18} cy={4} rx={20} ry={9} fill="white" opacity="0.65" />
+    </g>
+  );
+}
+
+function Skyline({ w, h, color }: { w: number; h: number; color: string }) {
+  return (
+    <g opacity="0.18">
+      <rect x={w * 0.02} y={h * 0.35} width={w * 0.06} height={h * 0.37} fill={color} />
+      <rect x={w * 0.1} y={h * 0.28} width={w * 0.08} height={h * 0.44} fill={color} />
+      <rect x={w * 0.12} y={h * 0.25} width={w * 0.04} height={h * 0.47} fill={color} />
+      <rect x={w * 0.2} y={h * 0.4} width={w * 0.05} height={h * 0.32} fill={color} />
+      <rect x={w * 0.7} y={h * 0.32} width={w * 0.07} height={h * 0.4} fill={color} />
+      <rect x={w * 0.82} y={h * 0.38} width={w * 0.05} height={h * 0.34} fill={color} />
+      <rect x={w * 0.9} y={h * 0.3} width={w * 0.08} height={h * 0.42} fill={color} />
+      {/* Windows */}
+      {[0.31, 0.37, 0.43, 0.49].map((yp, i) => (
+        <g key={i}>
+          <rect x={w * 0.115} y={h * yp} width={3} height={3} fill="white" opacity="0.4" />
+          <rect x={w * 0.135} y={h * yp} width={3} height={3} fill="white" opacity="0.4" />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+function Crane({ x, y, h, color }: { x: number; y: number; h: number; color: string }) {
+  return (
+    <g opacity="0.25">
+      {/* Vertical mast */}
+      <rect x={x} y={y} width={4} height={h * 0.6} fill={color} />
+      {/* Horizontal boom */}
+      <rect x={x - 50} y={y} width={80} height={3} fill={color} />
+      {/* Counter-boom */}
+      <rect x={x} y={y} width={25} height={3} fill={color} />
+      {/* Cable */}
+      <line x1={x - 40} y1={y + 3} x2={x - 40} y2={y + 40} stroke={color} strokeWidth="1" />
+      {/* Hook */}
+      <path d={`M${x - 42},${y + 38} Q${x - 40},${y + 45} ${x - 38},${y + 38}`} stroke={color} strokeWidth="1.5" fill="none" />
+      {/* Diagonal supports */}
+      <line x1={x + 2} y1={y + 3} x2={x - 20} y2={y} stroke={color} strokeWidth="1" />
+      <line x1={x + 2} y1={y + 3} x2={x + 20} y2={y} stroke={color} strokeWidth="1" />
+    </g>
+  );
+}
+
+function Cone({ x, y }: { x: number; y: number }) {
+  return (
+    <g>
+      <polygon points={`${x},${y} ${x - 6},${y} ${x - 3},${y - 16}`} fill="#FF9F43" opacity="0.7" />
+      <rect x={x - 4.5} y={y - 10} width={6} height={3} rx={1} fill="white" opacity="0.6" />
+      <rect x={x - 8} y={y} width={13} height={3} rx={1.5} fill="#FF9F43" opacity="0.5" />
+    </g>
+  );
+}
+
+function Barrier({ x, y }: { x: number; y: number }) {
+  return (
+    <g>
+      <rect x={x} y={y - 12} width={25} height={8} rx={2} fill="#FF9F43" opacity="0.6" />
+      <rect x={x + 2} y={y - 10} width={6} height={4} rx={1} fill="white" opacity="0.5" />
+      <rect x={x + 11} y={y - 10} width={6} height={4} rx={1} fill="white" opacity="0.5" />
+      <rect x={x + 3} y={y - 4} width={2} height={4} fill="#8B7355" opacity="0.5" />
+      <rect x={x + 20} y={y - 4} width={2} height={4} fill="#8B7355" opacity="0.5" />
+    </g>
+  );
+}
+
+function HardHat({ x, y, s = 1, color = '#F59E0B' }: { x: number; y: number; s?: number; color?: string }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <path d="M-12,0 Q-12,-14 0,-16 Q12,-14 12,0" fill={color} />
+      <rect x={-15} y={-1} width={30} height={5} rx={2.5} fill={color} />
+      <path d="M-12,0 Q-12,-14 0,-16 Q12,-14 12,0" fill="white" opacity="0.15" />
+      <rect x={-3} y={-14} width={6} height={3} rx={1.5} fill={color} />
+    </g>
+  );
+}
+
+function Person({ x, y, s = 1, vest = '#F59E0B', shirt = '#3B82F6', hardhat = '#F59E0B', facingRight = true }: {
+  x: number; y: number; s?: number; vest?: string; shirt?: string; hardhat?: string; facingRight?: boolean;
+}) {
+  const dir = facingRight ? 1 : -1;
+  return (
+    <g transform={`translate(${x},${y}) scale(${s * dir},${s})`}>
+      {/* Hard hat */}
+      <HardHat x={0} y={-52} color={hardhat} />
+      {/* Head */}
+      <circle cx={0} cy={-38} r={10} fill="#FBBF78" />
+      <circle cx={3} cy={-40} r={1.5} fill="#1a1a2e" /> {/* Eye */}
+      <path d="M2,-36 Q5,-34 2,-35" stroke="#1a1a2e" strokeWidth="0.8" fill="none" /> {/* Smile */}
+      {/* Body/shirt */}
+      <rect x={-12} y={-28} width={24} height={30} rx={4} fill={shirt} />
+      {/* Safety vest */}
+      <rect x={-12} y={-28} width={10} height={28} rx={2} fill={vest} opacity="0.85" />
+      <rect x={2} y={-28} width={10} height={28} rx={2} fill={vest} opacity="0.85" />
+      {/* Vest stripes */}
+      <rect x={-10} y={-18} width={6} height={2} rx={1} fill="white" opacity="0.7" />
+      <rect x={-10} y={-12} width={6} height={2} rx={1} fill="white" opacity="0.7" />
+      <rect x={4} y={-18} width={6} height={2} rx={1} fill="white" opacity="0.7" />
+      <rect x={4} y={-12} width={6} height={2} rx={1} fill="white" opacity="0.7" />
+      {/* Belt */}
+      <rect x={-12} y={-2} width={24} height={4} rx={1} fill="#8B6F47" />
+      {/* Tool belt pouches */}
+      <rect x={-14} y={-1} width={8} height={8} rx={2} fill="#A0845C" />
+      <rect x={6} y={-1} width={8} height={8} rx={2} fill="#A0845C" />
+      {/* Legs */}
+      <rect x={-10} y={2} width={9} height={22} rx={3} fill="#4B6A8F" />
+      <rect x={1} y={2} width={9} height={22} rx={3} fill="#4B6A8F" />
+      {/* Boots */}
+      <rect x={-11} y={22} width={11} height={6} rx={2} fill="#5C3D1A" />
+      <rect x={0} y={22} width={11} height={6} rx={2} fill="#5C3D1A" />
+    </g>
+  );
+}
+
+function Clipboard({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <rect x={-18} y={-30} width={36} height={48} rx={3} fill="#D4A76A" />
+      <rect x={-15} y={-25} width={30} height={40} rx={2} fill="white" />
+      <rect x={-7} y={-33} width={14} height={6} rx={3} fill="#8B6F47" />
+      {/* Lines */}
+      {[0, 8, 16, 24].map((dy, i) => (
+        <g key={i}>
+          <rect x={-10} y={-18 + dy} width={20} height={2.5} rx={1} fill="#e2e8f0" />
+          {i < 3 && <polyline points={`${-12},${-16 + dy} ${-10},${-14 + dy} ${-7},${-18 + dy}`}
+            stroke="#22C55E" strokeWidth="2" fill="none" strokeLinecap="round" />}
+        </g>
+      ))}
+    </g>
+  );
+}
+
+function Toolbox({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <rect x={-20} y={-10} width={40} height={22} rx={3} fill="#DC2626" />
+      <rect x={-20} y={-10} width={40} height={8} rx={3} fill="#EF4444" />
+      <rect x={-8} y={-13} width={16} height={5} rx={2} fill="#991B1B" />
+      <rect x={-5} y={-14} width={10} height={3} rx={1.5} fill="#7F1D1D" />
+      {/* Latch */}
+      <rect x={-3} y={-4} width={6} height={4} rx={1} fill="#FCD34D" />
+    </g>
+  );
+}
+
+function Document({ x, y, s = 1, accent = '#3B82F6' }: { x: number; y: number; s?: number; accent?: string }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <rect x={-20} y={-28} width={40} height={56} rx={3} fill="white" />
+      <rect x={-20} y={-28} width={40} height={56} rx={3} stroke="#e2e8f0" strokeWidth="1" fill="none" />
+      <rect x={-15} y={-22} width={30} height={5} rx={1} fill={accent} opacity="0.2" />
+      <rect x={-15} y={-22} width={20} height={3} rx={1} fill={accent} opacity="0.6" />
+      {[0, 8, 16, 24, 32].map((dy, i) => (
+        <rect key={i} x={-15} y={-12 + dy} width={30 - i * 3} height={2} rx={1} fill="#CBD5E1" />
+      ))}
+    </g>
+  );
+}
+
+function DollarSign({ x, y, s = 1, color = '#22C55E' }: { x: number; y: number; s?: number; color?: string }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <circle cx={0} cy={0} r={16} fill={color} opacity="0.15" />
+      <text x={0} y={6} textAnchor="middle" fill={color} fontSize="20" fontWeight="bold" fontFamily="system-ui">$</text>
+    </g>
+  );
+}
+
+function MoneyStack({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      {[0, -5, -10].map((dy, i) => (
+        <g key={i}>
+          <rect x={-18} y={dy - 4} width={36} height={10} rx={3} fill={i === 0 ? '#16A34A' : i === 1 ? '#22C55E' : '#4ADE80'} />
+          <text x={0} y={dy + 3} textAnchor="middle" fill="white" fontSize="7" fontWeight="bold" fontFamily="system-ui">$100</text>
+        </g>
+      ))}
+    </g>
+  );
+}
+
+function Calculator({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <rect x={-16} y={-24} width={32} height={48} rx={4} fill="#334155" />
+      <rect x={-12} y={-20} width={24} height={12} rx={2} fill="#86EFAC" />
+      <text x={0} y={-11} textAnchor="middle" fill="#166534" fontSize="9" fontWeight="bold" fontFamily="monospace">15,000</text>
+      {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+        <rect key={i} x={-11 + (i % 3) * 9} y={-4 + Math.floor(i / 3) * 9}
+          width={7} height={6} rx={1.5} fill={i === 8 ? '#F59E0B' : '#64748B'} />
+      ))}
+    </g>
+  );
+}
+
+function Phone({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <rect x={-14} y={-26} width={28} height={52} rx={5} fill="#1E293B" />
+      <rect x={-11} y={-20} width={22} height={38} rx={2} fill="#3B82F6" opacity="0.2" />
+      <rect x={-11} y={-20} width={22} height={10} rx={2} fill="#3B82F6" opacity="0.4" />
+      <circle cx={0} cy={22} r={3} stroke="#64748B" strokeWidth="1" fill="none" />
+      {/* Chart line on screen */}
+      <polyline points="-8,-5 -3,-10 2,-7 7,-14" stroke="#22C55E" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+    </g>
+  );
+}
+
+function Wrench({ x, y, s = 1, rot = -30 }: { x: number; y: number; s?: number; rot?: number }) {
+  return (
+    <g transform={`translate(${x},${y}) rotate(${rot}) scale(${s})`}>
+      <rect x={-2} y={-20} width={4} height={30} rx={2} fill="#94A3B8" />
+      <circle cx={0} cy={-20} r={7} fill="#94A3B8" />
+      <circle cx={0} cy={-20} r={3} fill="#64748B" />
+    </g>
+  );
+}
+
+function Shield({ x, y, s = 1, color = '#3B82F6' }: { x: number; y: number; s?: number; color?: string }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <path d="M0,-22 L18,-14 L18,6 L0,18 L-18,6 L-18,-14 Z" fill={color} opacity="0.2" stroke={color} strokeWidth="2" />
+      <polyline points="-6,0 -2,5 8,-6" stroke={color} strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+  );
+}
+
+function Gavel({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <rect x={-4} y={-25} width={8} height={20} rx={3} fill="#8B6F47" />
+      <rect x={-12} y={-28} width={24} height={8} rx={4} fill="#A0845C" />
+      <ellipse cx={0} cy={2} rx={20} ry={6} fill="#D4A76A" opacity="0.5" />
+    </g>
+  );
+}
+
+function BarChart({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      {[
+        { h: 25, c: '#3B82F6' },
+        { h: 40, c: '#22C55E' },
+        { h: 30, c: '#F59E0B' },
+        { h: 50, c: '#22C55E' },
+        { h: 35, c: '#3B82F6' },
+      ].map((bar, i) => (
+        <rect key={i} x={-25 + i * 12} y={-bar.h} width={10} height={bar.h} rx={2} fill={bar.c} opacity="0.7" />
+      ))}
+      <line x1={-28} y1={0} x2={38} y2={0} stroke="#64748B" strokeWidth="1.5" />
+    </g>
+  );
+}
+
+function ThumbsUp({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <circle cx={0} cy={0} r={14} fill="#22C55E" opacity="0.2" />
+      <path d="M-3,6 L-3,-2 Q-3,-8 3,-10 L4,-10 L4,-2 L6,2 L6,6 Z" fill="#FBBF78" />
+      <rect x={-6} y={2} width={8} height={6} rx={2} fill="#FBBF78" />
+    </g>
+  );
+}
+
+function Clock({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <circle cx={0} cy={0} r={16} fill="white" stroke="#3B82F6" strokeWidth="2" />
+      {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((a, i) => {
+        const r = (a - 90) * Math.PI / 180;
+        return <circle key={i} cx={Math.cos(r) * 12} cy={Math.sin(r) * 12} r={1.2} fill="#64748B" />;
+      })}
+      <line x1={0} y1={0} x2={0} y2={-9} stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" />
+      <line x1={0} y1={0} x2={7} y2={-3} stroke="#3B82F6" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx={0} cy={0} r={2} fill="#1a1a2e" />
+    </g>
+  );
+}
+
+function Target({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <circle cx={0} cy={0} r={22} fill="none" stroke="#EF4444" strokeWidth="3" opacity="0.4" />
+      <circle cx={0} cy={0} r={15} fill="none" stroke="#EF4444" strokeWidth="2.5" opacity="0.5" />
+      <circle cx={0} cy={0} r={8} fill="none" stroke="#EF4444" strokeWidth="2" opacity="0.6" />
+      <circle cx={0} cy={0} r={3} fill="#EF4444" />
+    </g>
+  );
+}
+
+function Scales({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <rect x={-2} y={-20} width={4} height={35} rx={2} fill="#8B6F47" />
+      <line x1={-25} y1={-16} x2={25} y2={-16} stroke="#8B6F47" strokeWidth="3" strokeLinecap="round" />
+      <path d="M-30,-10 Q-25,-4 -20,-10" stroke="#D4A76A" strokeWidth="2" fill="#D4A76A" opacity="0.4" />
+      <line x1={-25} y1={-16} x2={-30} y2={-10} stroke="#8B6F47" strokeWidth="1.5" />
+      <line x1={-25} y1={-16} x2={-20} y2={-10} stroke="#8B6F47" strokeWidth="1.5" />
+      <path d="M20,-13 Q25,-7 30,-13" stroke="#D4A76A" strokeWidth="2" fill="#D4A76A" opacity="0.4" />
+      <line x1={25} y1={-16} x2={20} y2={-13} stroke="#8B6F47" strokeWidth="1.5" />
+      <line x1={25} y1={-16} x2={30} y2={-13} stroke="#8B6F47" strokeWidth="1.5" />
+      <rect x={-6} y={15} width={12} height={4} rx={2} fill="#8B6F47" />
+    </g>
+  );
+}
+
+function Blueprints({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <rect x={-20} y={-6} width={40} height={12} rx={6} fill="#3B82F6" opacity="0.5" />
+      <rect x={-18} y={-4} width={8} height={8} rx={1} fill="white" opacity="0.3" />
+      <line x1={-7} y1={-2} x2={16} y2={-2} stroke="white" strokeWidth="1" opacity="0.3" />
+      <line x1={-7} y1={2} x2={12} y2={2} stroke="white" strokeWidth="1" opacity="0.2" />
+    </g>
+  );
+}
+
+function StarBurst({ x, y, s = 1, color = '#F59E0B' }: { x: number; y: number; s?: number; color?: string }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      {[0, 45, 90, 135].map((angle, i) => {
+        const r = (angle * Math.PI) / 180;
+        return (
+          <line key={i} x1={Math.cos(r) * -8} y1={Math.sin(r) * -8}
+            x2={Math.cos(r) * 8} y2={Math.sin(r) * 8}
+            stroke={color} strokeWidth="2" opacity="0.5" strokeLinecap="round" />
+        );
+      })}
+    </g>
+  );
+}
+
+/* ─── Config per slug ─── */
+
+interface IllConfig {
+  skyTop: string; skyMid: string; skyBot: string;
+  groundTop: string; groundBot: string; groundLine: string;
+  buildingColor: string; craneColor: string;
+  label: string;
   render: (w: number, h: number) => React.ReactNode;
 }
 
-function getIllustration(slug: string): IllustrationConfig {
-  const illustrations: Record<string, IllustrationConfig> = {
-    // ── Cash Flow Management Guide ──
+function getConfig(slug: string): IllConfig {
+  const base = {
+    skyTop: '#87CEEB', skyMid: '#B8E0F0', skyBot: '#E0F0F8',
+    groundTop: '#D2B48C', groundBot: '#C4A67D', groundLine: '#A0845C',
+    buildingColor: '#64748B', craneColor: '#F59E0B',
+  };
+
+  const warm = { ...base, skyTop: '#FDE68A', skyMid: '#FEF3C7', skyBot: '#FFFBEB' };
+  const blue = { ...base, skyTop: '#60A5FA', skyMid: '#93C5FD', skyBot: '#DBEAFE' };
+  const green = { ...base, skyTop: '#6EE7B7', skyMid: '#A7F3D0', skyBot: '#D1FAE5', groundTop: '#86EFAC', groundBot: '#6EE7B7' };
+
+  const configs: Record<string, IllConfig> = {
+
     'subcontractor-cash-flow-management-guide': {
-      bgFrom: '#1a1a2e',
-      bgTo: '#2d2d5e',
-      accentFrom: colors.green,
-      accentTo: '#6dd44a',
+      ...base, label: 'Cash Flow Management Guide',
       render: (w, h) => (
         <g>
-          {/* Bar chart */}
-          {[0.2, 0.35, 0.5, 0.65, 0.8].map((x, i) => {
-            const barH = [0.4, 0.6, 0.5, 0.75, 0.65][i];
-            return (
-              <g key={i}>
-                <rect x={w * x - 15} y={h * (1 - barH) - 10} width={30} height={h * barH - 20}
-                  rx={4} fill={i % 2 === 0 ? colors.green : colors.blue} opacity={0.85} />
-              </g>
-            );
-          })}
-          {/* Trend line */}
-          <polyline
-            points={`${w * 0.2},${h * 0.5} ${w * 0.35},${h * 0.35} ${w * 0.5},${h * 0.4} ${w * 0.65},${h * 0.22} ${w * 0.8},${h * 0.28}`}
-            stroke={colors.orange} strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"
-          />
-          {/* Dollar signs */}
-          <text x={w * 0.5} y={h * 0.15} textAnchor="middle" fill="white" fontSize="24" fontWeight="bold" opacity="0.2">$ $ $</text>
-          {/* Arrow up */}
-          <polygon points={`${w * 0.88},${h * 0.45} ${w * 0.92},${h * 0.35} ${w * 0.96},${h * 0.45}`} fill={colors.green} opacity="0.6" />
-          <rect x={w * 0.895} y={h * 0.45} width={5} height={20} fill={colors.green} opacity="0.6" rx={2} />
+          <Person x={w * 0.3} y={h * 0.72} s={0.9} />
+          <Clipboard x={w * 0.42} y={h * 0.45} s={0.9} />
+          <BarChart x={w * 0.65} y={h * 0.65} s={1} />
+          <DollarSign x={w * 0.55} y={h * 0.2} s={0.8} />
+          <DollarSign x={w * 0.72} y={h * 0.28} s={0.6} />
+          <MoneyStack x={w * 0.18} y={h * 0.62} s={0.7} />
+          <StarBurst x={w * 0.58} y={h * 0.17} s={0.6} />
         </g>
       ),
     },
 
-    // ── AI Invoicing ──
     'how-ai-is-transforming-invoicing': {
-      bgFrom: '#0f172a',
-      bgTo: '#1e3a5f',
-      accentFrom: colors.blue,
-      accentTo: '#3b82f6',
+      ...blue, label: 'AI-Powered Invoicing',
       render: (w, h) => (
         <g>
-          {/* Brain/AI circle */}
-          <circle cx={w * 0.5} cy={h * 0.45} r={h * 0.25} stroke={colors.blue} strokeWidth="2" fill="none" opacity="0.4" />
-          <circle cx={w * 0.5} cy={h * 0.45} r={h * 0.18} stroke={colors.blue} strokeWidth="1.5" fill="none" opacity="0.25" />
-          {/* Neural connections */}
-          {[0, 60, 120, 180, 240, 300].map((angle, i) => {
-            const rad = (angle * Math.PI) / 180;
-            const cx = w * 0.5 + Math.cos(rad) * h * 0.25;
-            const cy = h * 0.45 + Math.sin(rad) * h * 0.25;
-            return <circle key={i} cx={cx} cy={cy} r={5} fill={colors.blue} opacity="0.7" />;
-          })}
-          {/* Document icon center */}
-          <rect x={w * 0.44} y={h * 0.32} width={w * 0.12} height={h * 0.26} rx={4} fill="white" opacity="0.15" />
-          <rect x={w * 0.46} y={h * 0.37} width={w * 0.08} height={3} rx={1} fill={colors.blue} opacity="0.6" />
-          <rect x={w * 0.46} y={h * 0.42} width={w * 0.06} height={3} rx={1} fill={colors.blue} opacity="0.4" />
-          <rect x={w * 0.46} y={h * 0.47} width={w * 0.07} height={3} rx={1} fill={colors.blue} opacity="0.5" />
-          {/* Sparkle particles */}
-          {[{x: 0.25, y: 0.2}, {x: 0.75, y: 0.25}, {x: 0.8, y: 0.7}, {x: 0.2, y: 0.75}].map((p, i) => (
-            <g key={i}>
-              <line x1={w * p.x - 6} y1={h * p.y} x2={w * p.x + 6} y2={h * p.y} stroke={colors.green} strokeWidth="2" opacity="0.5" />
-              <line x1={w * p.x} y1={h * p.y - 6} x2={w * p.x} y2={h * p.y + 6} stroke={colors.green} strokeWidth="2" opacity="0.5" />
-            </g>
+          <Person x={w * 0.25} y={h * 0.72} s={0.85} shirt="#6366F1" />
+          <Phone x={w * 0.42} y={h * 0.48} s={1.2} />
+          <Document x={w * 0.65} y={h * 0.45} s={0.9} accent="#6366F1" />
+          <StarBurst x={w * 0.5} y={h * 0.2} s={0.8} color="#6366F1" />
+          <StarBurst x={w * 0.72} y={h * 0.18} s={0.5} color="#3B82F6" />
+          {/* AI sparkles */}
+          {[{x: 0.55, y: 0.25}, {x: 0.75, y: 0.3}, {x: 0.35, y: 0.22}].map((p, i) => (
+            <circle key={i} cx={w * p.x} cy={h * p.y} r={3} fill="#6366F1" opacity="0.4" />
           ))}
+          <Toolbox x={w * 0.15} y={h * 0.7} s={0.7} />
         </g>
       ),
     },
 
-    // ── Construction Invoice ──
     'how-to-write-construction-invoice': {
-      bgFrom: '#14532d',
-      bgTo: '#166534',
-      accentFrom: colors.green,
-      accentTo: '#4ade80',
+      ...green, label: 'Write Invoices That Get Paid',
       render: (w, h) => (
         <g>
-          {/* Invoice document */}
-          <rect x={w * 0.3} y={h * 0.1} width={w * 0.4} height={h * 0.75} rx={8} fill="white" opacity="0.15" />
-          <rect x={w * 0.3} y={h * 0.1} width={w * 0.4} height={h * 0.12} rx={8} fill={colors.green} opacity="0.3" />
-          {/* Invoice lines */}
-          {[0.28, 0.35, 0.42, 0.49, 0.56].map((y, i) => (
-            <g key={i}>
-              <rect x={w * 0.35} y={h * y} width={w * (0.15 + i * 0.02)} height={4} rx={2} fill="white" opacity={0.2 + i * 0.05} />
-              <rect x={w * 0.58} y={h * y} width={w * 0.07} height={4} rx={2} fill={colors.green} opacity={0.3 + i * 0.05} />
-            </g>
-          ))}
-          {/* Total line */}
-          <rect x={w * 0.35} y={h * 0.67} width={w * 0.3} height={2} rx={1} fill="white" opacity="0.3" />
-          <rect x={w * 0.52} y={h * 0.71} width={w * 0.13} height={6} rx={3} fill={colors.green} opacity="0.5" />
-          {/* Checkmark */}
-          <circle cx={w * 0.75} cy={h * 0.25} r={20} fill={colors.green} opacity="0.3" />
-          <polyline points={`${w * 0.73},${h * 0.25} ${w * 0.75},${h * 0.28} ${w * 0.78},${h * 0.22}`}
-            stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.7" />
-          {/* Pencil */}
-          <line x1={w * 0.2} y1={h * 0.8} x2={w * 0.28} y2={h * 0.6} stroke={colors.orange} strokeWidth="3" strokeLinecap="round" opacity="0.5" />
-          <circle cx={w * 0.2} cy={h * 0.8} r={3} fill={colors.orange} opacity="0.5" />
+          <Person x={w * 0.65} y={h * 0.72} s={0.9} facingRight={false} />
+          <Document x={w * 0.35} y={h * 0.42} s={1.2} accent="#22C55E" />
+          <ThumbsUp x={w * 0.52} y={h * 0.22} s={1.1} />
+          <DollarSign x={w * 0.2} y={h * 0.25} s={0.7} />
+          <Blueprints x={w * 0.78} y={h * 0.65} s={0.8} />
+          <StarBurst x={w * 0.35} y={h * 0.15} s={0.5} color="#22C55E" />
         </g>
       ),
     },
 
-    // ── GC Red Flags ──
     'general-contractor-payment-problems': {
-      bgFrom: '#7f1d1d',
-      bgTo: '#991b1b',
-      accentFrom: '#ef4444',
-      accentTo: colors.orange,
+      ...warm, label: '7 Red Flags — GC Payment Problems',
       render: (w, h) => (
         <g>
-          {/* Warning triangle */}
-          <polygon points={`${w * 0.5},${h * 0.15} ${w * 0.3},${h * 0.7} ${w * 0.7},${h * 0.7}`}
-            stroke="#fbbf24" strokeWidth="3" fill="none" opacity="0.5" />
-          <text x={w * 0.5} y={h * 0.55} textAnchor="middle" fill="#fbbf24" fontSize="36" fontWeight="bold" opacity="0.7">!</text>
-          {/* Red flags */}
-          {[0.15, 0.85].map((x, i) => (
+          <Person x={w * 0.25} y={h * 0.72} s={0.85} vest="#EF4444" />
+          {/* Warning signs */}
+          {[0.45, 0.58, 0.71].map((xp, i) => (
             <g key={i}>
-              <line x1={w * x} y1={h * 0.3} x2={w * x} y2={h * 0.75} stroke="white" strokeWidth="2" opacity="0.2" />
-              <polygon points={`${w * x},${h * 0.3} ${w * x + 20},${h * 0.37} ${w * x},${h * 0.44}`}
-                fill="#ef4444" opacity="0.6" />
+              <polygon points={`${w * xp},${h * 0.25} ${w * xp - 10},${h * 0.42} ${w * xp + 10},${h * 0.42}`}
+                fill="#FDE68A" stroke="#F59E0B" strokeWidth="1.5" />
+              <text x={w * xp} y={h * 0.38} textAnchor="middle" fill="#DC2626" fontSize="14" fontWeight="bold">!</text>
             </g>
           ))}
-          {/* Number 7 */}
-          <text x={w * 0.5} y={h * 0.92} textAnchor="middle" fill="white" fontSize="18" fontWeight="bold" opacity="0.15">7 RED FLAGS</text>
+          <Document x={w * 0.7} y={h * 0.58} s={0.7} accent="#EF4444" />
+          <Toolbox x={w * 0.15} y={h * 0.68} s={0.7} />
         </g>
       ),
     },
 
-    // ── Payment Terms ──
     'construction-payment-terms-explained': {
-      bgFrom: '#312e81',
-      bgTo: '#3730a3',
-      accentFrom: colors.blue,
-      accentTo: '#818cf8',
+      ...blue, label: 'Payment Terms Explained',
       render: (w, h) => (
         <g>
-          {/* Contract/document */}
-          <rect x={w * 0.25} y={h * 0.08} width={w * 0.5} height={h * 0.8} rx={6} fill="white" opacity="0.1" />
-          {/* Section headers */}
-          {['Net-30', 'Retainage', 'Pay-When-Paid'].map((term, i) => (
-            <g key={i}>
-              <rect x={w * 0.3} y={h * (0.15 + i * 0.25)} width={w * 0.4} height={h * 0.18} rx={4} fill="white" opacity="0.08" />
-              <text x={w * 0.5} y={h * (0.26 + i * 0.25)} textAnchor="middle" fill={i === 0 ? colors.green : i === 1 ? colors.blue : colors.orange}
-                fontSize="14" fontWeight="bold" opacity="0.7">{term}</text>
-            </g>
-          ))}
-          {/* Decorative brackets */}
-          <text x={w * 0.18} y={h * 0.5} fill="white" fontSize="60" opacity="0.08" fontWeight="bold">{'{'}</text>
-          <text x={w * 0.76} y={h * 0.5} fill="white" fontSize="60" opacity="0.08" fontWeight="bold">{'}'}</text>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          <Document x={w * 0.45} y={h * 0.42} s={1.1} accent="#3B82F6" />
+          <Document x={w * 0.62} y={h * 0.46} s={0.9} accent="#F59E0B" />
+          <Scales x={w * 0.78} y={h * 0.52} s={0.7} />
+          <DollarSign x={w * 0.35} y={h * 0.18} s={0.7} />
+          <Clock x={w * 0.7} y={h * 0.22} s={0.7} />
         </g>
       ),
     },
 
-    // ── Best Invoicing Apps ──
     'best-invoicing-apps-subcontractors': {
-      bgFrom: '#1e1b4b',
-      bgTo: '#312e81',
-      accentFrom: colors.orange,
-      accentTo: '#fbbf24',
+      ...base, label: '2026 Invoicing App Comparison',
       render: (w, h) => (
         <g>
-          {/* Phone mockups */}
-          {[0.25, 0.5, 0.75].map((x, i) => (
+          <Phone x={w * 0.25} y={h * 0.45} s={1.1} />
+          <Phone x={w * 0.5} y={h * 0.42} s={1.3} />
+          <Phone x={w * 0.75} y={h * 0.45} s={1.1} />
+          {/* Star ratings */}
+          {[0.25, 0.5, 0.75].map((xp, i) => (
             <g key={i}>
-              <rect x={w * x - 25} y={h * 0.15 + i * 8} width={50} height={h * 0.6} rx={10}
-                stroke="white" strokeWidth="1.5" fill="none" opacity={0.2 + i * 0.1} />
-              <rect x={w * x - 18} y={h * 0.25 + i * 8} width={36} height={4} rx={2}
-                fill={[colors.green, colors.blue, colors.orange][i]} opacity="0.5" />
-              <rect x={w * x - 18} y={h * 0.33 + i * 8} width={28} height={3} rx={1} fill="white" opacity="0.15" />
-              <rect x={w * x - 18} y={h * 0.39 + i * 8} width={32} height={3} rx={1} fill="white" opacity="0.12" />
-              <rect x={w * x - 18} y={h * 0.45 + i * 8} width={24} height={3} rx={1} fill="white" opacity="0.1" />
-              {/* Star rating */}
               {'★★★★★'.split('').map((_, si) => (
-                <text key={si} x={w * x - 18 + si * 8} y={h * 0.58 + i * 8} fill={colors.orange} fontSize="8" opacity="0.6">★</text>
+                <text key={si} x={w * xp - 12 + si * 6} y={h * 0.7}
+                  fill="#F59E0B" fontSize="8" opacity={si < [4, 5, 3][i] ? 0.8 : 0.2}>★</text>
               ))}
             </g>
           ))}
-          {/* VS labels */}
-          <text x={w * 0.375} y={h * 0.5} textAnchor="middle" fill="white" fontSize="12" fontWeight="bold" opacity="0.2">vs</text>
-          <text x={w * 0.625} y={h * 0.5} textAnchor="middle" fill="white" fontSize="12" fontWeight="bold" opacity="0.2">vs</text>
+          <Person x={w * 0.12} y={h * 0.72} s={0.6} />
+          <StarBurst x={w * 0.5} y={h * 0.2} s={0.7} />
         </g>
       ),
     },
 
-    // ── Mechanics Lien ──
     'mechanics-lien-filing-guide': {
-      bgFrom: '#1a1a2e',
-      bgTo: '#2d1a4e',
-      accentFrom: colors.orange,
-      accentTo: '#f59e0b',
+      ...warm, label: 'Mechanics Lien Filing Guide',
       render: (w, h) => (
         <g>
-          {/* Gavel */}
-          <rect x={w * 0.42} y={h * 0.2} width={w * 0.16} height={12} rx={4} fill={colors.orange} opacity="0.6" />
-          <rect x={w * 0.48} y={h * 0.28} width={8} height={h * 0.25} rx={3} fill={colors.orange} opacity="0.4" />
-          {/* Sound block */}
-          <ellipse cx={w * 0.5} cy={h * 0.6} rx={30} ry={10} fill={colors.orange} opacity="0.3" />
-          {/* Document with lien text */}
-          <rect x={w * 0.2} y={h * 0.35} width={w * 0.2} height={h * 0.45} rx={4} fill="white" opacity="0.1" />
-          <rect x={w * 0.23} y={h * 0.4} width={w * 0.14} height={3} rx={1} fill="white" opacity="0.2" />
-          <rect x={w * 0.23} y={h * 0.45} width={w * 0.1} height={3} rx={1} fill="white" opacity="0.15" />
-          <rect x={w * 0.23} y={h * 0.5} width={w * 0.12} height={3} rx={1} fill="white" opacity="0.15" />
-          {/* Shield */}
-          <path d={`M${w * 0.75},${h * 0.3} L${w * 0.75 + 20},${h * 0.38} L${w * 0.75 + 20},${h * 0.55} L${w * 0.75},${h * 0.65} L${w * 0.75 - 20},${h * 0.55} L${w * 0.75 - 20},${h * 0.38} Z`}
-            stroke={colors.blue} strokeWidth="2" fill="none" opacity="0.4" />
-          <text x={w * 0.75} y={h * 0.5} textAnchor="middle" fill={colors.blue} fontSize="14" fontWeight="bold" opacity="0.5">§</text>
+          <Person x={w * 0.22} y={h * 0.72} s={0.85} />
+          <Gavel x={w * 0.5} y={h * 0.4} s={1.2} />
+          <Document x={w * 0.7} y={h * 0.45} s={1} accent="#F59E0B" />
+          <Shield x={w * 0.42} y={h * 0.58} s={0.7} color="#F59E0B" />
+          <Clipboard x={w * 0.82} y={h * 0.6} s={0.6} />
+          <Blueprints x={w * 0.15} y={h * 0.63} s={0.7} />
         </g>
       ),
     },
 
-    // ── 5 Tips Get Paid Faster ──
     '5-tips-to-get-paid-faster': {
-      bgFrom: '#064e3b',
-      bgTo: '#065f46',
-      accentFrom: colors.green,
-      accentTo: '#34d399',
+      ...green, label: '5 Tips to Get Paid Faster',
       render: (w, h) => (
         <g>
-          {/* Speed/lightning bolt */}
-          <polygon points={`${w * 0.52},${h * 0.1} ${w * 0.42},${h * 0.45} ${w * 0.5},${h * 0.45} ${w * 0.46},${h * 0.85} ${w * 0.58},${h * 0.45} ${w * 0.5},${h * 0.45}`}
-            fill={colors.green} opacity="0.3" />
-          {/* Numbered tips */}
+          <Person x={w * 0.5} y={h * 0.72} s={0.95} />
+          <MoneyStack x={w * 0.72} y={h * 0.55} s={0.9} />
+          <DollarSign x={w * 0.25} y={h * 0.25} s={0.9} />
+          <ThumbsUp x={w * 0.72} y={h * 0.25} s={1} />
+          {/* Number badges */}
           {[1, 2, 3, 4, 5].map((n, i) => (
             <g key={i}>
-              <circle cx={w * (0.15 + i * 0.175)} cy={h * 0.85} r={14} fill="white" opacity="0.1" />
-              <text x={w * (0.15 + i * 0.175)} y={h * 0.87} textAnchor="middle" fill={colors.green} fontSize="14" fontWeight="bold" opacity="0.6">{n}</text>
+              <circle cx={w * (0.12 + i * 0.06)} cy={h * 0.45} r={10} fill="#22C55E" opacity="0.7" />
+              <text x={w * (0.12 + i * 0.06)} y={h * 0.47} textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">{n}</text>
             </g>
           ))}
-          {/* Dollar with wings */}
-          <text x={w * 0.5} y={h * 0.35} textAnchor="middle" fill="white" fontSize="32" fontWeight="bold" opacity="0.15">$</text>
-          <line x1={w * 0.38} y1={h * 0.28} x2={w * 0.32} y2={h * 0.22} stroke={colors.green} strokeWidth="2" opacity="0.4" />
-          <line x1={w * 0.62} y1={h * 0.28} x2={w * 0.68} y2={h * 0.22} stroke={colors.green} strokeWidth="2" opacity="0.4" />
+          <Clock x={w * 0.2} y={h * 0.58} s={0.6} />
         </g>
       ),
     },
 
-    // ── Profit Margin ──
     'subcontractor-profit-margin-guide': {
-      bgFrom: '#1a1a2e',
-      bgTo: '#1a2e4a',
-      accentFrom: colors.green,
-      accentTo: colors.blue,
+      ...base, label: 'Profit Margin Guide',
       render: (w, h) => (
         <g>
-          {/* Pie chart */}
-          <circle cx={w * 0.5} cy={h * 0.45} r={h * 0.28} stroke="white" strokeWidth="1" fill="none" opacity="0.1" />
-          <path d={`M${w * 0.5},${h * 0.45} L${w * 0.5},${h * 0.17} A${h * 0.28},${h * 0.28} 0 0,1 ${w * 0.5 + h * 0.24},${h * 0.59} Z`}
-            fill={colors.green} opacity="0.4" />
-          <path d={`M${w * 0.5},${h * 0.45} L${w * 0.5 + h * 0.24},${h * 0.59} A${h * 0.28},${h * 0.28} 0 0,1 ${w * 0.5 - h * 0.1},${h * 0.72} Z`}
-            fill={colors.blue} opacity="0.4" />
-          <path d={`M${w * 0.5},${h * 0.45} L${w * 0.5 - h * 0.1},${h * 0.72} A${h * 0.28},${h * 0.28} 0 0,1 ${w * 0.5},${h * 0.17} Z`}
-            fill={colors.orange} opacity="0.3" />
-          {/* Labels */}
-          <text x={w * 0.62} y={h * 0.3} fill={colors.green} fontSize="11" fontWeight="bold" opacity="0.7">Profit</text>
-          <text x={w * 0.65} y={h * 0.65} fill={colors.blue} fontSize="10" opacity="0.6">Labor</text>
-          <text x={w * 0.25} y={h * 0.6} fill={colors.orange} fontSize="10" opacity="0.5">Materials</text>
-          {/* Percentage */}
-          <text x={w * 0.5} y={h * 0.47} textAnchor="middle" fill="white" fontSize="20" fontWeight="bold" opacity="0.25">15-20%</text>
+          <Person x={w * 0.22} y={h * 0.72} s={0.85} vest="#22C55E" />
+          <Calculator x={w * 0.45} y={h * 0.48} s={1.1} />
+          <BarChart x={w * 0.72} y={h * 0.62} s={0.9} />
+          <DollarSign x={w * 0.6} y={h * 0.2} s={0.8} />
+          <text x={w * 0.7} y={h * 0.22} textAnchor="middle" fill="#22C55E" fontSize="12" fontWeight="bold" fontFamily="system-ui" opacity="0.6">15-20%</text>
+          <Toolbox x={w * 0.12} y={h * 0.68} s={0.6} />
         </g>
       ),
     },
 
-    // ── AIA Billing ──
     'aia-billing-guide-subcontractors': {
-      bgFrom: '#1e3a5f',
-      bgTo: '#1e40af',
-      accentFrom: colors.blue,
-      accentTo: '#60a5fa',
+      ...blue, label: 'AIA Billing — G702 & G703 Guide',
       render: (w, h) => (
         <g>
-          {/* G702 Form */}
-          <rect x={w * 0.15} y={h * 0.08} width={w * 0.35} height={h * 0.8} rx={4} fill="white" opacity="0.1" />
-          <text x={w * 0.325} y={h * 0.18} textAnchor="middle" fill={colors.blue} fontSize="11" fontWeight="bold" opacity="0.6">G702</text>
-          {/* Grid lines */}
-          {[0.25, 0.35, 0.45, 0.55, 0.65].map((y, i) => (
-            <g key={i}>
-              <line x1={w * 0.18} y1={h * y} x2={w * 0.47} y2={h * y} stroke="white" strokeWidth="0.5" opacity="0.15" />
-              <rect x={w * 0.19} y={h * y + 3} width={w * 0.1} height={3} rx={1} fill="white" opacity="0.1" />
-              <rect x={w * 0.35} y={h * y + 3} width={w * 0.08} height={3} rx={1} fill={colors.blue} opacity="0.2" />
-            </g>
-          ))}
-          {/* G703 Form */}
-          <rect x={w * 0.55} y={h * 0.12} width={w * 0.3} height={h * 0.72} rx={4} fill="white" opacity="0.08" />
-          <text x={w * 0.7} y={h * 0.22} textAnchor="middle" fill={colors.blue} fontSize="11" fontWeight="bold" opacity="0.5">G703</text>
-          {[0.3, 0.4, 0.5, 0.6].map((y, i) => (
-            <g key={i}>
-              <line x1={w * 0.58} y1={h * y} x2={w * 0.82} y2={h * y} stroke="white" strokeWidth="0.5" opacity="0.1" />
-              <rect x={w * 0.59} y={h * y + 3} width={w * 0.08} height={3} rx={1} fill="white" opacity="0.08" />
-            </g>
-          ))}
-          {/* Connecting arrow */}
-          <line x1={w * 0.51} y1={h * 0.45} x2={w * 0.54} y2={h * 0.45} stroke={colors.green} strokeWidth="2" opacity="0.4" markerEnd="url(#arrow)" />
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} shirt="#1E40AF" />
+          <Document x={w * 0.42} y={h * 0.42} s={1.1} accent="#1E40AF" />
+          <Document x={w * 0.6} y={h * 0.46} s={0.95} accent="#3B82F6" />
+          <Clipboard x={w * 0.78} y={h * 0.5} s={0.8} />
+          <text x={w * 0.42} y={h * 0.2} textAnchor="middle" fill="#1E40AF" fontSize="11" fontWeight="bold" fontFamily="system-ui" opacity="0.6">G702</text>
+          <text x={w * 0.6} y={h * 0.23} textAnchor="middle" fill="#3B82F6" fontSize="11" fontWeight="bold" fontFamily="system-ui" opacity="0.6">G703</text>
+          <Blueprints x={w * 0.15} y={h * 0.62} />
         </g>
       ),
     },
 
-    // ── Tax Deductions ──
     'construction-business-tax-deductions': {
-      bgFrom: '#14532d',
-      bgTo: '#064e3b',
-      accentFrom: colors.green,
-      accentTo: '#22c55e',
+      ...green, label: '15 Tax Deductions to Know',
       render: (w, h) => (
         <g>
-          {/* Calculator */}
-          <rect x={w * 0.35} y={h * 0.12} width={w * 0.3} height={h * 0.7} rx={8} fill="white" opacity="0.12" />
-          <rect x={w * 0.38} y={h * 0.17} width={w * 0.24} height={h * 0.15} rx={4} fill={colors.green} opacity="0.2" />
-          <text x={w * 0.5} y={h * 0.27} textAnchor="middle" fill="white" fontSize="14" fontWeight="bold" opacity="0.5">$15,000</text>
-          {/* Calculator buttons */}
-          {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <rect key={i} x={w * (0.39 + (i % 3) * 0.08)} y={h * (0.38 + Math.floor(i / 3) * 0.1)}
-              width={w * 0.06} height={h * 0.07} rx={3} fill="white" opacity="0.08" />
-          ))}
-          {/* Floating dollar signs */}
-          {[{x: 0.18, y: 0.3, s: 20}, {x: 0.78, y: 0.4, s: 16}, {x: 0.22, y: 0.7, s: 14}, {x: 0.82, y: 0.65, s: 18}].map((d, i) => (
-            <text key={i} x={w * d.x} y={h * d.y} textAnchor="middle" fill={colors.green} fontSize={d.s} fontWeight="bold" opacity="0.25">$</text>
-          ))}
-          {/* 15 badge */}
-          <circle cx={w * 0.78} cy={h * 0.2} r={18} fill={colors.orange} opacity="0.4" />
-          <text x={w * 0.78} y={h * 0.22} textAnchor="middle" fill="white" fontSize="13" fontWeight="bold" opacity="0.8">15</text>
+          <Person x={w * 0.7} y={h * 0.72} s={0.85} facingRight={false} vest="#22C55E" />
+          <Calculator x={w * 0.3} y={h * 0.48} s={1.2} />
+          <DollarSign x={w * 0.5} y={h * 0.22} s={1} />
+          <DollarSign x={w * 0.2} y={h * 0.28} s={0.6} />
+          <MoneyStack x={w * 0.5} y={h * 0.62} s={0.8} />
+          <circle cx={w * 0.82} cy={h * 0.25} r={14} fill="#F59E0B" opacity="0.5" />
+          <text x={w * 0.82} y={h * 0.27} textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">15</text>
         </g>
       ),
     },
 
-    // ── Bidding ──
     'how-to-bid-construction-jobs': {
-      bgFrom: '#1a1a2e',
-      bgTo: '#2d2d5e',
-      accentFrom: colors.blue,
-      accentTo: colors.green,
+      ...base, label: 'Win Construction Bids',
       render: (w, h) => (
         <g>
-          {/* Target/bullseye */}
-          <circle cx={w * 0.5} cy={h * 0.45} r={h * 0.32} stroke={colors.blue} strokeWidth="2" fill="none" opacity="0.2" />
-          <circle cx={w * 0.5} cy={h * 0.45} r={h * 0.22} stroke={colors.blue} strokeWidth="2" fill="none" opacity="0.3" />
-          <circle cx={w * 0.5} cy={h * 0.45} r={h * 0.12} stroke={colors.green} strokeWidth="2" fill="none" opacity="0.4" />
-          <circle cx={w * 0.5} cy={h * 0.45} r={h * 0.04} fill={colors.green} opacity="0.6" />
-          {/* Arrow hitting center */}
-          <line x1={w * 0.22} y1={h * 0.18} x2={w * 0.48} y2={h * 0.43} stroke={colors.orange} strokeWidth="2.5" opacity="0.5" />
-          <polygon points={`${w * 0.48},${h * 0.43} ${w * 0.44},${h * 0.38} ${w * 0.42},${h * 0.44}`}
-            fill={colors.orange} opacity="0.6" />
-          {/* WIN text */}
-          <text x={w * 0.5} y={h * 0.9} textAnchor="middle" fill="white" fontSize="16" fontWeight="bold" opacity="0.1">WIN THE BID</text>
+          <Person x={w * 0.25} y={h * 0.72} s={0.9} />
+          <Target x={w * 0.6} y={h * 0.4} s={1.2} />
+          <Document x={w * 0.8} y={h * 0.5} s={0.8} accent="#EF4444" />
+          <ThumbsUp x={w * 0.5} y={h * 0.18} s={0.9} />
+          <Blueprints x={w * 0.4} y={h * 0.65} />
+          <Wrench x={w * 0.15} y={h * 0.55} s={0.7} />
         </g>
       ),
     },
 
-    // ── Payment Disputes ──
     'construction-payment-disputes-resolution': {
-      bgFrom: '#3b0764',
-      bgTo: '#581c87',
-      accentFrom: '#a855f7',
-      accentTo: '#c084fc',
+      ...warm, label: 'Resolve Payment Disputes',
       render: (w, h) => (
         <g>
-          {/* Handshake abstraction */}
-          <path d={`M${w * 0.25},${h * 0.5} Q${w * 0.35},${h * 0.35} ${w * 0.45},${h * 0.45} Q${w * 0.55},${h * 0.55} ${w * 0.5},${h * 0.45}`}
-            stroke={colors.blue} strokeWidth="3" fill="none" opacity="0.4" strokeLinecap="round" />
-          <path d={`M${w * 0.75},${h * 0.5} Q${w * 0.65},${h * 0.35} ${w * 0.55},${h * 0.45} Q${w * 0.5},${h * 0.5} ${w * 0.5},${h * 0.45}`}
-            stroke={colors.green} strokeWidth="3" fill="none" opacity="0.4" strokeLinecap="round" />
-          {/* Balance scale */}
-          <line x1={w * 0.5} y1={h * 0.15} x2={w * 0.5} y2={h * 0.3} stroke="white" strokeWidth="2" opacity="0.2" />
-          <line x1={w * 0.35} y1={h * 0.2} x2={w * 0.65} y2={h * 0.2} stroke="white" strokeWidth="2" opacity="0.2" />
-          <path d={`M${w * 0.3},${h * 0.25} Q${w * 0.35},${h * 0.3} ${w * 0.4},${h * 0.25}`} stroke="white" strokeWidth="1.5" fill="none" opacity="0.15" />
-          <path d={`M${w * 0.6},${h * 0.25} Q${w * 0.65},${h * 0.3} ${w * 0.7},${h * 0.25}`} stroke="white" strokeWidth="1.5" fill="none" opacity="0.15" />
-          {/* Bridge metaphor - arch */}
-          <path d={`M${w * 0.2},${h * 0.75} Q${w * 0.5},${h * 0.55} ${w * 0.8},${h * 0.75}`}
-            stroke="white" strokeWidth="2" fill="none" opacity="0.1" strokeDasharray="4 4" />
+          <Person x={w * 0.22} y={h * 0.72} s={0.8} />
+          <Person x={w * 0.78} y={h * 0.72} s={0.8} facingRight={false} shirt="#DC2626" />
+          <Scales x={w * 0.5} y={h * 0.42} s={1} />
+          <Document x={w * 0.38} y={h * 0.58} s={0.6} accent="#F59E0B" />
+          <Document x={w * 0.62} y={h * 0.58} s={0.6} accent="#3B82F6" />
+          <ThumbsUp x={w * 0.5} y={h * 0.18} s={0.8} />
         </g>
       ),
     },
 
-    // ── Lien Rights ──
     'understanding-lien-rights': {
-      bgFrom: '#1a1a2e',
-      bgTo: '#1e3a5f',
-      accentFrom: colors.blue,
-      accentTo: colors.orange,
+      ...blue, label: 'Lien Rights for Subcontractors',
       render: (w, h) => (
         <g>
-          {/* Shield with lock */}
-          <path d={`M${w * 0.5},${h * 0.1} L${w * 0.7},${h * 0.22} L${w * 0.7},${h * 0.55} L${w * 0.5},${h * 0.8} L${w * 0.3},${h * 0.55} L${w * 0.3},${h * 0.22} Z`}
-            stroke={colors.blue} strokeWidth="2.5" fill={colors.blue} opacity="0.12" />
-          {/* Lock */}
-          <rect x={w * 0.44} y={h * 0.4} width={w * 0.12} height={h * 0.18} rx={3} fill="white" opacity="0.15" />
-          <path d={`M${w * 0.46},${h * 0.4} L${w * 0.46},${h * 0.35} Q${w * 0.46},${h * 0.28} ${w * 0.5},${h * 0.28} Q${w * 0.54},${h * 0.28} ${w * 0.54},${h * 0.35} L${w * 0.54},${h * 0.4}`}
-            stroke="white" strokeWidth="2" fill="none" opacity="0.2" />
-          <circle cx={w * 0.5} cy={h * 0.48} r={3} fill="white" opacity="0.3" />
-          {/* Paragraph symbol */}
-          <text x={w * 0.5} y={h * 0.9} textAnchor="middle" fill="white" fontSize="14" opacity="0.1">PROTECTED</text>
+          <Person x={w * 0.25} y={h * 0.72} s={0.85} />
+          <Shield x={w * 0.55} y={h * 0.38} s={1.3} color="#3B82F6" />
+          <Document x={w * 0.78} y={h * 0.48} s={0.8} accent="#3B82F6" />
+          <Gavel x={w * 0.4} y={h * 0.58} s={0.7} />
+          <StarBurst x={w * 0.55} y={h * 0.18} s={0.6} color="#3B82F6" />
         </g>
       ),
     },
 
-    // ── Grow Business ──
     'grow-subcontracting-business': {
-      bgFrom: '#0c4a6e',
-      bgTo: '#075985',
-      accentFrom: colors.green,
-      accentTo: colors.blue,
+      ...green, label: 'Grow from $500K to $2M',
       render: (w, h) => (
         <g>
-          {/* Growth staircase */}
-          {[0, 1, 2, 3, 4].map((i) => (
-            <rect key={i} x={w * (0.15 + i * 0.15)} y={h * (0.7 - i * 0.12)} width={w * 0.12} height={h * (0.2 + i * 0.12)}
-              rx={3} fill={colors.green} opacity={0.15 + i * 0.08} />
-          ))}
-          {/* Dollar amounts */}
-          <text x={w * 0.21} y={h * 0.65} textAnchor="middle" fill="white" fontSize="8" opacity="0.3">$500K</text>
-          <text x={w * 0.81} y={h * 0.2} textAnchor="middle" fill={colors.green} fontSize="10" fontWeight="bold" opacity="0.6">$2M</text>
-          {/* Upward arrow */}
-          <polyline points={`${w * 0.2},${h * 0.7} ${w * 0.5},${h * 0.3} ${w * 0.8},${h * 0.15}`}
-            stroke={colors.green} strokeWidth="2.5" fill="none" opacity="0.4" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="6 4" />
-          <polygon points={`${w * 0.8},${h * 0.15} ${w * 0.78},${h * 0.22} ${w * 0.83},${h * 0.2}`} fill={colors.green} opacity="0.5" />
+          <Person x={w * 0.2} y={h * 0.72} s={0.75} />
+          <Person x={w * 0.35} y={h * 0.72} s={0.85} shirt="#059669" />
+          <Person x={w * 0.5} y={h * 0.72} s={0.95} vest="#22C55E" />
+          <BarChart x={w * 0.75} y={h * 0.6} s={0.9} />
+          <DollarSign x={w * 0.65} y={h * 0.2} s={0.8} />
+          <text x={w * 0.2} y={h * 0.25} textAnchor="middle" fill="#64748B" fontSize="10" fontWeight="bold" fontFamily="system-ui" opacity="0.5">$500K</text>
+          <text x={w * 0.75} y={h * 0.2} textAnchor="middle" fill="#22C55E" fontSize="13" fontWeight="bold" fontFamily="system-ui" opacity="0.6">$2M</text>
         </g>
       ),
     },
 
-    // ── Workers Comp ──
     'workers-comp-insurance-contractors': {
-      bgFrom: '#1a1a2e',
-      bgTo: '#1a2e4a',
-      accentFrom: colors.blue,
-      accentTo: '#38bdf8',
+      ...base, label: 'Workers Comp Insurance Guide',
       render: (w, h) => (
         <g>
-          {/* Hard hat */}
-          <path d={`M${w * 0.35},${h * 0.45} Q${w * 0.35},${h * 0.2} ${w * 0.5},${h * 0.18} Q${w * 0.65},${h * 0.2} ${w * 0.65},${h * 0.45}`}
-            fill={colors.orange} opacity="0.35" />
-          <rect x={w * 0.3} y={h * 0.42} width={w * 0.4} height={8} rx={3} fill={colors.orange} opacity="0.4" />
-          {/* Cross/medical */}
-          <rect x={w * 0.47} y={h * 0.55} width={w * 0.06} height={h * 0.2} rx={2} fill="white" opacity="0.15" />
-          <rect x={w * 0.42} y={h * 0.6} width={w * 0.16} height={h * 0.1} rx={2} fill="white" opacity="0.15" />
-          {/* Insurance shield */}
-          <path d={`M${w * 0.78},${h * 0.25} L${w * 0.88},${h * 0.32} L${w * 0.88},${h * 0.5} L${w * 0.78},${h * 0.6} L${w * 0.68},${h * 0.5} L${w * 0.68},${h * 0.32} Z`}
-            stroke={colors.blue} strokeWidth="1.5" fill="none" opacity="0.3" />
-          <text x={w * 0.78} y={h * 0.44} textAnchor="middle" fill={colors.blue} fontSize="12" opacity="0.5">✓</text>
+          <Person x={w * 0.3} y={h * 0.72} s={0.9} />
+          <Shield x={w * 0.6} y={h * 0.38} s={1.2} color="#3B82F6" />
+          <HardHat x={w * 0.6} y={h * 0.2} s={1.3} />
+          <Document x={w * 0.78} y={h * 0.52} s={0.8} accent="#3B82F6" />
+          <Toolbox x={w * 0.15} y={h * 0.68} s={0.7} />
+          {/* Medical cross */}
+          <rect x={w * 0.57} y={h * 0.35} width={6} height={14} rx={1} fill="white" opacity="0.7" />
+          <rect x={w * 0.53} y={h * 0.39} width={14} height={6} rx={1} fill="white" opacity="0.7" />
         </g>
       ),
     },
 
-    // ── Invoice Factoring ──
     'invoice-factoring-construction': {
-      bgFrom: '#1a1a2e',
-      bgTo: '#2d1a4e',
-      accentFrom: colors.orange,
-      accentTo: colors.green,
+      ...warm, label: 'Invoice Factoring — Is It Worth It?',
       render: (w, h) => (
         <g>
-          {/* Invoice → Money flow */}
-          <rect x={w * 0.12} y={h * 0.25} width={w * 0.22} height={h * 0.45} rx={4} fill="white" opacity="0.1" />
-          <rect x={w * 0.15} y={h * 0.3} width={w * 0.16} height={3} rx={1} fill="white" opacity="0.15" />
-          <rect x={w * 0.15} y={h * 0.36} width={w * 0.12} height={3} rx={1} fill="white" opacity="0.12" />
-          <text x={w * 0.23} y={h * 0.55} textAnchor="middle" fill={colors.orange} fontSize="14" fontWeight="bold" opacity="0.4">$</text>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          <Document x={w * 0.42} y={h * 0.45} s={1} accent="#F59E0B" />
           {/* Arrow */}
-          <line x1={w * 0.38} y1={h * 0.47} x2={w * 0.58} y2={h * 0.47} stroke={colors.green} strokeWidth="3" opacity="0.4" />
-          <polygon points={`${w * 0.58},${h * 0.43} ${w * 0.63},${h * 0.47} ${w * 0.58},${h * 0.51}`} fill={colors.green} opacity="0.4" />
-          {/* Money stack */}
-          {[0, 1, 2].map((i) => (
-            <rect key={i} x={w * 0.65} y={h * (0.35 - i * 0.05)} width={w * 0.2} height={h * 0.22}
-              rx={4} fill={colors.green} opacity={0.1 + i * 0.08} />
-          ))}
-          <text x={w * 0.75} y={h * 0.42} textAnchor="middle" fill="white" fontSize="18" fontWeight="bold" opacity="0.3">$$$</text>
-          {/* Question mark */}
-          <text x={w * 0.5} y={h * 0.2} textAnchor="middle" fill="white" fontSize="22" fontWeight="bold" opacity="0.1">Worth it?</text>
+          <line x1={w * 0.52} y1={h * 0.45} x2={w * 0.62} y2={h * 0.45} stroke="#22C55E" strokeWidth="3" />
+          <polygon points={`${w * 0.62},${h * 0.42} ${w * 0.66},${h * 0.45} ${w * 0.62},${h * 0.48}`} fill="#22C55E" />
+          <MoneyStack x={w * 0.75} y={h * 0.48} s={1} />
+          <DollarSign x={w * 0.6} y={h * 0.2} s={0.7} />
+          <text x={w * 0.5} y={h * 0.22} textAnchor="middle" fill="#64748B" fontSize="10" fontWeight="bold" fontFamily="system-ui" opacity="0.4">Worth it?</text>
         </g>
       ),
     },
 
-    // ── Prequalification ──
     'prequalification-tips-subcontractors': {
-      bgFrom: '#1e3a5f',
-      bgTo: '#1a1a2e',
-      accentFrom: colors.green,
-      accentTo: colors.blue,
+      ...blue, label: 'Get Prequalified Faster',
       render: (w, h) => (
         <g>
-          {/* Clipboard checklist */}
-          <rect x={w * 0.32} y={h * 0.08} width={w * 0.36} height={h * 0.8} rx={6} fill="white" opacity="0.1" />
-          <rect x={w * 0.38} y={h * 0.04} width={w * 0.24} height={h * 0.08} rx={4} fill={colors.blue} opacity="0.3" />
-          {/* Checklist items */}
-          {[0.2, 0.32, 0.44, 0.56, 0.68].map((y, i) => (
-            <g key={i}>
-              <rect x={w * 0.37} y={h * y} width={12} height={12} rx={2} stroke={i < 3 ? colors.green : 'white'} strokeWidth="1.5" fill={i < 3 ? colors.green : 'none'} opacity={i < 3 ? 0.4 : 0.15} />
-              {i < 3 && <polyline points={`${w * 0.375 + 2},${h * y + 6} ${w * 0.375 + 5},${h * y + 9} ${w * 0.375 + 10},${h * y + 3}`}
-                stroke="white" strokeWidth="1.5" fill="none" opacity="0.7" />}
-              <rect x={w * 0.42} y={h * y + 3} width={w * (0.1 + i * 0.02)} height={4} rx={2} fill="white" opacity="0.15" />
-            </g>
-          ))}
-          {/* Approval stamp */}
-          <circle cx={w * 0.77} cy={h * 0.7} r={22} stroke={colors.green} strokeWidth="2.5" fill="none" opacity="0.3" transform={`rotate(-15, ${w * 0.77}, ${h * 0.7})`} />
-          <text x={w * 0.77} y={h * 0.71} textAnchor="middle" fill={colors.green} fontSize="8" fontWeight="bold" opacity="0.4">APPROVED</text>
+          <Person x={w * 0.25} y={h * 0.72} s={0.9} />
+          <Clipboard x={w * 0.5} y={h * 0.42} s={1.2} />
+          {/* Approved stamp */}
+          <g transform={`rotate(-12, ${w * 0.72}, ${h * 0.38})`}>
+            <rect x={w * 0.58} y={h * 0.32} width={w * 0.28} height={h * 0.12} rx={4} stroke="#22C55E" strokeWidth="2.5" fill="none" opacity="0.6" />
+            <text x={w * 0.72} y={h * 0.4} textAnchor="middle" fill="#22C55E" fontSize="11" fontWeight="bold" fontFamily="system-ui" opacity="0.7">APPROVED</text>
+          </g>
+          <Document x={w * 0.78} y={h * 0.58} s={0.7} accent="#22C55E" />
+          <ThumbsUp x={w * 0.4} y={h * 0.2} s={0.8} />
         </g>
       ),
     },
 
-    // ── Reduce Payment Delays ──
     'reduce-construction-payment-delays': {
-      bgFrom: '#1a1a2e',
-      bgTo: '#0c4a6e',
-      accentFrom: colors.blue,
-      accentTo: colors.green,
+      ...base, label: '10 Ways to Reduce Payment Delays',
       render: (w, h) => (
         <g>
-          {/* Clock */}
-          <circle cx={w * 0.5} cy={h * 0.45} r={h * 0.3} stroke={colors.blue} strokeWidth="2" fill="none" opacity="0.25" />
-          <circle cx={w * 0.5} cy={h * 0.45} r={h * 0.28} stroke={colors.blue} strokeWidth="0.5" fill="none" opacity="0.15" />
-          {/* Clock hands */}
-          <line x1={w * 0.5} y1={h * 0.45} x2={w * 0.5} y2={h * 0.25} stroke="white" strokeWidth="2.5" opacity="0.3" strokeLinecap="round" />
-          <line x1={w * 0.5} y1={h * 0.45} x2={w * 0.6} y2={h * 0.4} stroke={colors.green} strokeWidth="2" opacity="0.4" strokeLinecap="round" />
-          <circle cx={w * 0.5} cy={h * 0.45} r={4} fill="white" opacity="0.3" />
-          {/* Hour markers */}
-          {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((angle, i) => {
-            const rad = ((angle - 90) * Math.PI) / 180;
-            const x = w * 0.5 + Math.cos(rad) * h * 0.25;
-            const y = h * 0.45 + Math.sin(rad) * h * 0.25;
-            return <circle key={i} cx={x} cy={y} r={2} fill="white" opacity="0.2" />;
-          })}
-          {/* "10" badge */}
-          <circle cx={w * 0.82} cy={h * 0.18} r={16} fill={colors.green} opacity="0.4" />
-          <text x={w * 0.82} y={h * 0.2} textAnchor="middle" fill="white" fontSize="12" fontWeight="bold" opacity="0.7">10</text>
-          {/* Speed lines */}
-          <line x1={w * 0.15} y1={h * 0.4} x2={w * 0.08} y2={h * 0.4} stroke={colors.green} strokeWidth="2" opacity="0.3" />
-          <line x1={w * 0.15} y1={h * 0.5} x2={w * 0.05} y2={h * 0.5} stroke={colors.green} strokeWidth="2" opacity="0.2" />
+          <Person x={w * 0.25} y={h * 0.72} s={0.85} />
+          <Clock x={w * 0.55} y={h * 0.35} s={1.3} />
+          <DollarSign x={w * 0.75} y={h * 0.3} s={0.8} />
+          <MoneyStack x={w * 0.72} y={h * 0.58} s={0.8} />
+          <circle cx={w * 0.82} cy={h * 0.18} r={12} fill="#22C55E" opacity="0.6" />
+          <text x={w * 0.82} y={h * 0.2} textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">10</text>
+          <Toolbox x={w * 0.12} y={h * 0.68} s={0.6} />
         </g>
       ),
     },
 
-    // ── Time Tracking ──
     'construction-scheduling-tips': {
-      bgFrom: '#1a1a2e',
-      bgTo: '#2d1a4e',
-      accentFrom: colors.orange,
-      accentTo: colors.green,
+      ...warm, label: 'Time Tracking Saves Thousands',
       render: (w, h) => (
         <g>
-          {/* Stopwatch */}
-          <circle cx={w * 0.5} cy={h * 0.48} r={h * 0.28} stroke={colors.orange} strokeWidth="2" fill="none" opacity="0.3" />
-          <rect x={w * 0.48} y={h * 0.14} width={w * 0.04} height={h * 0.06} rx={2} fill={colors.orange} opacity="0.4" />
-          <line x1={w * 0.5} y1={h * 0.48} x2={w * 0.5} y2={h * 0.3} stroke="white" strokeWidth="2" opacity="0.3" strokeLinecap="round" />
-          <line x1={w * 0.5} y1={h * 0.48} x2={w * 0.58} y2={h * 0.52} stroke={colors.orange} strokeWidth="1.5" opacity="0.4" strokeLinecap="round" />
-          {/* Dollar signs around */}
-          {[{x: 0.2, y: 0.3}, {x: 0.8, y: 0.35}, {x: 0.18, y: 0.7}, {x: 0.82, y: 0.68}].map((p, i) => (
-            <text key={i} x={w * p.x} y={h * p.y} textAnchor="middle" fill={colors.green} fontSize="16" fontWeight="bold" opacity="0.25">$</text>
-          ))}
-          {/* Time = Money */}
-          <text x={w * 0.5} y={h * 0.9} textAnchor="middle" fill="white" fontSize="10" fontWeight="bold" opacity="0.1">TIME = MONEY</text>
+          <Person x={w * 0.7} y={h * 0.72} s={0.9} facingRight={false} />
+          <Clock x={w * 0.35} y={h * 0.38} s={1.5} />
+          <DollarSign x={w * 0.55} y={h * 0.25} s={0.7} />
+          <DollarSign x={w * 0.2} y={h * 0.3} s={0.5} />
+          <Phone x={w * 0.82} y={h * 0.48} s={0.8} />
+          <Wrench x={w * 0.15} y={h * 0.55} s={0.6} />
         </g>
       ),
     },
 
-    // ── True Cost of Late Payments ──
     'the-true-cost-of-late-payments': {
-      bgFrom: '#7f1d1d',
-      bgTo: '#1a1a2e',
-      accentFrom: '#ef4444',
-      accentTo: colors.orange,
+      ...warm, skyTop: '#FCA5A5', skyMid: '#FECACA', skyBot: '#FEE2E2', label: 'The True Cost of Late Payments',
       render: (w, h) => (
         <g>
-          {/* Declining bar chart */}
-          {[0.2, 0.35, 0.5, 0.65, 0.8].map((x, i) => {
-            const barH = [0.65, 0.55, 0.42, 0.3, 0.2][i];
-            return (
-              <rect key={i} x={w * x - 15} y={h * (0.85 - barH)} width={30} height={h * barH}
-                rx={3} fill={i < 2 ? colors.green : i < 4 ? colors.orange : '#ef4444'} opacity={0.3 + i * 0.05} />
-            );
+          <Person x={w * 0.25} y={h * 0.72} s={0.85} vest="#EF4444" />
+          {/* Declining chart */}
+          {[0.35, 0.48, 0.61, 0.74].map((xp, i) => {
+            const bh = [45, 35, 22, 12][i];
+            return <rect key={i} x={w * xp} y={h * 0.68 - bh} width={w * 0.1} height={bh}
+              rx={3} fill={['#22C55E', '#F59E0B', '#F97316', '#EF4444'][i]} opacity="0.6" />;
           })}
-          {/* Downward trend arrow */}
-          <polyline points={`${w * 0.2},${h * 0.2} ${w * 0.5},${h * 0.4} ${w * 0.8},${h * 0.65}`}
-            stroke="#ef4444" strokeWidth="2.5" fill="none" opacity="0.4" strokeLinecap="round" />
-          <polygon points={`${w * 0.8},${h * 0.65} ${w * 0.78},${h * 0.58} ${w * 0.83},${h * 0.6}`} fill="#ef4444" opacity="0.5" />
-          {/* "LATE" stamp */}
-          <rect x={w * 0.35} y={h * 0.08} width={w * 0.3} height={h * 0.12} rx={3} stroke="#ef4444" strokeWidth="2" fill="none" opacity="0.3" transform={`rotate(-5, ${w * 0.5}, ${h * 0.14})`} />
-          <text x={w * 0.5} y={h * 0.16} textAnchor="middle" fill="#ef4444" fontSize="14" fontWeight="bold" opacity="0.4" transform={`rotate(-5, ${w * 0.5}, ${h * 0.14})`}>LATE</text>
+          {/* LATE stamp */}
+          <g transform={`rotate(-8, ${w * 0.6}, ${h * 0.3})`}>
+            <rect x={w * 0.45} y={h * 0.24} width={w * 0.3} height={h * 0.12} rx={3} stroke="#EF4444" strokeWidth="2.5" fill="none" opacity="0.5" />
+            <text x={w * 0.6} y={h * 0.32} textAnchor="middle" fill="#EF4444" fontSize="14" fontWeight="bold" fontFamily="system-ui" opacity="0.6">LATE</text>
+          </g>
+          <DollarSign x={w * 0.18} y={h * 0.3} s={0.7} color="#EF4444" />
         </g>
       ),
     },
 
-    // ── Subcontractor vs Employee ──
     'subcontractor-vs-employee': {
-      bgFrom: '#1a1a2e',
-      bgTo: '#312e81',
-      accentFrom: colors.blue,
-      accentTo: colors.orange,
+      ...base, label: 'Subcontractor vs. Employee',
       render: (w, h) => (
         <g>
-          {/* VS divider */}
-          <line x1={w * 0.5} y1={h * 0.1} x2={w * 0.5} y2={h * 0.9} stroke="white" strokeWidth="1" opacity="0.1" strokeDasharray="4 4" />
-          <circle cx={w * 0.5} cy={h * 0.5} r={18} fill="white" opacity="0.1" />
-          <text x={w * 0.5} y={h * 0.52} textAnchor="middle" fill="white" fontSize="12" fontWeight="bold" opacity="0.4">VS</text>
-          {/* Left: Subcontractor (tools) */}
-          <circle cx={w * 0.25} cy={h * 0.35} r={25} fill={colors.blue} opacity="0.15" />
-          <text x={w * 0.25} y={h * 0.38} textAnchor="middle" fill={colors.blue} fontSize="20" opacity="0.5">🔧</text>
-          <text x={w * 0.25} y={h * 0.55} textAnchor="middle" fill="white" fontSize="9" opacity="0.3">1099</text>
-          {/* Right: Employee (badge) */}
-          <circle cx={w * 0.75} cy={h * 0.35} r={25} fill={colors.orange} opacity="0.15" />
-          <text x={w * 0.75} y={h * 0.38} textAnchor="middle" fill={colors.orange} fontSize="20" opacity="0.5">👤</text>
-          <text x={w * 0.75} y={h * 0.55} textAnchor="middle" fill="white" fontSize="9" opacity="0.3">W-2</text>
-          {/* $100K warning */}
-          <rect x={w * 0.3} y={h * 0.72} width={w * 0.4} height={h * 0.12} rx={4} fill="#ef4444" opacity="0.15" />
-          <text x={w * 0.5} y={h * 0.8} textAnchor="middle" fill="#ef4444" fontSize="12" fontWeight="bold" opacity="0.5">$100K+ Risk</text>
+          <Person x={w * 0.25} y={h * 0.72} s={0.85} />
+          <Person x={w * 0.75} y={h * 0.72} s={0.85} facingRight={false} vest="#3B82F6" shirt="#64748B" />
+          {/* VS circle */}
+          <circle cx={w * 0.5} cy={h * 0.5} r={16} fill="#1a1a2e" opacity="0.8" />
+          <text x={w * 0.5} y={h * 0.52} textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" fontFamily="system-ui">VS</text>
+          <text x={w * 0.25} y={h * 0.2} textAnchor="middle" fill="#F59E0B" fontSize="10" fontWeight="bold" fontFamily="system-ui" opacity="0.6">1099</text>
+          <text x={w * 0.75} y={h * 0.2} textAnchor="middle" fill="#3B82F6" fontSize="10" fontWeight="bold" fontFamily="system-ui" opacity="0.6">W-2</text>
+          {/* Warning */}
+          <rect x={w * 0.32} y={h * 0.24} width={w * 0.36} height={h * 0.08} rx={3} fill="#EF4444" opacity="0.15" />
+          <text x={w * 0.5} y={h * 0.3} textAnchor="middle" fill="#EF4444" fontSize="9" fontWeight="bold" fontFamily="system-ui" opacity="0.6">$100K+ Risk</text>
         </g>
       ),
     },
 
-    // ── Safety Program ──
     'construction-safety-program-guide': {
-      bgFrom: '#1a1a2e',
-      bgTo: '#064e3b',
-      accentFrom: colors.green,
-      accentTo: colors.orange,
+      ...green, label: 'Safety Program That Wins Bids',
       render: (w, h) => (
         <g>
-          {/* Hard hat */}
-          <path d={`M${w * 0.35},${h * 0.42} Q${w * 0.35},${h * 0.18} ${w * 0.5},${h * 0.15} Q${w * 0.65},${h * 0.18} ${w * 0.65},${h * 0.42}`}
-            fill={colors.orange} opacity="0.35" />
-          <rect x={w * 0.3} y={h * 0.4} width={w * 0.4} height={8} rx={4} fill={colors.orange} opacity="0.45" />
-          {/* Shield */}
-          <path d={`M${w * 0.5},${h * 0.48} L${w * 0.6},${h * 0.52} L${w * 0.6},${h * 0.68} L${w * 0.5},${h * 0.78} L${w * 0.4},${h * 0.68} L${w * 0.4},${h * 0.52} Z`}
-            fill={colors.green} opacity="0.25" stroke={colors.green} strokeWidth="1.5" />
-          <polyline points={`${w * 0.46},${h * 0.63} ${w * 0.49},${h * 0.67} ${w * 0.55},${h * 0.58}`}
-            stroke="white" strokeWidth="2" fill="none" opacity="0.5" strokeLinecap="round" strokeLinejoin="round" />
-          {/* Stars */}
-          {[{x: 0.2, y: 0.25}, {x: 0.82, y: 0.3}, {x: 0.15, y: 0.7}].map((p, i) => (
-            <text key={i} x={w * p.x} y={h * p.y} textAnchor="middle" fill={colors.green} fontSize="14" opacity="0.3">★</text>
+          <Person x={w * 0.3} y={h * 0.72} s={0.9} vest="#F59E0B" />
+          <Shield x={w * 0.6} y={h * 0.38} s={1.3} color="#22C55E" />
+          <HardHat x={w * 0.6} y={h * 0.15} s={1.5} />
+          <Toolbox x={w * 0.78} y={h * 0.65} s={0.8} />
+          {/* Safety stars */}
+          {[0.15, 0.85].map((xp, i) => (
+            <text key={i} x={w * xp} y={h * 0.3} textAnchor="middle" fill="#F59E0B" fontSize="16" opacity="0.5">★</text>
           ))}
+          <Wrench x={w * 0.15} y={h * 0.55} s={0.6} />
         </g>
       ),
     },
 
-    // ── AI Voice Agents ──
     'ai-voice-agents-construction-collections': {
-      bgFrom: '#0f172a',
-      bgTo: '#1e3a5f',
-      accentFrom: colors.blue,
-      accentTo: colors.green,
+      ...blue, label: 'AI Voice Agents for Collections',
       render: (w, h) => (
         <g>
-          {/* Phone */}
-          <rect x={w * 0.4} y={h * 0.15} width={w * 0.2} height={h * 0.65} rx={12} stroke="white" strokeWidth="1.5" fill="none" opacity="0.2" />
-          <circle cx={w * 0.5} cy={h * 0.72} r={6} stroke="white" strokeWidth="1" fill="none" opacity="0.15" />
+          <Person x={w * 0.22} y={h * 0.72} s={0.85} shirt="#6366F1" />
+          <Phone x={w * 0.5} y={h * 0.4} s={1.5} />
           {/* Sound waves */}
-          {[0.16, 0.22, 0.28].map((r, i) => (
-            <path key={i} d={`M${w * 0.62 + i * 12},${h * 0.35} Q${w * 0.66 + i * 16},${h * 0.45} ${w * 0.62 + i * 12},${h * 0.55}`}
-              stroke={colors.blue} strokeWidth="2" fill="none" opacity={0.4 - i * 0.1} />
+          {[16, 24, 32].map((r, i) => (
+            <path key={i} d={`M${w * 0.57 + i * 8},${h * 0.3} Q${w * 0.6 + i * 10},${h * 0.4} ${w * 0.57 + i * 8},${h * 0.5}`}
+              stroke="#6366F1" strokeWidth="2" fill="none" opacity={0.5 - i * 0.12} />
           ))}
-          {[0.16, 0.22, 0.28].map((r, i) => (
-            <path key={i} d={`M${w * 0.38 - i * 12},${h * 0.35} Q${w * 0.34 - i * 16},${h * 0.45} ${w * 0.38 - i * 12},${h * 0.55}`}
-              stroke={colors.green} strokeWidth="2" fill="none" opacity={0.4 - i * 0.1} />
-          ))}
-          {/* AI sparkle */}
-          <circle cx={w * 0.5} cy={h * 0.45} r={12} fill={colors.blue} opacity="0.2" />
-          <text x={w * 0.5} y={h * 0.48} textAnchor="middle" fill="white" fontSize="10" opacity="0.5">AI</text>
-          {/* Dollar collected */}
-          <text x={w * 0.5} y={h * 0.92} textAnchor="middle" fill={colors.green} fontSize="10" fontWeight="bold" opacity="0.2">$$$ COLLECTED</text>
+          <DollarSign x={w * 0.78} y={h * 0.3} s={0.8} />
+          <MoneyStack x={w * 0.78} y={h * 0.55} s={0.7} />
+          <StarBurst x={w * 0.5} y={h * 0.18} s={0.5} color="#6366F1" />
         </g>
       ),
     },
 
-    // ── Payment Prediction ──
     'payment-prediction-construction': {
-      bgFrom: '#1a1a2e',
-      bgTo: '#0c4a6e',
-      accentFrom: colors.green,
-      accentTo: colors.blue,
+      ...blue, label: 'Payment Prediction Technology',
       render: (w, h) => (
         <g>
-          {/* Crystal ball effect */}
-          <circle cx={w * 0.5} cy={h * 0.42} r={h * 0.28} stroke={colors.blue} strokeWidth="1.5" fill={colors.blue} opacity="0.08" />
-          <circle cx={w * 0.5} cy={h * 0.42} r={h * 0.26} stroke={colors.blue} strokeWidth="0.5" fill="none" opacity="0.2" />
-          {/* Prediction chart inside */}
-          <polyline points={`${w * 0.35},${h * 0.52} ${w * 0.42},${h * 0.45} ${w * 0.48},${h * 0.48} ${w * 0.55},${h * 0.38} ${w * 0.62},${h * 0.42}`}
-            stroke={colors.green} strokeWidth="2" fill="none" opacity="0.5" strokeLinecap="round" />
-          {/* Dotted prediction future */}
-          <polyline points={`${w * 0.62},${h * 0.42} ${w * 0.68},${h * 0.35} ${w * 0.72},${h * 0.3}`}
-            stroke={colors.green} strokeWidth="2" fill="none" opacity="0.3" strokeDasharray="3 3" />
-          {/* 94% accuracy */}
-          <text x={w * 0.5} y={h * 0.35} textAnchor="middle" fill="white" fontSize="18" fontWeight="bold" opacity="0.2">94%</text>
-          {/* Base */}
-          <ellipse cx={w * 0.5} cy={h * 0.72} rx={h * 0.18} ry={h * 0.05} fill="white" opacity="0.08" />
-          {/* Sparkles */}
-          {[{x: 0.3, y: 0.2}, {x: 0.72, y: 0.22}, {x: 0.25, y: 0.65}].map((p, i) => (
-            <g key={i}>
-              <line x1={w * p.x - 4} y1={h * p.y} x2={w * p.x + 4} y2={h * p.y} stroke={colors.green} strokeWidth="1.5" opacity="0.4" />
-              <line x1={w * p.x} y1={h * p.y - 4} x2={w * p.x} y2={h * p.y + 4} stroke={colors.green} strokeWidth="1.5" opacity="0.4" />
-            </g>
-          ))}
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} shirt="#6366F1" />
+          {/* Crystal ball / prediction circle */}
+          <circle cx={w * 0.55} cy={h * 0.4} r={h * 0.2} fill="#3B82F6" opacity="0.15" stroke="#3B82F6" strokeWidth="2" />
+          <polyline points={`${w * 0.42},${h * 0.45} ${w * 0.48},${h * 0.38} ${w * 0.54},${h * 0.42} ${w * 0.6},${h * 0.32} ${w * 0.66},${h * 0.36}`}
+            stroke="#22C55E" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+          <polyline points={`${w * 0.66},${h * 0.36} ${w * 0.72},${h * 0.3}`}
+            stroke="#22C55E" strokeWidth="2" fill="none" strokeDasharray="3 3" opacity="0.5" />
+          <text x={w * 0.55} y={h * 0.3} textAnchor="middle" fill="#3B82F6" fontSize="14" fontWeight="bold" fontFamily="system-ui" opacity="0.4">94%</text>
+          <DollarSign x={w * 0.78} y={h * 0.25} s={0.7} />
+          <StarBurst x={w * 0.4} y={h * 0.2} s={0.5} color="#6366F1" />
         </g>
       ),
     },
   };
 
-  // Fallback illustration for any slug not explicitly mapped
-  return illustrations[slug] || {
-    bgFrom: '#1a1a2e',
-    bgTo: '#2d2d5e',
-    accentFrom: colors.blue,
-    accentTo: colors.green,
+  return configs[slug] || {
+    ...base, label: 'SubPaid Blog',
     render: (w: number, h: number) => (
       <g>
-        <rect x={w * 0.3} y={h * 0.2} width={w * 0.4} height={h * 0.55} rx={6} fill="white" opacity="0.08" />
-        <rect x={w * 0.35} y={h * 0.28} width={w * 0.3} height={4} rx={2} fill={colors.blue} opacity="0.3" />
-        <rect x={w * 0.35} y={h * 0.36} width={w * 0.25} height={3} rx={1} fill="white" opacity="0.15" />
-        <rect x={w * 0.35} y={h * 0.42} width={w * 0.28} height={3} rx={1} fill="white" opacity="0.12" />
-        <rect x={w * 0.35} y={h * 0.48} width={w * 0.2} height={3} rx={1} fill="white" opacity="0.1" />
-        <circle cx={w * 0.5} cy={h * 0.65} r={12} fill={colors.green} opacity="0.2" />
-        <text x={w * 0.5} y={h * 0.67} textAnchor="middle" fill="white" fontSize="10" opacity="0.5">✓</text>
+        <Person x={w * 0.35} y={h * 0.72} s={0.9} />
+        <Clipboard x={w * 0.55} y={h * 0.45} s={1} />
+        <DollarSign x={w * 0.7} y={h * 0.25} s={0.8} />
+        <Toolbox x={w * 0.75} y={h * 0.65} s={0.7} />
+        <StarBurst x={w * 0.5} y={h * 0.2} s={0.6} />
       </g>
     ),
   };
