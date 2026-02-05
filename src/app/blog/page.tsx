@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowRight, Calendar, Clock, User } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import { BlogImage } from '@/components/BlogImage';
 
 export const metadata: Metadata = {
   title: 'Blog - SubPaid',
@@ -317,8 +318,8 @@ export default function BlogPage() {
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
-                <div className="lg:w-1/2 bg-gray-200 min-h-[300px] flex items-center justify-center">
-                  <span className="text-gray-400">Featured Image</span>
+                <div className="lg:w-1/2 min-h-[300px] overflow-hidden">
+                  <BlogImage slug={featuredPost.slug} size="featured" className="w-full h-full" />
                 </div>
               </div>
             </div>
@@ -332,8 +333,8 @@ export default function BlogPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {posts.map((post) => (
                 <article key={post.title} className="group">
-                  <div className="bg-gray-100 rounded-xl h-48 mb-4 flex items-center justify-center">
-                    <span className="text-gray-400">Image</span>
+                  <div className="rounded-xl h-48 mb-4 overflow-hidden">
+                    <BlogImage slug={post.slug} size="card" className="w-full h-full" />
                   </div>
                   <span className="text-sm text-[#54A0FF] font-medium">{post.category}</span>
                   <h3 className="text-xl font-bold text-[#1a1a2e] mt-2 mb-3 group-hover:text-[#54A0FF] transition-colors">

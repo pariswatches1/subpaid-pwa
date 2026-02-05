@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowLeft, Calendar, Clock, User, Share2, BookOpen } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import { BlogImage } from '@/components/BlogImage';
 
 // Blog post database
 const posts: Record<string, {
@@ -1338,6 +1339,15 @@ export default async function BlogPostPage({ params }: Props) {
               <span className="flex items-center gap-2">
                 <Clock className="w-4 h-4" /> {post.readTime}
               </span>
+            </div>
+          </div>
+        </section>
+
+        {/* Hero Image */}
+        <section className="bg-white">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="rounded-2xl overflow-hidden shadow-lg">
+              <BlogImage slug={slug} size="hero" className="w-full" />
             </div>
           </div>
         </section>
