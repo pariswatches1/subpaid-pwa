@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Search, Filter, ChevronDown, MapPin, Building2, ArrowRight, Loader2 } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Search, Filter, ChevronDown, MapPin, Building2, ArrowRight, Loader2, Navigation, X } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { ContractorCard } from '@/components/directory/ContractorCard';
@@ -9,9 +9,15 @@ import { STATES, ALL_STATE_CODES } from '@/lib/states-config';
 import type { Contractor } from '@/lib/db';
 
 const ITEMS_PER_PAGE = 21;
+const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyDGgYcWvy6MSEZ5dtg1d6_ur1bgEGgYDZM';
+
+interface ContractorWithDistance extends Contractor {
+  distance?: string;
+  distanceValue?: number;
+}
 
 interface APIResponse {
-  contractors: Contractor[];
+  contractors: ContractorWithDistance[];
   total: number;
   offset: number;
   limit: number;
@@ -22,8 +28,13 @@ interface APIResponse {
   };
 }
 
+interface PlacePrediction {
+  description: string;
+  place_id: string;
+}
+
 export default function DirectoryPage() {
-  const [contractors, setContractors] = useState<Contractor[]>([]);
+  const [contractors, setContractors] = useState<ContractorWithDistance[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -34,6 +45,18 @@ export default function DirectoryPage() {
   const [availableLicenseTypes, setAvailableLicenseTypes] = useState<string[]>([]);
   const [searchDebounce, setSearchDebounce] = useState('');
 
+  // Near Me / Location state
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationError, setLocationError] = useState('');
+  const [nearMeActive, setNearMeActive] = useState(false);
+
+  // Autocomplete state
+  const [suggestions, setSuggestions] = useState<PlacePrediction[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => setSearchDebounce(search), 300);
@@ -43,7 +66,95 @@ export default function DirectoryPage() {
   // Reset page when filters change
   useEffect(() => {
     setPage(1);
-  }, [searchDebounce, stateFilter, licenseTypeFilter]);
+  }, [searchDebounce, stateFilter, licenseTypeFilter, nearMeActive]);
+
+  // Fetch place autocomplete suggestions
+  useEffect(() => {
+    if (search.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    const fetchSuggestions = async () => {
+      try {
+        const res = await fetch(
+          `/api/places/autocomplete?input=${encodeURIComponent(search)}`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setSuggestions(data.predictions || []);
+        }
+      } catch (err) {
+        console.error('Autocomplete error:', err);
+      }
+    };
+
+    const timer = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(e.target as Node) &&
+        searchInputRef.current &&
+        !searchInputRef.current.contains(e.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Handle "Near Me" click
+  const handleNearMe = () => {
+    if (nearMeActive) {
+      // Turn off Near Me mode
+      setNearMeActive(false);
+      setUserLocation(null);
+      return;
+    }
+
+    setLocationLoading(true);
+    setLocationError('');
+
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation not supported');
+      setLocationLoading(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+        setNearMeActive(true);
+        setLocationLoading(false);
+        setStateFilter('all'); // Show all states when using Near Me
+      },
+      (error) => {
+        setLocationError(
+          error.code === 1
+            ? 'Location access denied'
+            : 'Could not get location'
+        );
+        setLocationLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  // Handle suggestion selection
+  const handleSuggestionSelect = async (suggestion: PlacePrediction) => {
+    setSearch(suggestion.description);
+    setShowSuggestions(false);
+    setSuggestions([]);
+  };
 
   const fetchContractors = useCallback(async () => {
     setLoading(true);
@@ -54,6 +165,13 @@ export default function DirectoryPage() {
       if (licenseTypeFilter) params.set('licenseType', licenseTypeFilter);
       params.set('limit', String(ITEMS_PER_PAGE));
       params.set('offset', String((page - 1) * ITEMS_PER_PAGE));
+
+      // Add location for "Near Me" sorting
+      if (nearMeActive && userLocation) {
+        params.set('lat', String(userLocation.lat));
+        params.set('lng', String(userLocation.lng));
+        params.set('sortBy', 'distance');
+      }
 
       const res = await fetch(`/api/contractors?${params}`);
       const data: APIResponse = await res.json();
@@ -68,7 +186,7 @@ export default function DirectoryPage() {
     } finally {
       setLoading(false);
     }
-  }, [searchDebounce, stateFilter, licenseTypeFilter, page]);
+  }, [searchDebounce, stateFilter, licenseTypeFilter, page, nearMeActive, userLocation]);
 
   useEffect(() => {
     fetchContractors();
@@ -96,14 +214,77 @@ export default function DirectoryPage() {
 
             {/* Search Bar */}
             <div className="max-w-2xl mx-auto relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
               <input
+                ref={searchInputRef}
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => setShowSuggestions(true)}
                 placeholder="Search by name, license number, city..."
                 className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white text-[#1a1a2e] text-lg placeholder:text-gray-400 focus:ring-4 focus:ring-[#9FE870]/30 focus:outline-none shadow-xl"
               />
+
+              {/* Autocomplete Suggestions */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div
+                  ref={suggestionsRef}
+                  className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50"
+                >
+                  {suggestions.map((suggestion) => (
+                    <button
+                      key={suggestion.place_id}
+                      onClick={() => handleSuggestionSelect(suggestion)}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 text-[#1a1a2e] transition-colors"
+                    >
+                      <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <span className="truncate">{suggestion.description}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Near Me Button */}
+            <div className="mt-6">
+              <button
+                onClick={handleNearMe}
+                disabled={locationLoading}
+                className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all ${
+                  nearMeActive
+                    ? 'bg-[#9FE870] text-[#1a1a2e]'
+                    : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                }`}
+              >
+                {locationLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Getting location...
+                  </>
+                ) : nearMeActive ? (
+                  <>
+                    <Navigation className="w-5 h-5" />
+                    Near Me Active
+                    <X className="w-4 h-4 ml-1" />
+                  </>
+                ) : (
+                  <>
+                    <Navigation className="w-5 h-5" />
+                    Find Near Me
+                  </>
+                )}
+              </button>
+              {locationError && (
+                <p className="text-red-400 text-sm mt-2">{locationError}</p>
+              )}
+              {nearMeActive && (
+                <p className="text-[#9FE870] text-sm mt-2">
+                  Showing contractors sorted by distance from your location
+                </p>
+              )}
             </div>
           </div>
         </section>
@@ -233,7 +414,11 @@ export default function DirectoryPage() {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {contractors.map((contractor) => (
-                  <ContractorCard key={contractor.id} contractor={contractor} />
+                  <ContractorCard
+                    key={contractor.id}
+                    contractor={contractor}
+                    distance={contractor.distance}
+                  />
                 ))}
               </div>
             )}

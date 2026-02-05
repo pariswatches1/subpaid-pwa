@@ -1,8 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { Shield, Star, CheckCircle, Clock, MapPin } from 'lucide-react';
+import { Shield, Star, CheckCircle, Clock, MapPin, Navigation } from 'lucide-react';
 import type { Contractor } from '@/lib/db';
+
+interface ContractorCardProps {
+  contractor: Contractor;
+  distance?: string;
+}
 
 function getPayScoreColor(score: number): string {
   if (score >= 85) return 'bg-[#22C55E]';
@@ -33,7 +38,7 @@ function getStatusBadge(status: string) {
   }
 }
 
-export function ContractorCard({ contractor }: { contractor: Contractor }) {
+export function ContractorCard({ contractor, distance }: ContractorCardProps) {
   const status = getStatusBadge(contractor.licenseStatus);
 
   return (
@@ -49,6 +54,12 @@ export function ContractorCard({ contractor }: { contractor: Contractor }) {
               <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
               <span className="truncate">{contractor.city}, {contractor.state}</span>
             </div>
+            {distance && (
+              <div className="flex items-center gap-1 mt-1 text-sm text-[#54A0FF] font-medium">
+                <Navigation className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{distance}</span>
+              </div>
+            )}
           </div>
           {contractor.payScore != null && (
             <div className={`w-12 h-12 ${getPayScoreColor(contractor.payScore)} rounded-full flex items-center justify-center flex-shrink-0`}>
