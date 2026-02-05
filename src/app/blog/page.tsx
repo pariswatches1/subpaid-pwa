@@ -13,16 +13,70 @@ export const metadata: Metadata = {
 };
 
 const featuredPost = {
-  title: 'How AI is Transforming Invoicing for Subcontractors',
-  excerpt: 'Discover how artificial intelligence is revolutionizing the way subcontractors create invoices, collect payments, and manage their cash flow.',
-  date: 'February 1, 2026',
-  readTime: '8 min read',
+  title: 'The Ultimate Cash Flow Management Guide for Subcontractors in 2026',
+  excerpt: 'Master the art of cash flow management with proven strategies that keep your contracting business solvent, profitable, and ready for growth.',
+  date: 'February 4, 2026',
+  readTime: '12 min read',
   author: 'Michael Chen',
-  category: 'Industry Trends',
-  image: '/blog/ai-invoicing.jpg',
+  category: 'Finance',
+  slug: 'subcontractor-cash-flow-management-guide',
 };
 
 const posts = [
+  {
+    title: 'How AI is Transforming Invoicing for Subcontractors',
+    excerpt: 'Discover how AI is revolutionizing how subcontractors create invoices, collect payments, and manage cash flow.',
+    date: 'February 1, 2026',
+    readTime: '8 min read',
+    author: 'Michael Chen',
+    category: 'Industry Trends',
+    slug: 'how-ai-is-transforming-invoicing',
+  },
+  {
+    title: 'How to Write a Construction Invoice That Gets Paid Fast',
+    excerpt: 'A step-by-step guide to creating professional construction invoices that minimize disputes and accelerate payment.',
+    date: 'February 3, 2026',
+    readTime: '10 min read',
+    author: 'Emily Thompson',
+    category: 'Best Practices',
+    slug: 'how-to-write-construction-invoice',
+  },
+  {
+    title: '7 Red Flags Your General Contractor Won\'t Pay on Time',
+    excerpt: 'Learn to spot the warning signs of a slow-paying GC before you sign the contract.',
+    date: 'February 2, 2026',
+    readTime: '8 min read',
+    author: 'David Kim',
+    category: 'Best Practices',
+    slug: 'general-contractor-payment-problems',
+  },
+  {
+    title: 'Construction Payment Terms Explained: Net-30, Retainage & More',
+    excerpt: 'Decode the payment language in your construction contracts so you know exactly when you\'ll get paid.',
+    date: 'January 31, 2026',
+    readTime: '11 min read',
+    author: 'David Kim',
+    category: 'Legal',
+    slug: 'construction-payment-terms-explained',
+  },
+  {
+    title: 'Best Invoicing Apps for Subcontractors: 2026 Comparison Guide',
+    excerpt: 'We compare the top invoicing solutions designed for construction subcontractors.',
+    date: 'January 30, 2026',
+    readTime: '14 min read',
+    author: 'Sarah Martinez',
+    category: 'Product',
+    slug: 'best-invoicing-apps-subcontractors',
+  },
+  {
+    title: 'How to File a Mechanics Lien: Step-by-Step Guide for Every State',
+    excerpt: 'A practical walkthrough of the mechanics lien process, including deadlines and common mistakes.',
+    date: 'January 29, 2026',
+    readTime: '15 min read',
+    author: 'David Kim',
+    category: 'Legal',
+    slug: 'mechanics-lien-filing-guide',
+  },
   {
     title: '5 Tips to Get Paid Faster as a Subcontractor',
     excerpt: 'Practical strategies to reduce payment delays and improve your cash flow.',
@@ -30,6 +84,52 @@ const posts = [
     readTime: '5 min read',
     author: 'Emily Thompson',
     category: 'Best Practices',
+    slug: '5-tips-to-get-paid-faster',
+  },
+  {
+    title: 'What Profit Margin Should a Subcontractor Aim For?',
+    excerpt: 'Understand industry benchmarks, calculate your true costs, and learn strategies to protect your margins.',
+    date: 'January 27, 2026',
+    readTime: '9 min read',
+    author: 'Michael Chen',
+    category: 'Finance',
+    slug: 'subcontractor-profit-margin-guide',
+  },
+  {
+    title: 'AIA Billing for Subcontractors: The Complete G702 & G703 Guide',
+    excerpt: 'Master the AIA billing process used on commercial construction projects.',
+    date: 'January 26, 2026',
+    readTime: '13 min read',
+    author: 'Emily Thompson',
+    category: 'Best Practices',
+    slug: 'aia-billing-guide-subcontractors',
+  },
+  {
+    title: '15 Tax Deductions Every Subcontractor Should Know About',
+    excerpt: 'Don\'t leave money on the table. These commonly overlooked deductions can save thousands.',
+    date: 'January 25, 2026',
+    readTime: '10 min read',
+    author: 'Sarah Martinez',
+    category: 'Finance',
+    slug: 'construction-business-tax-deductions',
+  },
+  {
+    title: 'How to Bid on Construction Jobs and Win',
+    excerpt: 'Win more profitable projects with a proven bidding strategy that balances pricing with margins.',
+    date: 'January 24, 2026',
+    readTime: '11 min read',
+    author: 'Michael Chen',
+    category: 'Best Practices',
+    slug: 'how-to-bid-construction-jobs',
+  },
+  {
+    title: 'How to Handle Payment Disputes Without Burning Bridges',
+    excerpt: 'Resolve payment disagreements professionally while protecting your rights.',
+    date: 'January 23, 2026',
+    readTime: '8 min read',
+    author: 'Emily Thompson',
+    category: 'Legal',
+    slug: 'construction-payment-disputes-resolution',
   },
   {
     title: 'Understanding Lien Rights: A Guide for Subcontractors',
@@ -38,6 +138,61 @@ const posts = [
     readTime: '10 min read',
     author: 'David Kim',
     category: 'Legal',
+    slug: 'understanding-lien-rights',
+  },
+  {
+    title: 'How to Grow Your Subcontracting Business from $500K to $2M',
+    excerpt: 'A roadmap for scaling your company from hiring first employees to building systems that run without you.',
+    date: 'January 21, 2026',
+    readTime: '14 min read',
+    author: 'Michael Chen',
+    category: 'Best Practices',
+    slug: 'grow-subcontracting-business',
+  },
+  {
+    title: 'Workers Comp Insurance for Contractors: What You Need to Know',
+    excerpt: 'Navigate workers compensation requirements, reduce premiums, and protect your business.',
+    date: 'January 20, 2026',
+    readTime: '9 min read',
+    author: 'David Kim',
+    category: 'Legal',
+    slug: 'workers-comp-insurance-contractors',
+  },
+  {
+    title: 'Invoice Factoring for Subcontractors: Is It Worth the Fee?',
+    excerpt: 'Understand how construction invoice factoring works and when it makes smart financial sense.',
+    date: 'January 19, 2026',
+    readTime: '8 min read',
+    author: 'Sarah Martinez',
+    category: 'Finance',
+    slug: 'invoice-factoring-construction',
+  },
+  {
+    title: 'How to Get Prequalified Faster: Tips for Winning GC Approval',
+    excerpt: 'Streamline your prequalification process and make a strong first impression on GCs.',
+    date: 'January 18, 2026',
+    readTime: '7 min read',
+    author: 'Emily Thompson',
+    category: 'Best Practices',
+    slug: 'prequalification-tips-subcontractors',
+  },
+  {
+    title: '10 Proven Ways to Reduce Payment Delays in Construction',
+    excerpt: 'Actionable strategies subcontractors are using right now to get paid faster.',
+    date: 'January 17, 2026',
+    readTime: '9 min read',
+    author: 'Michael Chen',
+    category: 'Best Practices',
+    slug: 'reduce-construction-payment-delays',
+  },
+  {
+    title: 'Time Tracking Tips That Save Subcontractors Thousands',
+    excerpt: 'How accurate time tracking impacts your bottom line, from better bids to reduced labor costs.',
+    date: 'January 16, 2026',
+    readTime: '7 min read',
+    author: 'Sarah Martinez',
+    category: 'Best Practices',
+    slug: 'construction-scheduling-tips',
   },
   {
     title: 'The True Cost of Late Payments',
@@ -46,41 +201,53 @@ const posts = [
     readTime: '6 min read',
     author: 'Sarah Martinez',
     category: 'Finance',
+    slug: 'the-true-cost-of-late-payments',
   },
   {
-    title: 'Snap to Invoice: Behind the Technology',
-    excerpt: 'A deep dive into how our AI converts photos to professional invoices.',
-    date: 'January 8, 2026',
-    readTime: '7 min read',
-    author: 'Sarah Martinez',
-    category: 'Product',
+    title: 'Subcontractor vs. Employee: Classification Rules That Could Cost $100K+',
+    excerpt: 'Understand the legal differences between subcontractors and employees before the IRS knocks.',
+    date: 'January 14, 2026',
+    readTime: '10 min read',
+    author: 'David Kim',
+    category: 'Legal',
+    slug: 'subcontractor-vs-employee',
   },
   {
-    title: 'Building Client Relationships That Pay',
-    excerpt: 'How to maintain positive client relationships while ensuring timely payments.',
-    date: 'January 2, 2026',
-    readTime: '5 min read',
+    title: 'Building a Safety Program That Lowers Insurance and Wins Bids',
+    excerpt: 'Create a safety program that protects workers, reduces costs, and makes your company competitive.',
+    date: 'January 13, 2026',
+    readTime: '8 min read',
     author: 'Emily Thompson',
     category: 'Best Practices',
+    slug: 'construction-safety-program-guide',
   },
   {
-    title: '2025 Construction Industry Payment Report',
-    excerpt: 'Key findings from our annual survey of payment trends in the construction industry.',
-    date: 'December 20, 2025',
-    readTime: '12 min read',
+    title: 'AI Voice Agents: The Future of Construction Payment Collections',
+    excerpt: 'How AI-powered voice technology is replacing awkward collection calls and recovering more money.',
+    date: 'January 12, 2026',
+    readTime: '7 min read',
+    author: 'Sarah Martinez',
+    category: 'Industry Trends',
+    slug: 'ai-voice-agents-construction-collections',
+  },
+  {
+    title: 'Payment Prediction: Know When You\'ll Get Paid Before You Invoice',
+    excerpt: 'How machine learning analyzes payment patterns to forecast your cash flow with 94% accuracy.',
+    date: 'January 11, 2026',
+    readTime: '6 min read',
     author: 'Michael Chen',
-    category: 'Research',
+    category: 'Industry Trends',
+    slug: 'payment-prediction-construction',
   },
 ];
 
 const categories = [
   'All',
   'Best Practices',
-  'Industry Trends',
-  'Product',
   'Finance',
   'Legal',
-  'Research',
+  'Industry Trends',
+  'Product',
 ];
 
 export default function BlogPage() {
@@ -143,7 +310,7 @@ export default function BlogPage() {
                     </span>
                   </div>
                   <Link
-                    href="#"
+                    href={`/blog/${featuredPost.slug}`}
                     className="inline-flex items-center gap-2 text-[#54A0FF] font-semibold hover:gap-3 transition-all"
                   >
                     Read Article
@@ -170,7 +337,7 @@ export default function BlogPage() {
                   </div>
                   <span className="text-sm text-[#54A0FF] font-medium">{post.category}</span>
                   <h3 className="text-xl font-bold text-[#1a1a2e] mt-2 mb-3 group-hover:text-[#54A0FF] transition-colors">
-                    <Link href="#">{post.title}</Link>
+                    <Link href={`/blog/${post.slug}`}>{post.title}</Link>
                   </h3>
                   <p className="text-gray-600 text-sm mb-4">{post.excerpt}</p>
                   <div className="flex items-center justify-between text-sm text-gray-500">
