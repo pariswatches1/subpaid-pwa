@@ -40,5 +40,8 @@ next-env.d.ts
 *.swp
 *.swo
 
+# Scraper output (raw data files)
+scripts/output/
+
 # Claude
 .claude/

@@ -116,6 +116,13 @@ export function Navbar() {
             </div>
 
             <Link
+              href="/directory"
+              className="px-4 py-2 text-gray-600 hover:text-[#1a1a2e] font-medium transition-colors"
+            >
+              Directory
+            </Link>
+
+            <Link
               href="/pricing"
               className="px-4 py-2 text-gray-600 hover:text-[#1a1a2e] font-medium transition-colors"
             >
@@ -216,6 +223,14 @@ export function Navbar() {
               ))}
 
               <div className="border-t border-gray-100 my-2" />
+
+              <Link
+                href="/directory"
+                className="block px-4 py-3 text-gray-600 hover:bg-gray-50 font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                🔍 Contractor Directory
+              </Link>
 
               <Link
                 href="/pricing"

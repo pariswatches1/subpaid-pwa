@@ -1,6 +1,8 @@
 // Mock database for development
 // In production, replace with Prisma client
 
+// Contractor data is loaded lazily below after mockDb is created
+
 export interface User {
   id: string;
   email: string;
@@ -142,6 +144,48 @@ export interface GCRating {
   avgPaymentDays?: number;
   userId: string;
   createdAt: string;
+}
+
+export interface Contractor {
+  id: string;
+  licenseNumber: string;
+  licenseType: string;
+  licenseStatus: 'active' | 'inactive' | 'suspended' | 'expired';
+  classifications: string[];
+  businessName: string;
+  ownerName?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  address: string;
+  city: string;
+  state: 'FL' | 'CA';
+  zipCode: string;
+  county?: string;
+  issueDate: string;
+  expirationDate: string;
+  lastUpdated: string;
+  payScore?: number;
+  reviewCount?: number;
+  avgPaymentDays?: number;
+  claimed: boolean;
+  claimedByUserId?: string;
+  dataSource: 'FL_DBPR' | 'CA_CSLB';
+  sourceUrl?: string;
+  verified: boolean;
+  verifiedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ContractorClaim {
+  id: string;
+  contractorId: string;
+  userId: string;
+  status: 'pending' | 'approved' | 'rejected';
+  verificationMethod: 'email' | 'phone' | 'document';
+  submittedAt: string;
+  reviewedAt?: string;
 }
 
 export interface SAMAgentCall {
@@ -313,6 +357,8 @@ export const mockDb = {
       createdAt: new Date().toISOString()
     }
   ] as GCRating[],
+  contractors: [] as Contractor[],
+  contractorClaims: [] as ContractorClaim[],
   samAgentCalls: [] as SAMAgentCall[],
   prequalDocuments: [
     {
@@ -342,6 +388,17 @@ export const mockDb = {
   ] as PrequalDocument[],
   profitGuardBids: [] as ProfitGuardBid[],
 };
+
+// Load contractor data from pre-populated dataset
+try {
+  const { contractorsData } = require('./contractors-data');
+  if (Array.isArray(contractorsData)) {
+    mockDb.contractors = contractorsData;
+  }
+} catch {
+  // contractors-data.ts not yet generated — will be empty until scrapers run
+  console.log('Note: contractors-data.ts not found. Run npm run build:contractors to populate.');
+}
 
 // Helper to get mock user (in production, use JWT verification)
 export function getMockUserId(): string {

@@ -12,6 +12,7 @@ const footerLinks = {
       { name: 'SAM Voice Agent', href: '/features/voice-agent' },
       { name: 'Payment Prophet', href: '/features/payment-prophet' },
       { name: 'Pricing', href: '/pricing' },
+      { name: 'Contractor Directory', href: '/directory' },
       { name: 'Integrations', href: '/integrations' },
     ]
   },

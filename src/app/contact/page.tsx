@@ -220,6 +220,30 @@ export default function ContactPage() {
           </div>
         </section>
 
+        {/* Location Map */}
+        <section className="py-12 bg-white">
+          <div className="max-w-4xl mx-auto px-4">
+            <h2 className="text-2xl font-bold text-[#1a1a2e] mb-6 text-center">
+              Find Us
+            </h2>
+            <div className="rounded-2xl overflow-hidden shadow-lg">
+              <iframe
+                width="100%"
+                height={400}
+                style={{ border: 0 }}
+                loading="lazy"
+                allowFullScreen
+                referrerPolicy="no-referrer-when-downgrade"
+                src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}&q=San+Francisco+Financial+District&zoom=14`}
+                className="w-full"
+              />
+            </div>
+            <p className="text-center text-gray-500 text-sm mt-3">
+              San Francisco, CA — Serving contractors nationwide
+            </p>
+          </div>
+        </section>
+
         {/* FAQ Link */}
         <section className="py-16 bg-[#1a1a2e]">
           <div className="max-w-4xl mx-auto px-4 text-center">

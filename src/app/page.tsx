@@ -288,6 +288,50 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Contractor Directory CTA */}
+      <section className="py-20 bg-gradient-to-br from-[#F7FBF4] to-[#EEF6FF]">
+        <div className="max-w-6xl mx-auto px-4 text-center">
+          <div className="inline-flex items-center gap-2 bg-[#9FE870]/20 text-[#1a1a2e] px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+            🇺🇸 National Contractor Directory
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold text-[#1a1a2e] mb-4">
+            Know Who You&apos;re Working With
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+            Search licensed contractors across Florida and California. Check PayScores, verify licenses, and read reviews before signing any contract.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="/directory"
+              className="inline-flex items-center justify-center gap-2 bg-[#1a1a2e] text-white px-8 py-4 rounded-full font-bold hover:shadow-xl transition-all text-lg"
+            >
+              Browse Directory
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            </a>
+            <a
+              href="/directory"
+              className="inline-flex items-center justify-center gap-2 bg-white text-[#1a1a2e] px-8 py-4 rounded-full font-bold border-2 border-[#1a1a2e]/10 hover:border-[#9FE870] transition-all text-lg"
+            >
+              Claim Your Business
+            </a>
+          </div>
+          <div className="flex items-center justify-center gap-8 mt-8 text-sm text-gray-500">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 bg-[#22C55E] rounded-full"></span>
+              200+ Licensed Contractors
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 bg-[#54A0FF] rounded-full"></span>
+              2 States & Growing
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 bg-[#FF9F43] rounded-full"></span>
+              PayScore™ Ratings
+            </span>
+          </div>
+        </div>
+      </section>
+
       {/* Testimonials */}
       <Testimonials />
 
