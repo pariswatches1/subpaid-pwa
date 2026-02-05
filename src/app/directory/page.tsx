@@ -91,7 +91,7 @@ export default function DirectoryPage() {
               Find Licensed Contractors
             </h1>
             <p className="text-lg text-white/70 max-w-2xl mx-auto mb-8">
-              Search verified contractors across all 10 states. View PayScores, license details, and reviews.
+              Search verified contractors across all 50 states. View PayScores, license details, and reviews.
             </p>
 
             {/* Search Bar */}

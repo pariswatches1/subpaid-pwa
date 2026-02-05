@@ -298,7 +298,7 @@ export default function LandingPage() {
             Know Who You&apos;re Working With
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-            Search licensed contractors across all 10 states. Check PayScores, verify licenses, and read reviews before signing any contract.
+            Search licensed contractors across all 50 states. Check PayScores, verify licenses, and read reviews before signing any contract.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -318,11 +318,11 @@ export default function LandingPage() {
           <div className="flex items-center justify-center gap-8 mt-8 text-sm text-gray-500">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 bg-[#22C55E] rounded-full"></span>
-              1,000+ Licensed Contractors
+              5,000+ Licensed Contractors
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 bg-[#54A0FF] rounded-full"></span>
-              10 States & Growing
+              50 States & Growing
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 bg-[#FF9F43] rounded-full"></span>
