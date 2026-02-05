@@ -1,36 +1,111 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { BarChart3, TrendingUp, Users, DollarSign, FileText, ArrowUpRight, ArrowDownRight, Calendar } from 'lucide-react';
 
-// Sample data for charts
-const userGrowthData = [
-  { month: 'Aug', value: 1200 },
-  { month: 'Sep', value: 1450 },
-  { month: 'Oct', value: 1680 },
-  { month: 'Nov', value: 1890 },
-  { month: 'Dec', value: 2150 },
-  { month: 'Jan', value: 2547 },
+// ============================================
+// Data sets keyed by time range
+// ============================================
+
+const rangeLabels: Record<string, string> = {
+  '7d': 'Last 7 days',
+  '30d': 'Last 30 days',
+  '6m': 'Last 6 months',
+  '1y': 'Last year',
+};
+
+const metricsData: Record<string, { users: string; usersChange: string; usersTrend: 'up' | 'down'; mrr: string; mrrChange: string; mrrTrend: 'up' | 'down'; invoicesDay: string; invoicesChange: string; invoicesTrend: 'up' | 'down'; collectionRate: string; collectionChange: string; collectionTrend: 'up' | 'down' }> = {
+  '7d': {
+    users: '2,547', usersChange: '+2.1%', usersTrend: 'up',
+    mrr: '$153K', mrrChange: '+1.8%', mrrTrend: 'up',
+    invoicesDay: '456', invoicesChange: '+22.3%', invoicesTrend: 'up',
+    collectionRate: '94%', collectionChange: '-0.5%', collectionTrend: 'down',
+  },
+  '30d': {
+    users: '2,547', usersChange: '+5.3%', usersTrend: 'up',
+    mrr: '$153K', mrrChange: '+4.1%', mrrTrend: 'up',
+    invoicesDay: '428', invoicesChange: '+18.7%', invoicesTrend: 'up',
+    collectionRate: '94%', collectionChange: '-0.3%', collectionTrend: 'down',
+  },
+  '6m': {
+    users: '2,547', usersChange: '+12.5%', usersTrend: 'up',
+    mrr: '$153K', mrrChange: '+8.2%', mrrTrend: 'up',
+    invoicesDay: '428', invoicesChange: '+18.7%', invoicesTrend: 'up',
+    collectionRate: '94%', collectionChange: '-0.5%', collectionTrend: 'down',
+  },
+  '1y': {
+    users: '2,547', usersChange: '+112%', usersTrend: 'up',
+    mrr: '$153K', mrrChange: '+72%', mrrTrend: 'up',
+    invoicesDay: '428', invoicesChange: '+156%', invoicesTrend: 'up',
+    collectionRate: '94%', collectionChange: '+2.1%', collectionTrend: 'up',
+  },
+};
+
+const userGrowthByRange: Record<string, { label: string; value: number }[]> = {
+  '7d': [
+    { label: 'Mon', value: 2510 }, { label: 'Tue', value: 2518 }, { label: 'Wed', value: 2525 },
+    { label: 'Thu', value: 2530 }, { label: 'Fri', value: 2538 }, { label: 'Sat', value: 2542 }, { label: 'Sun', value: 2547 },
+  ],
+  '30d': [
+    { label: 'W1', value: 2420 }, { label: 'W2', value: 2460 }, { label: 'W3', value: 2500 }, { label: 'W4', value: 2547 },
+  ],
+  '6m': [
+    { label: 'Aug', value: 1200 }, { label: 'Sep', value: 1450 }, { label: 'Oct', value: 1680 },
+    { label: 'Nov', value: 1890 }, { label: 'Dec', value: 2150 }, { label: 'Jan', value: 2547 },
+  ],
+  '1y': [
+    { label: 'Feb', value: 620 }, { label: 'Apr', value: 840 }, { label: 'Jun', value: 1050 },
+    { label: 'Aug', value: 1200 }, { label: 'Oct', value: 1680 }, { label: 'Dec', value: 2150 }, { label: 'Jan', value: 2547 },
+  ],
+};
+
+const revenueByRange: Record<string, { label: string; value: number }[]> = {
+  '7d': [
+    { label: 'Mon', value: 148000 }, { label: 'Tue', value: 149200 }, { label: 'Wed', value: 150100 },
+    { label: 'Thu', value: 150800 }, { label: 'Fri', value: 151500 }, { label: 'Sat', value: 152200 }, { label: 'Sun', value: 153000 },
+  ],
+  '30d': [
+    { label: 'W1', value: 147000 }, { label: 'W2', value: 149000 }, { label: 'W3', value: 151000 }, { label: 'W4', value: 153000 },
+  ],
+  '6m': [
+    { label: 'Aug', value: 89000 }, { label: 'Sep', value: 102000 }, { label: 'Oct', value: 118000 },
+    { label: 'Nov', value: 132000 }, { label: 'Dec', value: 145000 }, { label: 'Jan', value: 153000 },
+  ],
+  '1y': [
+    { label: 'Feb', value: 42000 }, { label: 'Apr', value: 58000 }, { label: 'Jun', value: 72000 },
+    { label: 'Aug', value: 89000 }, { label: 'Oct', value: 118000 }, { label: 'Dec', value: 145000 }, { label: 'Jan', value: 153000 },
+  ],
+};
+
+const dailyInvoicesByRange: Record<string, { label: string; value: number }[]> = {
+  '7d': [
+    { label: 'Mon', value: 380 }, { label: 'Tue', value: 420 }, { label: 'Wed', value: 456 },
+    { label: 'Thu', value: 428 }, { label: 'Fri', value: 512 }, { label: 'Sat', value: 234 }, { label: 'Sun', value: 178 },
+  ],
+  '30d': [
+    { label: 'W1', value: 345 }, { label: 'W2', value: 378 }, { label: 'W3', value: 410 }, { label: 'W4', value: 428 },
+  ],
+  '6m': [
+    { label: 'Aug', value: 280 }, { label: 'Sep', value: 310 }, { label: 'Oct', value: 350 },
+    { label: 'Nov', value: 380 }, { label: 'Dec', value: 410 }, { label: 'Jan', value: 428 },
+  ],
+  '1y': [
+    { label: 'Feb', value: 120 }, { label: 'Apr', value: 180 }, { label: 'Jun', value: 220 },
+    { label: 'Aug', value: 280 }, { label: 'Oct', value: 350 }, { label: 'Dec', value: 410 }, { label: 'Jan', value: 428 },
+  ],
+};
+
+// Plan Distribution — aligned with Subscriptions page (paying users)
+const planDistribution = [
+  { label: 'Starter', value: 847, color: '#9CA3AF' },
+  { label: 'Pro', value: 623, color: '#54A0FF' },
+  { label: 'Autopilot', value: 312, color: '#9FE870' },
+  { label: 'Enterprise', value: 110, color: '#FF9F43' },
 ];
 
-const revenueData = [
-  { month: 'Aug', value: 89000 },
-  { month: 'Sep', value: 102000 },
-  { month: 'Oct', value: 118000 },
-  { month: 'Nov', value: 132000 },
-  { month: 'Dec', value: 145000 },
-  { month: 'Jan', value: 153000 },
-];
-
-const dailyInvoicesData = [
-  { day: 'Mon', value: 380 },
-  { day: 'Tue', value: 420 },
-  { day: 'Wed', value: 456 },
-  { day: 'Thu', value: 428 },
-  { day: 'Fri', value: 512 },
-  { day: 'Sat', value: 234 },
-  { day: 'Sun', value: 178 },
-];
+// ============================================
+// Chart Components
+// ============================================
 
 // Simple Bar Chart Component
 function BarChart({
@@ -184,7 +259,7 @@ function DonutChart({
           <circle cx="0" cy="0" r="0.6" fill="white" />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-xl font-bold text-gray-900">{total}</span>
+          <span className="text-xl font-bold text-gray-900">{total.toLocaleString()}</span>
         </div>
       </div>
       <div className="space-y-2">
@@ -192,7 +267,7 @@ function DonutChart({
           <div key={index} className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
             <span className="text-sm text-gray-600">{item.label}</span>
-            <span className="text-sm font-medium text-gray-900">{item.value}</span>
+            <span className="text-sm font-medium text-gray-900">{item.value.toLocaleString()}</span>
           </div>
         ))}
       </div>
@@ -200,18 +275,20 @@ function DonutChart({
   );
 }
 
+// ============================================
+// Main Page Component
+// ============================================
+
 export default function AdminAnalyticsPage() {
   const [timeRange, setTimeRange] = useState('6m');
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
 
-  const planDistribution = [
-    { label: 'Starter', value: 1245, color: '#9CA3AF' },
-    { label: 'Pro', value: 892, color: '#54A0FF' },
-    { label: 'Autopilot', value: 324, color: '#9FE870' },
-    { label: 'Enterprise', value: 86, color: '#FF9F43' },
-  ];
+  const metrics = metricsData[timeRange];
+  const userGrowthData = userGrowthByRange[timeRange];
+  const revenueData = revenueByRange[timeRange];
+  const dailyInvoicesData = dailyInvoicesByRange[timeRange];
 
   return (
     <div className="space-y-6">
@@ -243,10 +320,10 @@ export default function AdminAnalyticsPage() {
             <Users className="w-5 h-5 text-[#54A0FF]" />
             <span className="text-sm text-gray-500">Total Users</span>
           </div>
-          <p className="text-3xl font-bold text-gray-900">2,547</p>
-          <div className="flex items-center gap-1 mt-1 text-green-600 text-sm">
-            <ArrowUpRight className="w-4 h-4" />
-            +12.5% from last month
+          <p className="text-3xl font-bold text-gray-900">{metrics.users}</p>
+          <div className={`flex items-center gap-1 mt-1 text-sm ${metrics.usersTrend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+            {metrics.usersTrend === 'up' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+            {metrics.usersChange} from {rangeLabels[timeRange].toLowerCase().replace('last ', '')}
           </div>
         </div>
         <div className="bg-white rounded-xl p-5 border border-gray-200">
@@ -254,10 +331,10 @@ export default function AdminAnalyticsPage() {
             <DollarSign className="w-5 h-5 text-[#9FE870]" />
             <span className="text-sm text-gray-500">MRR</span>
           </div>
-          <p className="text-3xl font-bold text-gray-900">$153K</p>
-          <div className="flex items-center gap-1 mt-1 text-green-600 text-sm">
-            <ArrowUpRight className="w-4 h-4" />
-            +8.2% from last month
+          <p className="text-3xl font-bold text-gray-900">{metrics.mrr}</p>
+          <div className={`flex items-center gap-1 mt-1 text-sm ${metrics.mrrTrend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+            {metrics.mrrTrend === 'up' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+            {metrics.mrrChange} from {rangeLabels[timeRange].toLowerCase().replace('last ', '')}
           </div>
         </div>
         <div className="bg-white rounded-xl p-5 border border-gray-200">
@@ -265,10 +342,10 @@ export default function AdminAnalyticsPage() {
             <FileText className="w-5 h-5 text-[#FF9F43]" />
             <span className="text-sm text-gray-500">Invoices/Day</span>
           </div>
-          <p className="text-3xl font-bold text-gray-900">428</p>
-          <div className="flex items-center gap-1 mt-1 text-green-600 text-sm">
-            <ArrowUpRight className="w-4 h-4" />
-            +18.7% from last week
+          <p className="text-3xl font-bold text-gray-900">{metrics.invoicesDay}</p>
+          <div className={`flex items-center gap-1 mt-1 text-sm ${metrics.invoicesTrend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+            {metrics.invoicesTrend === 'up' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+            {metrics.invoicesChange} from {rangeLabels[timeRange].toLowerCase().replace('last ', '')}
           </div>
         </div>
         <div className="bg-white rounded-xl p-5 border border-gray-200">
@@ -276,10 +353,10 @@ export default function AdminAnalyticsPage() {
             <TrendingUp className="w-5 h-5 text-[#FECA57]" />
             <span className="text-sm text-gray-500">Collection Rate</span>
           </div>
-          <p className="text-3xl font-bold text-gray-900">94%</p>
-          <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-            <ArrowDownRight className="w-4 h-4" />
-            -0.5% from last month
+          <p className="text-3xl font-bold text-gray-900">{metrics.collectionRate}</p>
+          <div className={`flex items-center gap-1 mt-1 text-sm ${metrics.collectionTrend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+            {metrics.collectionTrend === 'up' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+            {metrics.collectionChange} from {rangeLabels[timeRange].toLowerCase().replace('last ', '')}
           </div>
         </div>
       </div>
@@ -289,10 +366,10 @@ export default function AdminAnalyticsPage() {
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-semibold text-gray-900">User Growth</h2>
-            <span className="text-sm text-gray-500">Last 6 months</span>
+            <span className="text-sm text-gray-500">{rangeLabels[timeRange]}</span>
           </div>
           <LineChart
-            data={userGrowthData.map(d => ({ label: d.month, value: d.value }))}
+            data={userGrowthData}
             color="#54A0FF"
             formatValue={(v) => v.toLocaleString()}
           />
@@ -300,10 +377,10 @@ export default function AdminAnalyticsPage() {
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-semibold text-gray-900">Revenue</h2>
-            <span className="text-sm text-gray-500">Last 6 months</span>
+            <span className="text-sm text-gray-500">{rangeLabels[timeRange]}</span>
           </div>
           <LineChart
-            data={revenueData.map(d => ({ label: d.month, value: d.value }))}
+            data={revenueData}
             color="#9FE870"
             formatValue={formatCurrency}
           />
@@ -313,15 +390,18 @@ export default function AdminAnalyticsPage() {
       {/* Second Row */}
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="font-semibold text-gray-900 mb-6">Daily Invoices</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-semibold text-gray-900">Daily Invoices</h2>
+            <span className="text-sm text-gray-500">{rangeLabels[timeRange]}</span>
+          </div>
           <BarChart
-            data={dailyInvoicesData.map(d => ({ label: d.day, value: d.value }))}
+            data={dailyInvoicesData}
             color="#FF9F43"
           />
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="font-semibold text-gray-900">Plan Distribution</h2>
-          <p className="text-sm text-gray-500 mb-6">Active subscribers by plan tier</p>
+          <p className="text-sm text-gray-500 mb-6">Paying subscribers by plan tier</p>
           <DonutChart data={planDistribution} />
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-6">

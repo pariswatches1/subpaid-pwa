@@ -1,9 +1,18 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { DollarSign, TrendingUp, Users, CreditCard, ArrowUpRight, Pencil } from 'lucide-react';
+import { DollarSign, TrendingUp, Users, CreditCard, ArrowUpRight, Pencil, X, CheckCircle, AlertTriangle } from 'lucide-react';
 
-const plans = [
+interface Plan {
+  name: string;
+  price: number;
+  users: number;
+  mrr: number;
+  features: string[];
+}
+
+const initialPlans: Plan[] = [
   { name: 'Starter', price: 29, users: 847, mrr: 24563, features: ['5 Snap invoices/mo', 'Basic tracking', 'Email support'] },
   { name: 'Pro', price: 79, users: 623, mrr: 49217, features: ['Unlimited Snap', 'Ask SubPaid AI', 'Payment Prophet', 'Priority support'] },
   { name: 'Autopilot', price: 149, users: 312, mrr: 46488, features: ['Everything in Pro', 'SAM Voice Agent (50 calls)', 'Auto-collection', 'PayScore access'] },
@@ -18,9 +27,127 @@ const recentTransactions = [
   { id: 5, user: 'David Brown', type: 'cancellation', plan: 'Starter', amount: 0, date: 'Jan 30, 2026', status: 'cancelled' },
 ];
 
+// Toast Notification Component
+function Toast({ message, type, onClose }: { message: string; type: 'success' | 'error'; onClose: () => void }) {
+  return (
+    <div className={`fixed bottom-4 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white`}>
+      {type === 'success' ? <CheckCircle className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
+      <span>{message}</span>
+      <button onClick={onClose} className="ml-2 p-1 hover:bg-white/20 rounded" aria-label="Close notification">
+        <X className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+
+// Edit Plan Modal Component
+function EditPlanModal({
+  plan,
+  onClose,
+  onSave,
+}: {
+  plan: Plan;
+  onClose: () => void;
+  onSave: (updated: Plan) => void;
+}) {
+  const [price, setPrice] = useState(plan.price);
+  const [features, setFeatures] = useState(plan.features.join('\n'));
+
+  const handleSave = () => {
+    onSave({
+      ...plan,
+      price,
+      features: features.split('\n').filter((f) => f.trim() !== ''),
+      mrr: price * plan.users,
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-white rounded-xl p-6 max-w-lg w-full mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="font-semibold text-gray-900 text-lg">Edit Plan</h3>
+            <p className="text-sm text-gray-500">Modify the {plan.name} plan</p>
+          </div>
+          <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600" aria-label="Close modal">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Plan Name</label>
+            <input
+              type="text"
+              value={plan.name}
+              disabled
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Price ($)</label>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(Number(e.target.value))}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-[#54A0FF] focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Features (one per line)</label>
+            <textarea
+              value={features}
+              onChange={(e) => setFeatures(e.target.value)}
+              rows={5}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-[#54A0FF] focus:outline-none resize-none"
+            />
+          </div>
+          <div className="bg-gray-50 rounded-lg p-3">
+            <p className="text-sm text-gray-500">
+              Active Users: <span className="font-medium text-gray-900">{plan.users.toLocaleString()}</span> &middot;
+              Projected MRR: <span className="font-medium text-[#9FE870]">${(price * plan.users).toLocaleString()}</span>
+            </p>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-4 py-2 bg-[#9FE870] text-[#1a1a2e] rounded-lg font-medium hover:shadow-lg transition-all"
+          >
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminSubscriptionsPage() {
+  const [plans, setPlans] = useState<Plan[]>(initialPlans);
+  const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
   const totalMRR = plans.reduce((a, b) => a + b.mrr, 0);
   const totalUsers = plans.reduce((a, b) => a + b.users, 0);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleSavePlan = (updatedPlan: Plan) => {
+    setPlans(plans.map((p) => (p.name === updatedPlan.name ? updatedPlan : p)));
+    setEditingPlan(null);
+    showToast(`${updatedPlan.name} plan updated successfully`, 'success');
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(amount);
@@ -125,7 +252,10 @@ export default function AdminSubscriptionsPage() {
               </div>
 
               <div className="mt-auto pt-4">
-                <button className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <button
+                  onClick={() => setEditingPlan(plan)}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
                   <Pencil className="w-3.5 h-3.5" />
                   Edit Plan
                 </button>
@@ -176,6 +306,18 @@ export default function AdminSubscriptionsPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Edit Plan Modal */}
+      {editingPlan && (
+        <EditPlanModal
+          plan={editingPlan}
+          onClose={() => setEditingPlan(null)}
+          onSave={handleSavePlan}
+        />
+      )}
+
+      {/* Toast Notification */}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 }
