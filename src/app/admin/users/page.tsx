@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Filter, MoreVertical, Mail, Ban, UserCheck, Download, X, AlertTriangle, CheckCircle } from 'lucide-react';
+import PlanBadge from '@/components/admin/PlanBadge';
+import Pagination from '@/components/admin/Pagination';
 
 interface User {
   id: number;
@@ -26,6 +28,8 @@ const initialUsers: User[] = [
   { id: 7, name: 'James Wilson', email: 'james@steelworks.com', company: 'Wilson Steel', plan: 'Pro', mrr: 79, status: 'active', joined: 'Jan 28, 2026', invoices: 12, collected: 67000 },
   { id: 8, name: 'Amy Thompson', email: 'amy@paintpros.com', company: 'Paint Professionals', plan: 'Starter', mrr: 29, status: 'active', joined: 'Feb 2, 2026', invoices: 8, collected: 12000 },
 ];
+
+const ITEMS_PER_PAGE = 5;
 
 // Confirmation Modal Component
 function ConfirmModal({
@@ -108,6 +112,7 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Modal state
   const [modalConfig, setModalConfig] = useState<{
@@ -118,6 +123,11 @@ export default function AdminUsersPage() {
 
   // Toast state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  // Reset page on search/filter change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filter]);
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type });
@@ -200,6 +210,10 @@ export default function AdminUsersPage() {
     return true;
   });
 
+  // Paginate
+  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedUsers = filteredUsers.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active': return <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Active</span>;
@@ -207,16 +221,6 @@ export default function AdminUsersPage() {
       case 'churned': return <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">Churned</span>;
       default: return null;
     }
-  };
-
-  const getPlanBadge = (plan: string) => {
-    const colors: { [key: string]: string } = {
-      'Starter': 'bg-gray-100 text-gray-700',
-      'Pro': 'bg-[#54A0FF]/10 text-[#54A0FF]',
-      'Autopilot': 'bg-[#9FE870]/10 text-[#1a1a2e]',
-      'Enterprise': 'bg-[#FF9F43]/10 text-[#FF9F43]',
-    };
-    return <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[plan]}`}>{plan}</span>;
   };
 
   return (
@@ -292,8 +296,8 @@ export default function AdminUsersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {filteredUsers.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+            {paginatedUsers.map((user) => (
+              <tr key={user.id} className={`hover:bg-gray-50 transition-colors ${user.status === 'churned' ? 'opacity-60 bg-gray-50' : ''}`}>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-[#9FE870] to-[#54A0FF] rounded-full flex items-center justify-center text-white font-medium">
@@ -305,7 +309,7 @@ export default function AdminUsersPage() {
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4">{getPlanBadge(user.plan)}</td>
+                <td className="px-6 py-4"><PlanBadge plan={user.plan} /></td>
                 <td className="px-6 py-4 text-gray-900 font-medium">${user.mrr}/mo</td>
                 <td className="px-6 py-4">{getStatusBadge(user.status)}</td>
                 <td className="px-6 py-4 text-right text-gray-700">{user.invoices}</td>
@@ -348,6 +352,16 @@ export default function AdminUsersPage() {
             ))}
           </tbody>
         </table>
+
+        {/* Pagination */}
+        <div className="border-t border-gray-100 px-6 py-3">
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredUsers.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       </div>
 
       {/* Confirmation Modal */}

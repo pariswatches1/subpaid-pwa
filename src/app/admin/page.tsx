@@ -1,6 +1,10 @@
 'use client';
 
-import { Users, DollarSign, FileText, TrendingUp, ArrowUpRight, ArrowDownRight, Activity } from 'lucide-react';
+import Link from 'next/link';
+import { Users, DollarSign, FileText, TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import RevenueChart from '@/components/admin/RevenueChart';
+import PlanBadge from '@/components/admin/PlanBadge';
+import ActivityIcon from '@/components/admin/ActivityIcon';
 
 const stats = [
   { name: 'Total Users', value: '2,547', change: '+12.5%', trend: 'up', icon: Users, color: 'bg-[#54A0FF]' },
@@ -18,11 +22,11 @@ const recentUsers = [
 ];
 
 const recentActivity = [
-  { action: 'New user signup', details: 'john@electricalpros.com joined Pro plan', time: '2 hours ago' },
-  { action: 'Subscription upgraded', details: 'sarah@plumbingco.com upgraded to Autopilot', time: '5 hours ago' },
-  { action: 'Invoice milestone', details: '10,000th invoice created this month', time: '1 day ago' },
-  { action: 'SAM Voice Call', details: '500 collection calls made today', time: '1 day ago' },
-  { action: 'Payment collected', details: '$125,000 collected via platform', time: '2 days ago' },
+  { action: 'New user signup', details: 'john@electricalpros.com joined Pro plan', time: '2 hours ago', type: 'signup' },
+  { action: 'Subscription upgraded', details: 'sarah@plumbingco.com upgraded to Autopilot', time: '5 hours ago', type: 'upgrade' },
+  { action: 'Invoice milestone', details: '10,000th invoice created this month', time: '1 day ago', type: 'invoice' },
+  { action: 'SAM Voice Call', details: '500 collection calls made today', time: '1 day ago', type: 'call' },
+  { action: 'Payment collected', details: '$125,000 collected via platform', time: '2 days ago', type: 'payment' },
 ];
 
 export default function AdminOverviewPage() {
@@ -31,7 +35,7 @@ export default function AdminOverviewPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Admin Overview</h1>
-        <p className="text-gray-500">Monitor your platform's performance</p>
+        <p className="text-gray-500">Monitor your platform&apos;s performance</p>
       </div>
 
       {/* Stats Grid */}
@@ -61,11 +65,11 @@ export default function AdminOverviewPage() {
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="font-semibold text-gray-900">Recent Users</h2>
-            <a href="/admin/users" className="text-[#54A0FF] text-sm font-medium hover:underline">View all</a>
+            <Link href="/admin/users" className="text-[#54A0FF] text-sm font-medium hover:underline">View all</Link>
           </div>
           <div className="divide-y divide-gray-100">
             {recentUsers.map((user) => (
-              <div key={user.id} className="px-5 py-3 flex items-center justify-between hover:bg-gray-50">
+              <Link key={user.id} href="/admin/users" className="px-5 py-3 flex items-center justify-between hover:bg-gray-50 block cursor-pointer transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 bg-gradient-to-br from-[#9FE870] to-[#54A0FF] rounded-full flex items-center justify-center text-white font-medium text-sm">
                     {user.name.charAt(0)}
@@ -76,16 +80,10 @@ export default function AdminOverviewPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    user.status === 'active' ? 'bg-green-100 text-green-700' :
-                    user.status === 'trial' ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-red-100 text-red-700'
-                  }`}>
-                    {user.plan}
-                  </span>
+                  <PlanBadge plan={user.plan} size="sm" />
                   <p className="text-gray-400 text-xs mt-1">{user.joined}</p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -94,14 +92,12 @@ export default function AdminOverviewPage() {
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="font-semibold text-gray-900">Recent Activity</h2>
-            <a href="/admin/activity" className="text-[#54A0FF] text-sm font-medium hover:underline">View all</a>
+            <Link href="/admin/activity" className="text-[#54A0FF] text-sm font-medium hover:underline">View all</Link>
           </div>
           <div className="divide-y divide-gray-100">
             {recentActivity.map((activity, i) => (
               <div key={i} className="px-5 py-3 flex items-start gap-3 hover:bg-gray-50">
-                <div className="w-8 h-8 bg-[#54A0FF]/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Activity className="w-4 h-4 text-[#54A0FF]" />
-                </div>
+                <ActivityIcon type={activity.type} size="sm" />
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-gray-900 text-sm">{activity.action}</p>
                   <p className="text-gray-500 text-xs truncate">{activity.details}</p>
@@ -113,12 +109,10 @@ export default function AdminOverviewPage() {
         </div>
       </div>
 
-      {/* Revenue Chart Placeholder */}
+      {/* Revenue Chart */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         <h2 className="font-semibold text-gray-900 mb-4">Revenue Overview</h2>
-        <div className="h-64 bg-gradient-to-r from-[#9FE870]/10 to-[#54A0FF]/10 rounded-xl flex items-center justify-center">
-          <p className="text-gray-500">Chart visualization would go here</p>
-        </div>
+        <RevenueChart />
       </div>
     </div>
   );

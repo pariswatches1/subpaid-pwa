@@ -1,6 +1,7 @@
 'use client';
 
-import { DollarSign, TrendingUp, Users, CreditCard, ArrowUpRight } from 'lucide-react';
+import Link from 'next/link';
+import { DollarSign, TrendingUp, Users, CreditCard, ArrowUpRight, Pencil } from 'lucide-react';
 
 const plans = [
   { name: 'Starter', price: 29, users: 847, mrr: 24563, features: ['5 Snap invoices/mo', 'Basic tracking', 'Email support'] },
@@ -71,6 +72,10 @@ export default function AdminSubscriptionsPage() {
             <span className="text-gray-500 text-sm">Avg. Revenue/User</span>
           </div>
           <p className="text-3xl font-bold text-gray-900">${Math.round(totalMRR / totalUsers)}</p>
+          <div className="flex items-center gap-1 mt-1 text-green-600 text-sm">
+            <ArrowUpRight className="w-4 h-4" />
+            <span>+3.1% vs last month</span>
+          </div>
         </div>
 
         <div className="bg-white rounded-xl p-5 border border-gray-200">
@@ -81,6 +86,10 @@ export default function AdminSubscriptionsPage() {
             <span className="text-gray-500 text-sm">Annual Run Rate</span>
           </div>
           <p className="text-3xl font-bold text-gray-900">{formatCurrency(totalMRR * 12)}</p>
+          <div className="flex items-center gap-1 mt-1 text-green-600 text-sm">
+            <ArrowUpRight className="w-4 h-4" />
+            <span>+8.2% vs last month</span>
+          </div>
         </div>
       </div>
 
@@ -89,12 +98,12 @@ export default function AdminSubscriptionsPage() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Plans Overview</h2>
         <div className="grid md:grid-cols-4 gap-4">
           {plans.map((plan) => (
-            <div key={plan.name} className="bg-white rounded-xl p-5 border border-gray-200 hover:shadow-md transition-all">
+            <div key={plan.name} className="bg-white rounded-xl p-5 border border-gray-200 hover:shadow-md transition-all flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900">{plan.name}</h3>
                 <span className="text-2xl font-bold text-gray-900">${plan.price}</span>
               </div>
-              
+
               <div className="space-y-3 mb-4">
                 <div>
                   <p className="text-sm text-gray-500">Active Users</p>
@@ -110,9 +119,16 @@ export default function AdminSubscriptionsPage() {
                 <p className="text-xs text-gray-500 mb-2">Features</p>
                 <ul className="space-y-1">
                   {plan.features.map((feature, i) => (
-                    <li key={i} className="text-sm text-gray-600">• {feature}</li>
+                    <li key={i} className="text-sm text-gray-600">&bull; {feature}</li>
                   ))}
                 </ul>
+              </div>
+
+              <div className="mt-auto pt-4">
+                <button className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                  <Pencil className="w-3.5 h-3.5" />
+                  Edit Plan
+                </button>
               </div>
             </div>
           ))}
@@ -121,8 +137,9 @@ export default function AdminSubscriptionsPage() {
 
       {/* Recent Transactions */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100">
+        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
           <h2 className="font-semibold text-gray-900">Recent Transactions</h2>
+          <Link href="/admin/invoices" className="text-[#54A0FF] text-sm font-medium hover:underline">View all</Link>
         </div>
         <table className="w-full">
           <thead>
@@ -141,7 +158,9 @@ export default function AdminSubscriptionsPage() {
                 <td className="px-6 py-4 text-gray-900 font-medium">{tx.user}</td>
                 <td className="px-6 py-4 text-gray-600 capitalize">{tx.type.replace('_', ' ')}</td>
                 <td className="px-6 py-4 text-gray-600">{tx.plan}</td>
-                <td className="px-6 py-4 text-right text-gray-900 font-medium">{tx.amount > 0 ? `$${tx.amount}` : '-'}</td>
+                <td className="px-6 py-4 text-right text-gray-900 font-medium">
+                  {tx.amount > 0 ? `$${tx.amount}` : <span className="text-gray-400">N/A</span>}
+                </td>
                 <td className="px-6 py-4 text-gray-500">{tx.date}</td>
                 <td className="px-6 py-4">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${

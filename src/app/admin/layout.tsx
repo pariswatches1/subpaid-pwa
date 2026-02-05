@@ -91,7 +91,7 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
@@ -253,7 +253,7 @@ export default function AdminLayout({
         </header>
 
         {/* Page content */}
-        <main className="p-4 lg:p-6">
+        <main className="p-4 lg:p-6 flex-1">
           {children}
         </main>
       </div>
