@@ -15,7 +15,7 @@ const integrations = [
 
 export function Integrations() {
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-gradient-to-b from-[#E8F4F8] to-[#D4EBF2]">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
           <span className="inline-block px-4 py-1 bg-[#9FE870]/20 text-[#1a1a2e] rounded-full text-sm font-medium mb-4">
@@ -33,7 +33,7 @@ export function Integrations() {
           {integrations.map((integration, index) => (
             <div
               key={index}
-              className="bg-[#F8FAFC] rounded-xl p-6 flex flex-col items-center justify-center hover:shadow-md transition-shadow cursor-pointer group"
+              className="bg-white rounded-xl p-6 flex flex-col items-center justify-center hover:shadow-md transition-shadow cursor-pointer group"
             >
               <div className="w-16 h-16 bg-white rounded-xl shadow-sm flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                 <span className="text-2xl font-bold text-[#1a1a2e]">

@@ -24,14 +24,14 @@ export default function LandingPage() {
       {/* Navbar */}
       <Navbar />
 
-      {/* Hero Section with gradient background */}
+      {/* Hero Section with sky blue gradient background */}
       <section className="relative pt-24 pb-12 overflow-hidden">
-        {/* Fresh Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#9FE870] via-[#6DD5A0] to-[#54A0FF]" />
+        {/* Sky Blue Gradient Background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#A8D8EA] via-[#C5E4F0] to-white" />
 
         {/* Subtle pattern overlay for depth */}
-        <div className="absolute inset-0 opacity-30" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)`,
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.3) 1px, transparent 0)`,
           backgroundSize: '32px 32px'
         }} />
 
@@ -49,7 +49,7 @@ export default function LandingPage() {
             className={`text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-[#1a1a2e] transition-all duration-700 delay-100 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
           >
             Get Paid While{' '}
-            <span className="text-[#1a1a2e]/80">You Work</span>
+            <span className="text-[#2563EB]">You Work</span>
           </h1>
 
           {/* Subheadline */}
@@ -72,7 +72,7 @@ export default function LandingPage() {
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <button
-              className="bg-white/80 backdrop-blur-sm text-[#1a1a2e] px-8 py-4 rounded-full font-semibold text-lg hover:bg-white transition-all shadow-lg flex items-center gap-2"
+              className="bg-white text-[#1a1a2e] px-8 py-4 rounded-full font-semibold text-lg hover:shadow-xl transition-all shadow-lg flex items-center gap-2"
             >
               <Play className="w-5 h-5" />
               Watch Demo
@@ -92,10 +92,10 @@ export default function LandingPage() {
       <TrustBar />
 
       {/* Product Demo / Screenshot Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gradient-to-b from-white to-[#E8F4F8]">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
-            <span className="inline-block px-4 py-1 bg-[#54A0FF]/20 text-[#1a1a2e] rounded-full text-sm font-medium mb-4">
+            <span className="inline-block px-4 py-1 bg-[#54A0FF]/20 text-[#2563EB] rounded-full text-sm font-medium mb-4">
               See It In Action
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-[#1a1a2e] mb-4">
@@ -156,7 +156,7 @@ export default function LandingPage() {
       </section>
 
       {/* Feature Cards */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-[#E8F4F8]">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-16">
             <span className="inline-block px-4 py-1 bg-[#9FE870]/20 text-[#1a1a2e] rounded-full text-sm font-medium mb-4">
@@ -217,7 +217,7 @@ export default function LandingPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 px-6 bg-white">
+      <section className="py-20 px-6 bg-gradient-to-b from-[#E8F4F8] to-[#D4EBF2]">
         <div className="max-w-5xl mx-auto">
           <div className="bg-[#1a1a2e] rounded-3xl p-10 shadow-2xl">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
@@ -246,7 +246,7 @@ export default function LandingPage() {
       <HowItWorks />
 
       {/* Use Cases / Industries */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-[#E8F4F8]">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
             <span className="inline-block px-4 py-1 bg-[#FF9F43]/20 text-[#1a1a2e] rounded-full text-sm font-medium mb-4">
@@ -273,7 +273,7 @@ export default function LandingPage() {
             ].map((item, index) => (
               <div
                 key={index}
-                className="bg-gray-50 rounded-xl p-6 text-center hover:shadow-lg transition-all hover:-translate-y-1 cursor-pointer group"
+                className="bg-white rounded-xl p-6 text-center hover:shadow-lg transition-all hover:-translate-y-1 cursor-pointer group"
               >
                 <div className={`w-16 h-16 bg-gradient-to-br ${item.color} rounded-xl flex items-center justify-center mx-auto mb-4 text-3xl group-hover:scale-110 transition-transform`}>
                   {item.icon}

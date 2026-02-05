@@ -34,7 +34,7 @@ const testimonials = [
 
 export function Testimonials() {
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-[#E8F4F8]">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-16">
           <span className="inline-block px-4 py-1 bg-[#54A0FF]/20 text-[#1a1a2e] rounded-full text-sm font-medium mb-4">
@@ -52,7 +52,7 @@ export function Testimonials() {
           {testimonials.map((t, i) => (
             <div
               key={i}
-              className="bg-[#F8FAFC] rounded-2xl p-8 relative hover:shadow-lg transition-shadow"
+              className="bg-white rounded-2xl p-8 relative hover:shadow-lg transition-shadow"
             >
               {/* Quote icon */}
               <div className="absolute -top-4 left-8">

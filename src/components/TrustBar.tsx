@@ -4,7 +4,7 @@ import { Shield, Award, CheckCircle } from 'lucide-react';
 
 export function TrustBar() {
   return (
-    <section className="py-8 bg-white border-b border-gray-100">
+    <section className="py-8 bg-gradient-to-b from-white to-[#E8F4F8] border-b border-[#D4EBF2]/30">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center">
           <p className="text-sm text-gray-600 mb-4">

@@ -46,7 +46,7 @@ export function FAQ() {
   };
 
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-20 bg-gradient-to-b from-[#D4EBF2] to-[#E8F4F8]">
       <div className="max-w-4xl mx-auto px-4">
         <div className="text-center mb-16">
           <span className="inline-block px-4 py-1 bg-[#FF9F43]/20 text-[#1a1a2e] rounded-full text-sm font-medium mb-4">
@@ -64,11 +64,11 @@ export function FAQ() {
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+              className="bg-white rounded-xl border border-[#D4EBF2] overflow-hidden"
             >
               <button
                 onClick={() => toggleFAQ(index)}
-                className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+                className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-[#E8F4F8] transition-colors"
                 aria-expanded={openIndex === index}
               >
                 <span className="font-semibold text-[#1a1a2e] pr-4">{faq.question}</span>
