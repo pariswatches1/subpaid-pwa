@@ -11,9 +11,11 @@ import { Integrations } from '@/components/Integrations';
 import { FAQ } from '@/components/FAQ';
 import { FinalCTA } from '@/components/FinalCTA';
 import { Footer } from '@/components/Footer';
+import { WatchDemo } from '@/components/WatchDemo';
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -72,6 +74,7 @@ export default function LandingPage() {
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <button
+              onClick={() => setShowDemo(true)}
               className="bg-white text-[#1a1a2e] px-8 py-4 rounded-full font-semibold text-lg hover:shadow-xl transition-all shadow-lg flex items-center gap-2"
             >
               <Play className="w-5 h-5" />
@@ -299,6 +302,9 @@ export default function LandingPage() {
 
       {/* Footer */}
       <Footer />
+
+      {/* Watch Demo Modal */}
+      <WatchDemo isOpen={showDemo} onClose={() => setShowDemo(false)} />
     </div>
   );
 }
