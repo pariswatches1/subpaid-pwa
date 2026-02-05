@@ -1254,7 +1254,7 @@ const tsContent = `// @ts-nocheck
 //
 ${statsComment}
 
-import { Contractor } from './db';
+import { Contractor } from './types';
 
 export const contractorsData = ${JSON.stringify(allContractors, null, 2)} as Contractor[];
 `;

@@ -54,7 +54,7 @@
 // Wisconsin: 100 contractors
 // Wyoming: 100 contractors
 
-import { Contractor } from './db';
+import { Contractor } from './types';
 
 export const contractorsData: Contractor[] = [
   {

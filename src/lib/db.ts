@@ -2,6 +2,10 @@
 // In production, replace with Prisma client
 
 import { StateCode, DataSourceCode } from './states-config';
+import { Contractor } from './types';
+
+// Re-export Contractor for backwards compatibility
+export type { Contractor } from './types';
 
 // Contractor data is loaded lazily below after mockDb is created
 
@@ -148,37 +152,7 @@ export interface GCRating {
   createdAt: string;
 }
 
-export interface Contractor {
-  id: string;
-  licenseNumber: string;
-  licenseType: string;
-  licenseStatus: 'active' | 'inactive' | 'suspended' | 'expired';
-  classifications: string[];
-  businessName: string;
-  ownerName?: string;
-  phone?: string;
-  email?: string;
-  website?: string;
-  address: string;
-  city: string;
-  state: StateCode;
-  zipCode: string;
-  county?: string;
-  issueDate: string;
-  expirationDate: string;
-  lastUpdated: string;
-  payScore?: number;
-  reviewCount?: number;
-  avgPaymentDays?: number;
-  claimed: boolean;
-  claimedByUserId?: string;
-  dataSource: DataSourceCode;
-  sourceUrl?: string;
-  verified: boolean;
-  verifiedAt?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+// Contractor interface is now in ./types.ts (re-exported above)
 
 export interface ContractorClaim {
   id: string;
