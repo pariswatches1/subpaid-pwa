@@ -166,14 +166,15 @@ export async function GET(request: NextRequest) {
     results = results.filter((c) => (c.payScore || 0) >= minPayScore);
   }
 
-  // Text search
+  // Text search (includes ZIP code)
   if (query) {
     results = results.filter((c) =>
       c.businessName.toLowerCase().includes(query) ||
       c.licenseNumber.toLowerCase().includes(query) ||
       c.city.toLowerCase().includes(query) ||
       (c.ownerName && c.ownerName.toLowerCase().includes(query)) ||
-      c.licenseType.toLowerCase().includes(query)
+      c.licenseType.toLowerCase().includes(query) ||
+      c.zipCode.includes(query)
     );
   }
 
