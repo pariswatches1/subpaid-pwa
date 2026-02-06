@@ -835,6 +835,124 @@ function getConfig(slug: string): IllConfig {
         </g>
       ),
     },
+
+    /* ═══════════════════════════════════════════════════════════════
+       PRIORITY 1 — NEW SEO BLOG ILLUSTRATIONS
+       ═══════════════════════════════════════════════════════════════ */
+
+    'how-to-get-paid-faster-as-a-subcontractor': {
+      ...green, skyTop: '#34D399', skyMid: '#6EE7B7', skyBot: '#D1FAE5', label: '7 Strategies to Get Paid Faster',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.9} vest="#22C55E" />
+          {/* Speed lines behind money */}
+          {[0, 5, 10].map((dy, i) => (
+            <line key={i} x1={w * 0.4} y1={h * 0.35 + dy} x2={w * 0.5} y2={h * 0.35 + dy}
+              stroke="#22C55E" strokeWidth="2" opacity={0.3 + i * 0.15} />
+          ))}
+          <MoneyStack x={w * 0.6} y={h * 0.4} s={1.2} />
+          <Clock x={w * 0.75} y={h * 0.55} s={0.8} />
+          {/* Numbered badges for 7 strategies */}
+          {[1, 2, 3, 4, 5, 6, 7].map((n, i) => (
+            <g key={i}>
+              <circle cx={w * (0.1 + i * 0.04)} cy={h * 0.2} r={7} fill="#22C55E" opacity="0.6" />
+              <text x={w * (0.1 + i * 0.04)} y={h * 0.22} textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">{n}</text>
+            </g>
+          ))}
+          <Phone x={w * 0.4} y={h * 0.55} s={0.9} />
+          <StarBurst x={w * 0.6} y={h * 0.18} s={0.6} color="#22C55E" />
+        </g>
+      ),
+    },
+
+    'general-contractor-wont-pay-subcontractor': {
+      ...warm, skyTop: '#FCA5A5', skyMid: '#FECACA', skyBot: '#FEE2E2', label: 'When a GC Won\'t Pay',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} vest="#EF4444" />
+          {/* Crossed out dollar sign */}
+          <DollarSign x={w * 0.5} y={h * 0.35} s={1.2} color="#EF4444" />
+          <line x1={w * 0.42} y1={h * 0.25} x2={w * 0.58} y2={h * 0.45} stroke="#EF4444" strokeWidth="3" />
+          {/* Steps to recovery */}
+          <Document x={w * 0.72} y={h * 0.4} s={0.9} accent="#3B82F6" />
+          <Gavel x={w * 0.8} y={h * 0.58} s={0.7} />
+          <Shield x={w * 0.35} y={h * 0.55} s={0.8} color="#3B82F6" />
+          <text x={w * 0.5} y={h * 0.2} textAnchor="middle" fill="#EF4444" fontSize="10" fontWeight="bold" fontFamily="system-ui" opacity="0.6">OVERDUE</text>
+        </g>
+      ),
+    },
+
+    'how-to-write-a-construction-invoice': {
+      ...green, label: 'Write Invoices That Get Paid Fast',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          {/* Large invoice document */}
+          <Document x={w * 0.55} y={h * 0.4} s={1.4} accent="#22C55E" />
+          {/* Checkmarks */}
+          {[0.28, 0.36, 0.44].map((yp, i) => (
+            <g key={i} transform={`translate(${w * 0.7}, ${h * yp})`}>
+              <circle r={6} fill="#22C55E" opacity="0.7" />
+              <polyline points="-3,0 -1,2 3,-2" stroke="white" strokeWidth="1.5" fill="none" />
+            </g>
+          ))}
+          <ThumbsUp x={w * 0.78} y={h * 0.55} s={0.8} />
+          <MoneyStack x={w * 0.15} y={h * 0.55} s={0.6} />
+          <StarBurst x={w * 0.4} y={h * 0.15} s={0.5} color="#22C55E" />
+        </g>
+      ),
+    },
+
+    'free-contractor-invoice-templates': {
+      ...blue, label: 'Free Invoice Templates',
+      render: (w, h) => (
+        <g>
+          {/* Multiple stacked documents */}
+          <Document x={w * 0.3} y={h * 0.48} s={0.9} accent="#3B82F6" />
+          <Document x={w * 0.45} y={h * 0.44} s={0.95} accent="#22C55E" />
+          <Document x={w * 0.6} y={h * 0.4} s={1} accent="#F59E0B" />
+          {/* Download arrow */}
+          <g transform={`translate(${w * 0.75}, ${h * 0.45})`}>
+            <circle r={16} fill="#3B82F6" opacity="0.2" />
+            <line x1={0} y1={-8} x2={0} y2={6} stroke="#3B82F6" strokeWidth="2.5" />
+            <polyline points="-6,0 0,8 6,0" stroke="#3B82F6" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </g>
+          {/* Trade icons */}
+          <Wrench x={w * 0.15} y={h * 0.35} s={0.6} rot={-20} />
+          <HardHat x={w * 0.82} y={h * 0.25} s={0.9} />
+          <text x={w * 0.5} y={h * 0.2} textAnchor="middle" fill="#3B82F6" fontSize="11" fontWeight="bold" fontFamily="system-ui" opacity="0.5">FREE</text>
+          <Person x={w * 0.15} y={h * 0.72} s={0.7} />
+        </g>
+      ),
+    },
+
+    'how-to-check-contractor-license': {
+      ...base, label: 'Verify Contractor Licenses',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          {/* License card */}
+          <g transform={`translate(${w * 0.55}, ${h * 0.38})`}>
+            <rect x={-35} y={-22} width={70} height={44} rx={4} fill="white" stroke="#64748B" strokeWidth="1.5" />
+            <rect x={-30} y={-17} width={20} height={20} rx={2} fill="#E2E8F0" />
+            <rect x={-5} y={-15} width={28} height={3} rx={1} fill="#64748B" opacity="0.4" />
+            <rect x={-5} y={-8} width={22} height={2} rx={1} fill="#CBD5E1" />
+            <rect x={-5} y={-2} width={25} height={2} rx={1} fill="#CBD5E1" />
+            <text x={12} y={16} textAnchor="middle" fill="#22C55E" fontSize="8" fontWeight="bold">ACTIVE</text>
+          </g>
+          {/* Magnifying glass */}
+          <g transform={`translate(${w * 0.72}, ${h * 0.52})`}>
+            <circle r={14} fill="none" stroke="#3B82F6" strokeWidth="2.5" />
+            <line x1={10} y1={10} x2={20} y2={20} stroke="#3B82F6" strokeWidth="3" strokeLinecap="round" />
+          </g>
+          <Shield x={w * 0.35} y={h * 0.55} s={0.7} color="#22C55E" />
+          {/* State abbreviations */}
+          {['CA', 'TX', 'FL'].map((st, i) => (
+            <text key={i} x={w * (0.75 + i * 0.08)} y={h * 0.22} textAnchor="middle" fill="#64748B" fontSize="9" fontWeight="bold" fontFamily="system-ui" opacity="0.4">{st}</text>
+          ))}
+        </g>
+      ),
+    },
   };
 
   return configs[slug] || {

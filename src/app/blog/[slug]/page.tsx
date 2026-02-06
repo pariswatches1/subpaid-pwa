@@ -1271,6 +1271,745 @@ Subcontractors who use payment prediction report better cash flow planning, fewe
 Payment prediction is available through modern invoicing platforms that integrate AI and machine learning. The more invoicing data the system has, the more accurate its predictions become. Most subcontractors see meaningful prediction accuracy within the first few months of use, with accuracy improving over time as the system learns your specific client patterns.
     `,
   },
+
+  /* ════════════════════════════════════════════════════════════════
+     PRIORITY 1 — SEO-OPTIMIZED BLOG POSTS (Highest Impact)
+     ════════════════════════════════════════════════════════════════ */
+
+  'how-to-get-paid-faster-as-a-subcontractor': {
+    title: 'How to Get Paid Faster as a Subcontractor: 7 Proven Strategies',
+    excerpt: 'Learn 7 proven strategies to get paid faster as a subcontractor. From same-day invoicing to automated follow-ups, stop chasing payments for good.',
+    date: 'February 5, 2026',
+    readTime: '12 min read',
+    author: 'Michael Chen',
+    authorRole: 'CEO & Co-Founder',
+    category: 'Best Practices',
+    content: `
+If you're a subcontractor, you already know the drill. You show up, do the work, send the invoice, and then... you wait. Two weeks. A month. Sometimes two months. Meanwhile, you've got material costs, crew payroll, and your own bills stacking up.
+
+You're not alone. The construction industry has a $280 billion late payment problem. The average subcontractor waits 56 days to get paid after completing a job. That's almost two full months of working for free.
+
+It doesn't have to be this way. Here are seven strategies that can cut your payment timeline from weeks down to days.
+
+## 1. Invoice the Same Day You Finish the Job
+
+This sounds obvious, but most subcontractors don't do it. A study by Atradius found that 52% of B2B invoices are paid late, and one of the biggest reasons is that the invoice itself was sent late.
+
+Every day you delay sending your invoice is a day added to your payment timeline. If your payment terms are Net 30 and you wait a week to invoice, you're really looking at Net 37 — or worse.
+
+The fix is simple: invoice the moment the work is done. If you're still on the job site, even better. Take a photo of the completed work, and create the invoice right there. Tools like SubPaid's Snap to Invoice let you take a photo of your completed work, a materials receipt, or even handwritten notes, and the AI generates a professional invoice in under 5 seconds. No going back to the office, no spreadsheets, no forgetting.
+
+## 2. Make Your Invoices Impossible to Dispute
+
+Late payments aren't always about cash flow — sometimes they're about confusion. If your invoice is missing details, has the wrong PO number, or doesn't match the scope of work, it gives the GC a reason to put it at the bottom of the pile.
+
+Every invoice you send should include:
+- The project name and address
+- The GC's correct legal business name
+- A unique invoice number
+- Itemized line items with descriptions (not just "labor — $5,000")
+- Quantities and unit prices
+- The contract or PO reference number
+- Your payment terms (Net 15, Net 30, etc.)
+- Accepted payment methods
+- Your contractor license number
+
+The more detailed and accurate your invoice, the harder it is to dispute — and the faster it gets paid.
+
+## 3. Set Payment Terms Before the Job Starts
+
+Too many subcontractors start working before the payment terms are locked down in writing. Then when the invoice comes due, the GC says "we pay Net 60" and there's nothing you can do about it.
+
+Before you start any job, make sure your contract or agreement clearly states:
+- When payment is due after invoicing
+- Whether there's retainage and how much
+- Who you're invoicing (the GC, the owner, or the project manager)
+- What happens if payment is late (penalties, interest, work stoppage rights)
+
+Push for Net 15 or Net 20 whenever possible. The industry standard of Net 30 isn't a law — it's a habit. And plenty of GCs will agree to shorter terms if you ask before the job starts, not after.
+
+## 4. Automate Your Follow-Ups
+
+Here's an uncomfortable truth: most subcontractors are terrible at following up on unpaid invoices. Not because they don't care, but because they're busy doing actual work. Following up means phone calls, emails, and awkward conversations — and it always falls to the bottom of the to-do list.
+
+The most effective follow-up schedule looks something like this:
+- Day 1 after the due date: a polite email reminder
+- Day 7: a second email with the invoice re-attached
+- Day 14: an SMS or text message
+- Day 21: a phone call
+
+Most subcontractors never make it past the first email. That's why automated systems are a game-changer. SubPaid's Autopilot feature runs this entire sequence automatically — including having an AI voice agent (called SAM) actually call your client on your behalf. SAM sounds natural, handles objections, and reports back on every conversation. You don't have to make a single awkward phone call.
+
+## 5. Offer Multiple Payment Methods
+
+If the only way a client can pay you is by mailing a check, you're adding days (or weeks) to every payment. Checks need to be written, signed, mailed, received, deposited, and cleared. That's a lot of steps where things can slow down.
+
+Offer ACH/bank transfer, credit card payments, and online payment links in addition to checks. When your invoice arrives with a "Pay Now" button that lets the client pay in one click, friction disappears. Many contractors who switch to electronic payments see their average time-to-pay drop by 10–15 days.
+
+## 6. Know Your Lien Rights
+
+Every state gives subcontractors the right to file a mechanics lien if they're not paid. A mechanics lien is a legal claim against the property where you performed work. It's one of the most powerful tools you have — and one of the most underused.
+
+But here's the catch: most states require you to send a preliminary notice within a specific timeframe (often 20–45 days from when you started work) to preserve your lien rights. Miss that window, and you may lose the right to file entirely.
+
+Even if you never have to actually file a lien, sending a preliminary notice sends a clear signal that you know your rights and you're serious about getting paid. Many GCs will prioritize your invoice just because they received that notice.
+
+Keep track of your preliminary notice deadlines for every project. SubPaid's LienGuard feature does this automatically, so you never miss a deadline.
+
+## 7. Predict Cash Flow Before It Becomes a Crisis
+
+Most subcontractors manage cash flow reactively — they check the bank account and either feel relieved or panicked. But by the time you realize there's a cash flow problem, it's usually too late to fix it without scrambling.
+
+What if you could predict when each invoice would actually get paid? Not the due date — the actual date the money hits your account.
+
+SubPaid's Payment Prophet uses machine learning trained on millions of payment patterns to predict when you'll get paid with 94% accuracy. It looks at the client's payment history, the invoice amount, the day of the week, and industry patterns to give you a realistic forecast. That means you can plan material purchases, schedule crew, and manage your expenses based on when money is actually coming in — not when you hope it will.
+
+## The Bottom Line
+
+Getting paid faster isn't about being aggressive or confrontational. It's about having systems in place that make it easy for your clients to pay you and hard for them to forget.
+
+To recap:
+- Invoice immediately (the same day if possible)
+- Make invoices detailed and dispute-proof
+- Lock down payment terms before you start
+- Automate your follow-ups so nothing falls through the cracks
+- Offer electronic payment options
+- Protect your lien rights with preliminary notices
+- Use payment prediction to stay ahead of cash flow problems
+
+The subcontractors who get paid fastest aren't the ones who do the best work (although that helps). They're the ones who have the best systems.
+
+## Frequently Asked Questions
+
+### How long should I wait before following up on an unpaid invoice?
+Send your first reminder the day after the payment due date. Don't wait weeks hoping the payment will arrive. A polite, professional reminder on day 1 is expected and appropriate.
+
+### Can I charge late fees on construction invoices?
+Yes, if your contract includes late payment terms. Typical late fees are 1.5% per month on overdue balances. Make sure the terms are clearly stated in your contract and on every invoice.
+
+### What's the fastest way to create professional invoices?
+AI-powered photo invoicing is the fastest method. Snap a photo of your work or materials receipt, and the software extracts line items, calculates totals, and generates a professional invoice in seconds.
+    `,
+  },
+
+  'general-contractor-wont-pay-subcontractor': {
+    title: 'What to Do When a General Contractor Won\'t Pay You',
+    excerpt: 'GC won\'t pay? Here\'s your step-by-step playbook — from demand letters to mechanics liens. Protect your rights and get the money you earned.',
+    date: 'February 4, 2026',
+    readTime: '14 min read',
+    author: 'David Kim',
+    authorRole: 'Head of Product',
+    category: 'Legal',
+    content: `
+You did the work. You submitted your invoice. And now... silence. The general contractor isn't returning calls, payments keep getting "delayed," or you're getting excuses that don't add up. Unfortunately, this is one of the most common — and most frustrating — problems subcontractors face.
+
+The good news: you have more legal protections than you might think. The key is knowing your rights and taking action in the right order.
+
+## Step 1: Document Everything
+
+Before you do anything else, get organized. Gather every piece of documentation related to the project:
+- Your signed contract or subcontract agreement
+- All invoices you've submitted (with dates)
+- Proof of delivery (emails, certified mail receipts)
+- Photos of completed work
+- Daily logs or time records
+- Change orders (signed and unsigned)
+- All email and text communication with the GC
+- Any lien waivers you've already signed
+
+This documentation is your ammunition. The subcontractor with better records usually wins payment disputes. If you haven't been keeping detailed records, start now — it's never too late to document what you remember.
+
+## Step 2: Send a Formal Demand Letter
+
+A demand letter is a formal written request for payment that puts the GC on notice that you're serious. It should include:
+- The total amount owed
+- A breakdown of the invoices and dates
+- A deadline for payment (typically 10-14 days)
+- A statement that you'll pursue legal remedies if payment isn't received
+- Your contact information for payment
+
+Send the letter via certified mail with return receipt requested, so you have proof they received it. You can also send a copy via email for immediate delivery.
+
+Here's a sample template:
+
+"Dear [GC Name],
+
+This letter constitutes a formal demand for payment of [amount] owed to [Your Company] for work completed on [project name/address].
+
+The following invoices remain unpaid:
+- Invoice #[number] dated [date]: $[amount]
+- Invoice #[number] dated [date]: $[amount]
+
+Total Amount Due: $[total]
+
+Payment must be received within 14 days of this letter, by [specific date].
+
+If payment is not received by this date, we will pursue all available legal remedies, including but not limited to filing a mechanics lien on the property and pursuing collection through the courts.
+
+Please contact me immediately at [phone/email] to arrange payment.
+
+Sincerely,
+[Your Name]"
+
+Many payment disputes get resolved at this stage. A formal demand letter signals you're not going away.
+
+## Step 3: File a Mechanics Lien
+
+If the demand letter doesn't work, your most powerful tool is a mechanics lien. A mechanics lien is a legal claim against the property where you performed work. It creates a cloud on the title, meaning the property can't be sold or refinanced until the lien is resolved.
+
+Important: Mechanics lien deadlines are strict and vary by state. In many states, you only have 60-90 days from your last day of work to file. Miss the deadline, and you lose this option entirely.
+
+To file a lien, you'll need:
+- Property owner's name and address (not just the GC)
+- Legal description of the property
+- Description of work performed
+- Amount claimed
+- Dates of first and last work
+
+In most states, you must have sent a preliminary notice earlier in the project to preserve your lien rights. If you didn't send one, you may still be able to file depending on your state's laws.
+
+After filing, you typically have 6-12 months to enforce the lien by filing a lawsuit. The lien itself often motivates payment, since property owners don't want liens clouding their title.
+
+## Step 4: File a Bond Claim (If Applicable)
+
+If the project is bonded (common on public projects and large commercial jobs), you may be able to file a claim against the payment bond. Payment bonds are insurance policies that guarantee subcontractors will be paid.
+
+Check your contract to see if a payment bond was required. If so, you can file a claim with the bonding company to recover your money. Bond claims have their own deadlines and procedures, so act quickly.
+
+## Step 5: Consider Small Claims Court
+
+For amounts under your state's small claims limit (typically $5,000-$15,000 depending on the state), small claims court is a fast, affordable option. You don't need a lawyer, filing fees are low, and cases are typically heard within 30-60 days.
+
+Bring all your documentation, keep your presentation simple and factual, and let the evidence speak for itself. Judges in small claims court see a lot of contractor payment disputes and generally rule in favor of the party with better documentation.
+
+## Step 6: Hire an Attorney
+
+For larger amounts or complex disputes, hiring a construction attorney may be worth the investment. Look for an attorney who specializes in construction law and has experience with payment disputes.
+
+Many construction attorneys work on contingency (they get paid only if you win) or offer reasonable flat fees for common tasks like demand letters and lien filings.
+
+## Step 7: Report to the State Licensing Board
+
+If the GC holds a state contractor's license, you can file a complaint with the licensing board. Unpaid debts to subcontractors can result in license suspension, fines, or other disciplinary action.
+
+This won't get you paid directly, but it adds pressure and creates consequences for the GC's behavior. It also protects future subcontractors from the same treatment.
+
+## How to Prevent This in the Future
+
+The best way to handle non-payment is to prevent it. Before your next job:
+
+### Vet GCs Before You Sign
+
+Research every GC before bidding on their projects. Check their payment history with other subcontractors using tools like SubPaid's PayScore. A GC with a track record of slow payment or non-payment isn't worth the risk, no matter how good the project looks.
+
+### Get Everything in Writing
+
+Never start work without a signed contract that clearly states payment terms, retainage, change order procedures, and dispute resolution. Verbal agreements are nearly impossible to enforce.
+
+### Send Preliminary Notices
+
+Send a preliminary notice on every project, regardless of whether your state requires it. It preserves your lien rights and signals professionalism.
+
+### Invoice Properly
+
+Submit detailed, accurate invoices with all required documentation. Include contract references, PO numbers, and backup materials. Invoices that are easy to process get paid faster.
+
+### Track Payment Patterns
+
+Use payment prediction tools to identify at-risk invoices early. If a client's payment pattern is deteriorating, you'll know before it becomes a crisis.
+
+## The Bottom Line
+
+Getting stiffed by a GC is infuriating, but you're not powerless. Document everything, escalate methodically, and use your legal tools. Most importantly, vet your GCs before you sign and maintain documentation that protects you from day one.
+
+## Frequently Asked Questions
+
+### Can I stop work if a GC doesn't pay me?
+Generally yes, but check your contract first. Most contracts allow you to suspend work after proper notice if payment isn't received. Document everything and follow the contract's dispute resolution procedures.
+
+### How long does a mechanics lien last?
+It varies by state, but typically 6-12 months. After that, you must file a lawsuit to enforce the lien or it expires automatically.
+
+### Will filing a lien hurt my relationship with the GC?
+Maybe, but a GC who doesn't pay you isn't a relationship worth preserving. Most professional GCs understand that subcontractors have a right to protect their payment rights.
+    `,
+  },
+
+  'how-to-write-a-construction-invoice': {
+    title: 'How to Write a Construction Invoice That Gets Paid Fast',
+    excerpt: 'Step-by-step guide to writing a professional construction invoice. Includes what to include, common mistakes, and a faster way using AI.',
+    date: 'February 3, 2026',
+    readTime: '10 min read',
+    author: 'Emily Thompson',
+    authorRole: 'Head of Customer Success',
+    category: 'Best Practices',
+    content: `
+A well-crafted invoice does more than request payment. It communicates professionalism, provides clear documentation, and removes every possible excuse for delayed payment. Studies show that invoices with complete, detailed information get paid 30% faster than vague or incomplete ones.
+
+This guide walks you through exactly what to include, common mistakes to avoid, and the fastest way to create professional invoices.
+
+## The Anatomy of a Perfect Construction Invoice
+
+### Header Information
+
+Every construction invoice must start with your company information prominently displayed:
+- Your company name (legal business name)
+- Business address
+- Phone number and email
+- Contractor's license number
+- Your logo (optional but professional)
+
+Include the word "INVOICE" prominently so there's no confusion about what this document is.
+
+### Client Information
+
+Include the general contractor or client's complete information:
+- Full company name (legal name, not just "ABC Construction")
+- Project contact person's name
+- Billing address (may differ from project address)
+- Their PO or reference number if provided
+
+Getting these details right prevents invoices from being lost in the shuffle or sent to the wrong department.
+
+### Invoice Details
+
+Every invoice needs clear identification:
+- Unique invoice number (sequential is best: INV-001, INV-002, etc.)
+- Invoice date
+- Payment due date
+- Payment terms (Net 15, Net 30, etc.)
+- Project name and address
+- Contract or PO reference number
+
+## Line Items That Leave No Questions
+
+This is where most subcontractors fall short. Vague descriptions invite questions, delays, and disputes.
+
+### Bad Example:
+"Electrical work — $5,000"
+
+### Good Example:
+- "Rough-in wiring, Building A 2nd floor, 12 circuits per spec 16010 — 24 hrs @ $85/hr = $2,040"
+- "Materials: 12 circuits, breakers, wire per attached receipt — $1,960"
+- "Panel installation and labeling — 8 hrs @ $85/hr = $680"
+- "Final inspection coordination — 4 hrs @ $85/hr = $340"
+
+For each line item, include:
+- Clear description of work performed
+- Location on the project (building, floor, area)
+- Specification or contract reference
+- Quantity and unit of measure
+- Unit price
+- Extended price (quantity × unit price)
+
+List materials as separate line items with specific descriptions. Attach receipts as backup documentation.
+
+### Totals and Payment Instructions
+
+Show the math clearly:
+- Subtotal
+- Sales tax (if applicable)
+- Retainage withheld (if applicable)
+- Previous payments received
+- Total amount due
+
+Include crystal-clear payment instructions:
+- Check: Make payable to [Your Company] and mail to [address]
+- ACH: Bank name, routing number, account number (or include a payment link)
+- Credit card: Payment portal URL
+- Other accepted methods
+
+## Common Invoice Mistakes That Delay Payment
+
+### 1. Missing PO or Contract Reference
+This is the #1 reason invoices get bounced back. The accounts payable department can't match your invoice to an authorized purchase without this number.
+
+### 2. Math Errors
+Inconsistent math or rounding errors create distrust and trigger manual reviews. Always double-check your calculations, or use invoicing software that calculates automatically.
+
+### 3. Vague Descriptions
+"Labor — $3,000" tells the reviewer nothing. They don't know what was done, where, or whether it matches the contract scope.
+
+### 4. Missing Lien Waivers
+Many GCs require a partial lien waiver with each progress payment and a final lien waiver with the final invoice. Not including them holds up the entire payment process.
+
+### 5. Wrong Recipient
+Sending the invoice to the project superintendent instead of the accounts payable department means it sits in someone's inbox unread. Know exactly who processes payments and send directly to them.
+
+### 6. Late Submission
+Invoices received after the billing cutoff date get pushed to the next payment cycle. Know your client's billing schedule and submit on time — or early.
+
+## Using AIA Billing Format
+
+For commercial construction projects, many GCs require the AIA (American Institute of Architects) G702 and G703 format. This standardized application for payment includes:
+- G702: Application and Certificate for Payment (the cover sheet)
+- G703: Continuation Sheet (detailed schedule of values)
+
+The G703 breaks your contract into line items with a "schedule of values" established at project start. Each month, you update the percentage complete for each line item, and the form calculates amounts due.
+
+Using AIA format when required shows you understand commercial construction billing and reduces back-and-forth. Many invoicing software platforms can generate AIA-compliant documents automatically.
+
+## The Technology Advantage
+
+Manually creating detailed invoices takes time — time you could spend doing billable work. AI-powered invoicing tools like SubPaid's Snap to Invoice eliminate the data entry entirely.
+
+Here's how it works:
+1. Snap a photo of your completed work, materials receipt, or work order
+2. AI extracts all the details: item descriptions, quantities, prices
+3. Review and adjust if needed
+4. Send the professional invoice instantly
+
+What used to take 30-60 minutes now takes 5 seconds. And because the AI captures details from your source documents, you're less likely to make errors or forget line items.
+
+## The Fastest Invoice is the Best Invoice
+
+Speed matters. Contractors who send invoices within 24 hours of completing work get paid an average of two weeks faster than those who batch invoices weekly or monthly.
+
+Why? The work is fresh in everyone's mind. Approvals happen faster. And your invoice enters the payment queue sooner.
+
+With mobile invoicing tools, there's no reason to wait. Create and send your invoice from the job site the moment the work is done.
+
+## Follow-Up Strategy
+
+Sending the invoice is only half the battle. Build a follow-up process:
+- Confirm receipt within 24 hours ("Just checking that you received invoice #123")
+- Send a friendly reminder at the halfway point before due date
+- Follow up immediately when the due date passes
+
+A consistent, professional follow-up cadence tells your clients you take payment seriously — without being pushy.
+
+## Quick Checklist
+
+Before sending any invoice, verify:
+- [ ] Your company name, address, license number included
+- [ ] Client's correct legal name and billing address
+- [ ] Unique invoice number
+- [ ] Payment due date and terms clearly stated
+- [ ] Contract/PO reference number included
+- [ ] All line items are detailed with descriptions, quantities, and prices
+- [ ] Materials listed separately with receipts attached
+- [ ] Math is correct
+- [ ] Retainage calculated correctly (if applicable)
+- [ ] Payment instructions are clear
+- [ ] Lien waiver attached (if required)
+- [ ] Sent to the correct person/department
+
+## Frequently Asked Questions
+
+### How do I number my invoices?
+Use a sequential system like INV-001, INV-002, etc. Some contractors include the year (INV-2026-001) or project code (INV-PRJ123-001). Whatever system you use, be consistent.
+
+### Should I include my bank account details on the invoice?
+Yes, if you want to be paid via ACH transfer. Include your bank name, routing number, and account number — or provide a secure payment link.
+
+### What if the GC disputes a line item?
+Address it immediately. Provide backup documentation (photos, signed work orders, contract references) and work to resolve the specific issue without holding up payment on the rest of the invoice.
+    `,
+  },
+
+  'free-contractor-invoice-templates': {
+    title: 'Free Contractor Invoice Templates for Every Trade',
+    excerpt: 'Download free invoice templates for electricians, plumbers, HVAC techs, roofers, and more. Customizable PDF, Word, and Excel formats.',
+    date: 'February 2, 2026',
+    readTime: '8 min read',
+    author: 'Emily Thompson',
+    authorRole: 'Head of Customer Success',
+    category: 'Best Practices',
+    content: `
+A professional invoice is more than a payment request — it's a reflection of your business. Whether you're an electrician, plumber, HVAC technician, or general contractor, having a clean, detailed invoice template makes you look professional and helps you get paid faster.
+
+Below you'll find free invoice templates designed specifically for construction subcontractors. Each template includes all the essential fields you need, formatted for your specific trade.
+
+## What Every Contractor Invoice Template Needs
+
+Before diving into the templates, here's what every professional contractor invoice should include:
+- Your company name, address, phone, and email
+- Contractor's license number
+- Client/GC name and billing address
+- Unique invoice number
+- Invoice date and payment due date
+- Project name and address
+- Detailed line items (labor, materials, equipment)
+- Payment terms and methods accepted
+- Subtotal, tax (if applicable), and total due
+
+## Template 1: General Contractor Invoice
+
+Best for: General contractors managing multiple trades, residential and commercial projects.
+
+Key fields:
+- Schedule of values reference
+- Change order tracking section
+- Retainage calculation
+- Progress payment tracking
+- Subcontractor payment summary
+
+This template is designed for contractors who need to track progress billing across multiple phases of work.
+
+## Template 2: Electrician Invoice
+
+Best for: Electrical contractors doing residential and commercial work.
+
+Key fields:
+- Permit number field
+- Circuit/panel reference
+- Labor hours by electrician
+- Wire and materials itemization
+- Inspection status
+
+Electrical work often requires detailed materials tracking. This template includes sections for wire footage, breakers, panels, and fixtures — all the line items you need for a complete invoice.
+
+## Template 3: Plumber Invoice
+
+Best for: Plumbing contractors doing service calls and new construction.
+
+Key fields:
+- Fixture count and types
+- Pipe materials and footage
+- Service call vs. project work designation
+- Parts and fittings itemization
+- Water heater/equipment serial numbers
+
+Plumbing invoices often mix service calls with project work. This template handles both, with clear sections for trip charges, hourly labor, and materials.
+
+## Template 4: HVAC Invoice
+
+Best for: HVAC contractors doing installations, repairs, and maintenance.
+
+Key fields:
+- Equipment model and serial numbers
+- Refrigerant type and quantity
+- Maintenance agreement reference
+- Warranty information
+- System specifications
+
+HVAC work requires detailed equipment documentation. This template captures model numbers, serial numbers, and specifications — important for warranty claims and future service.
+
+## Template 5: Painting Contractor Invoice
+
+Best for: Painting contractors doing residential and commercial work.
+
+Key fields:
+- Square footage covered
+- Paint brand, color, and quantity
+- Prep work itemization
+- Number of coats
+- Surface type (interior/exterior, walls/trim/ceilings)
+
+Painting invoices often involve estimating disputes around coverage. This template breaks down square footage, prep work, and coats applied to prevent confusion.
+
+## Template 6: Roofing Invoice
+
+Best for: Roofing contractors doing repairs, replacements, and new construction.
+
+Key fields:
+- Roof squares
+- Material type and manufacturer
+- Underlayment and flashing details
+- Warranty information
+- Debris removal/dump fees
+
+Roofing involves significant material costs. This template includes sections for shingles, underlayment, flashing, vents, and disposal — plus a warranty documentation section.
+
+## How to Customize Your Template
+
+Each template is a starting point. Customize it for your business:
+- Add your company logo
+- Include your license number and insurance information
+- Adjust line item categories for your specific trade
+- Add payment methods you accept (check, ACH, credit card)
+- Include your payment terms and late fee policy
+
+## Why Templates Are Just the Starting Point
+
+Templates work — but they still require manual data entry. Every invoice you type by hand is time you could spend on billable work. And manual entry invites errors: wrong quantities, forgotten line items, math mistakes.
+
+Modern invoicing tools like SubPaid's Snap to Invoice take templates to the next level. Instead of typing every line item, you snap a photo of your completed work or materials receipt. AI extracts all the details, populates a professional invoice, and you send it in seconds.
+
+The result: faster invoicing, fewer errors, and more time doing the work that pays.
+
+## Making the Switch
+
+Here's a simple progression for improving your invoicing:
+1. Start with a professional template (better than no template)
+2. Customize it for your trade and business
+3. Use it consistently on every job
+4. When you're ready, upgrade to AI-powered invoicing to eliminate manual entry entirely
+
+The goal is to make invoicing so fast and painless that you do it immediately after every job — because same-day invoicing means faster payment.
+
+## Frequently Asked Questions
+
+### What format should I save my invoice in?
+PDF is best for sending to clients — it can't be accidentally edited and looks the same on every device. Keep an editable version (Word or Excel) as your master template.
+
+### Should I use numbered invoices?
+Absolutely. Sequential invoice numbers (INV-001, INV-002, etc.) help you track payments, make tax time easier, and look more professional.
+
+### How do I handle change orders on my invoice?
+List change orders as separate sections with their own line items. Reference the change order number and approval date. This keeps the original contract work separate from additions.
+    `,
+  },
+
+  'how-to-check-contractor-license': {
+    title: 'How to Check if a Contractor is Licensed: State-by-State Guide',
+    excerpt: 'How to verify a contractor\'s license in all 50 states. Includes direct links to state licensing boards and what red flags to look for.',
+    date: 'February 1, 2026',
+    readTime: '15 min read',
+    author: 'David Kim',
+    authorRole: 'Head of Product',
+    category: 'Legal',
+    content: `
+Whether you're a homeowner hiring a contractor or a subcontractor vetting a general contractor before signing a contract, verifying licenses is one of the most important steps you can take. An unlicensed contractor puts you at risk — legally, financially, and practically.
+
+This guide shows you exactly how to verify contractor licenses in every state, what to look for, and red flags that should make you walk away.
+
+## Why License Verification Matters
+
+### For Homeowners
+- Licensed contractors must meet education, experience, and examination requirements
+- License boards provide a mechanism for complaints and disputes
+- Many states require licensed contractors to carry insurance and bonds
+- Unlicensed work may void your homeowner's insurance or violate building codes
+
+### For Subcontractors
+- Working for an unlicensed GC exposes you to liability
+- Payment disputes are harder to resolve when licenses aren't valid
+- Lien rights may be affected by the GC's license status
+- Your reputation is tied to the projects you work on
+
+## How to Verify: The Basic Process
+
+Most states maintain online databases where you can search for contractor licenses. Here's the general process:
+
+1. Get the contractor's full legal business name and/or license number
+2. Visit your state's contractor licensing board website
+3. Use the license lookup or verification tool
+4. Verify the license is active (not expired, suspended, or revoked)
+5. Check for complaints, disciplinary actions, or bond claims
+6. Confirm insurance is current (if shown in the database)
+
+## State-by-State License Lookup Links
+
+### California
+California Contractors State License Board (CSLB)
+Website: www.cslb.ca.gov
+What you can check: License status, bond status, workers comp, complaint history
+
+### Texas
+Texas Department of Licensing and Regulation (TDLR)
+Note: Texas doesn't require a general contractor license at the state level, but does license specific trades (electricians, plumbers, HVAC).
+Website: www.tdlr.texas.gov
+
+### Florida
+Florida Department of Business and Professional Regulation
+Website: www.myfloridalicense.com
+What you can check: License status, complaints, disciplinary actions
+
+### New York
+New York does not have statewide contractor licensing. Check with local municipalities (NYC has its own system).
+NYC: www.nyc.gov/buildings
+
+### Arizona
+Arizona Registrar of Contractors
+Website: roc.az.gov
+What you can check: License status, bond status, complaints, classifications
+
+### Nevada
+Nevada State Contractors Board
+Website: www.nscb.nv.gov
+What you can check: License status, bond, insurance, complaint history
+
+### Georgia
+Georgia Secretary of State
+Website: sos.ga.gov
+What you can check: License status for specific trades
+
+### North Carolina
+NC Licensing Board for General Contractors
+Website: www.nclbgc.org
+What you can check: License status, limitations, disciplinary actions
+
+### Virginia
+Virginia Department of Professional and Occupational Regulation (DPOR)
+Website: www.dpor.virginia.gov
+What you can check: License status, certificate of insurance
+
+### Washington
+Washington State Department of Labor & Industries
+Website: www.lni.wa.gov
+What you can check: License status, bond status, insurance, violations
+
+## What to Look For
+
+When verifying a license, check for:
+- Active status (not expired, suspended, or revoked)
+- Correct classification for the type of work being performed
+- Current bond and insurance (if shown)
+- Clean complaint history (or review any complaints for context)
+- The business name matches what the contractor gave you
+
+## Red Flags That Should Concern You
+
+### 1. Expired License
+If a contractor's license expired, they're operating illegally. Don't accept "it's being renewed" as an excuse — legitimate contractors keep licenses current.
+
+### 2. Suspended or Revoked License
+This means the licensing board took disciplinary action. Find out why before proceeding.
+
+### 3. Multiple Complaints
+One complaint might be a difficult customer. Multiple complaints suggest a pattern. Read the details.
+
+### 4. No Insurance
+If the database shows no workers comp or liability insurance, you could be liable for injuries on the job.
+
+### 5. Wrong Classification
+Contractors are licensed for specific work types. An electrical contractor shouldn't be doing plumbing work under their electrical license.
+
+### 6. No Physical Address
+Legitimate contractors have a physical business address. P.O. boxes only are a warning sign.
+
+## What Subcontractors Should Know
+
+As a subcontractor, you should verify the GC you're about to work for:
+
+### Check the GC's License
+Is the general contractor properly licensed for this project? If they're not, you could have problems collecting payment, and your lien rights may be affected.
+
+### Check Their Payment History
+License status tells you if they're legal. Payment history tells you if they pay their subs. Use tools like SubPaid's Contractor Directory to check GC PayScores before signing a contract.
+
+### Verify Insurance
+Make sure the GC carries adequate liability insurance and workers comp. Request certificates of insurance.
+
+### Look for Complaints
+Multiple subcontractor complaints about non-payment are a major red flag — even if the license is active.
+
+## SubPaid's Contractor Directory
+
+Verifying licenses is important, but it only tells you part of the story. A GC can have a perfectly valid license and still pay you 90 days late on every invoice.
+
+SubPaid's Contractor Directory goes beyond license verification to give you the full picture:
+- Verified license status
+- PayScore rating based on actual payment patterns
+- Average days to payment
+- Reviews from other subcontractors
+- Contact information
+
+Before you sign your next contract, search the directory to see how the GC treats their subcontractors.
+
+## Frequently Asked Questions
+
+### What if my state doesn't require contractor licensing?
+Some states (like Texas for general contractors) don't have statewide licensing. Check for local municipality requirements and verify trade-specific licenses (electrical, plumbing, HVAC) which are typically still required.
+
+### Can I work for an unlicensed GC?
+You can, but it's risky. Your lien rights may be affected, payment disputes are harder to resolve, and you could be associated with code violations or substandard work.
+
+### How often should I re-verify a contractor's license?
+At minimum, verify before signing any new contract. For ongoing relationships, an annual check is good practice. Licenses can be suspended or revoked at any time.
+    `,
+  },
 };
 
 type Props = {

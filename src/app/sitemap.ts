@@ -130,17 +130,43 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // Blog posts
-  const blogPosts: MetadataRoute.Sitemap = [
-    'ai-invoicing-transformation',
-    'write-construction-invoice',
-    'red-flags-gc-payment',
-    'construction-payment-terms',
-    'best-invoicing-apps-2026',
-    'how-to-file-mechanics-lien',
-    'tips-get-paid-faster',
-    'cash-flow-management-guide',
-  ].map((slug) => ({
+  // Blog posts - All SEO-optimized posts
+  const blogSlugs = [
+    // Priority 1 - Highest Impact SEO Posts
+    'how-to-get-paid-faster-as-a-subcontractor',
+    'general-contractor-wont-pay-subcontractor',
+    'how-to-write-a-construction-invoice',
+    'free-contractor-invoice-templates',
+    'how-to-check-contractor-license',
+    // Priority 2 - Core Content
+    'subcontractor-cash-flow-management-guide',
+    'how-to-write-construction-invoice',
+    'general-contractor-payment-problems',
+    'construction-payment-terms-explained',
+    'best-invoicing-apps-subcontractors',
+    'mechanics-lien-filing-guide',
+    '5-tips-to-get-paid-faster',
+    'subcontractor-profit-margin-guide',
+    'aia-billing-guide-subcontractors',
+    'construction-business-tax-deductions',
+    'how-to-bid-construction-jobs',
+    'construction-payment-disputes-resolution',
+    'understanding-lien-rights',
+    'grow-subcontracting-business',
+    'workers-comp-insurance-contractors',
+    'invoice-factoring-construction',
+    'prequalification-tips-subcontractors',
+    'reduce-construction-payment-delays',
+    'construction-scheduling-tips',
+    'the-true-cost-of-late-payments',
+    'subcontractor-vs-employee',
+    'construction-safety-program-guide',
+    'ai-voice-agents-construction-collections',
+    'payment-prediction-construction',
+    'how-ai-is-transforming-invoicing',
+  ];
+
+  const blogPosts: MetadataRoute.Sitemap = blogSlugs.map((slug) => ({
     url: `${BASE_URL}/blog/${slug}`,
     lastModified: now,
     changeFrequency: 'monthly' as const,
