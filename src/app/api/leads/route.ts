@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import type { Lead } from '@prisma/client';
+import type { Lead } from '@/generated/prisma/client';
 
 // Helper to get user ID (for now, return a demo user - later integrate auth)
 async function getUserId() {
