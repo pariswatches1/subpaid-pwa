@@ -64,6 +64,15 @@ export interface SavedKeywordList {
   createdAt: string;
 }
 
+// UTM Parameters for attribution tracking
+export interface UTMParams {
+  source?: string;      // e.g., "google", "facebook", "referral"
+  medium?: string;      // e.g., "cpc", "organic", "email"
+  campaign?: string;    // e.g., "spring_promo"
+  term?: string;        // keyword that triggered
+  content?: string;     // ad variation
+}
+
 // Lead Source - tracks keywords → jobs → revenue
 export interface LeadSource {
   id: string;
@@ -75,12 +84,55 @@ export interface LeadSource {
   filters: KeywordRequest;         // Original filter settings
   createdAt: string;
 
-  // Tracking
+  // Cost Tracking
+  monthlyAdSpend?: number;         // Monthly ad spend for this source
+  seoRetainerCost?: number;        // Monthly SEO retainer cost
+  otherCosts?: number;             // Other monthly costs
+  costNotes?: string;              // Notes about costs
+
+  // UTM Attribution
+  utmParams?: UTMParams;
+
+  // Tracking Phone Number (for call tracking)
+  trackingPhoneNumber?: string;
+
+  // Tracking Stats
   stats: {
     jobsLinked: number;            // Jobs that came from this source
     invoicesLinked: number;        // Invoices from those jobs
     amountPaid: number;            // Total paid from this source
+    totalCalls?: number;           // Total calls received
+    callsAnswered?: number;        // Calls that were answered
   };
+
+  // Calculated Metrics (computed on read)
+  calculatedMetrics?: {
+    totalCost: number;             // Sum of all costs
+    revenue: number;               // Total paid from invoices
+    roi: number;                   // (revenue - cost) / cost * 100
+    costPerJob: number;            // totalCost / jobsLinked
+    avgDaysToPaid: number;         // Average days from invoice to payment
+  };
+}
+
+// Payback Speed Score - signature feature
+export interface PaybackSpeedScore {
+  leadSourceId: string;
+  userId: string;
+
+  // Core metrics
+  conversionRate: number;          // % of leads → jobs
+  avgInvoiceAmount: number;        // Average invoice $
+  avgDaysToPaid: number;           // Average days from invoice to payment
+  latePaymentRate: number;         // % of invoices paid late
+
+  // Composite score
+  score: number;                   // 0-100
+  grade: 'A' | 'B' | 'C' | 'D' | 'F';
+  trend: 'improving' | 'stable' | 'declining';
+  previousScore?: number;
+
+  calculatedAt: string;
 }
 
 // Intent cluster display names and colors (user-friendly for subcontractors)

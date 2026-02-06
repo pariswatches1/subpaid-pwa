@@ -77,6 +77,15 @@ export async function POST(request: NextRequest) {
     // Generate invoice number
     const invoiceNumber = generateInvoiceNumber(mockDb.invoices.length);
 
+    // Determine leadSourceId: from body, or inherit from linked job
+    let leadSourceId = body.leadSourceId;
+    if (!leadSourceId && body.jobId) {
+      const job = mockDb.jobs.find(j => j.id === body.jobId);
+      if (job && job.leadSourceId) {
+        leadSourceId = job.leadSourceId;
+      }
+    }
+
     const newInvoice = {
       id: generateId(),
       invoiceNumber,
@@ -98,9 +107,31 @@ export async function POST(request: NextRequest) {
       status: body.status || 'draft',
       autopilotEnabled: body.autopilotEnabled || false,
       createdAt: new Date().toISOString(),
+      leadSourceId: leadSourceId || undefined,
     };
 
     mockDb.invoices.push(newInvoice);
+
+    // If leadSourceId exists, create a timeline event and update stats
+    if (leadSourceId) {
+      const timelineEvent = {
+        id: generateId(),
+        leadSourceId,
+        userId,
+        eventType: 'invoice_sent' as const,
+        entityId: newInvoice.id,
+        description: `Invoice sent: ${invoiceNumber}`,
+        amount: total,
+        createdAt: new Date().toISOString(),
+      };
+      mockDb.leadTimelineEvents.push(timelineEvent);
+
+      // Update lead source stats
+      const leadSource = mockDb.leadSources.find(ls => ls.id === leadSourceId);
+      if (leadSource) {
+        leadSource.stats.invoicesLinked = (leadSource.stats.invoicesLinked || 0) + 1;
+      }
+    }
 
     return NextResponse.json(
       { ...newInvoice, client },

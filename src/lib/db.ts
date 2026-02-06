@@ -37,6 +37,37 @@ export interface Job {
   endDate?: string;
   userId: string;
   createdAt: string;
+  // Lead Source Attribution
+  leadSourceId?: string;
+}
+
+// Call Tracking for Lead Sources
+export interface CallTrackingRecord {
+  id: string;
+  leadSourceId: string;
+  userId: string;
+  trackingNumber: string;
+  callerNumber: string;
+  callDate: string;
+  duration: number;
+  answered: boolean;
+  outcome?: 'lead' | 'spam' | 'voicemail' | 'wrong_number';
+  convertedToJobId?: string;
+  createdAt: string;
+}
+
+// Lead Timeline Events
+export interface LeadTimelineEvent {
+  id: string;
+  leadSourceId: string;
+  userId: string;
+  eventType: 'call' | 'form_submit' | 'job_created' | 'estimate_sent' |
+             'estimate_accepted' | 'invoice_sent' | 'reminder_sent' |
+             'sam_call' | 'payment_received';
+  entityId?: string;
+  description: string;
+  amount?: number;
+  createdAt: string;
 }
 
 export interface Invoice {
@@ -57,6 +88,8 @@ export interface Invoice {
   paidAt?: string;
   autopilotEnabled: boolean;
   createdAt: string;
+  // Lead Source Attribution (inherited from job or set directly)
+  leadSourceId?: string;
 }
 
 export interface LineItem {
@@ -80,6 +113,9 @@ export interface Estimate {
   total: number;
   validUntil?: string;
   createdAt: string;
+  // Lead Source Attribution
+  leadSourceId?: string;
+  convertedToInvoiceId?: string;
 }
 
 export interface TimeEntry {
@@ -390,6 +426,8 @@ export const mockDb = {
       },
     },
   ] as LeadSource[],
+  callTrackingRecords: [] as CallTrackingRecord[],
+  leadTimelineEvents: [] as LeadTimelineEvent[],
 };
 
 // Load contractor data from pre-populated dataset

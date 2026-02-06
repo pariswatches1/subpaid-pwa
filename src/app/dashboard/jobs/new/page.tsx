@@ -1,14 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Save, Briefcase, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Briefcase, Loader2, Target } from 'lucide-react';
+import { LeadSource } from '@/lib/keyword-types';
 
 export default function NewJobPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [leadSources, setLeadSources] = useState<LeadSource[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     client: '',
@@ -17,7 +19,24 @@ export default function NewJobPage() {
     endDate: '',
     budget: '',
     description: '',
+    leadSourceId: '',
   });
+
+  // Fetch lead sources for dropdown
+  useEffect(() => {
+    const fetchLeadSources = async () => {
+      try {
+        const res = await fetch('/api/lead-sources');
+        if (res.ok) {
+          const data = await res.json();
+          setLeadSources(data.leadSources || []);
+        }
+      } catch (err) {
+        console.error('Error fetching lead sources:', err);
+      }
+    };
+    fetchLeadSources();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -53,6 +72,7 @@ export default function NewJobPage() {
           endDate: formData.endDate,
           budget: formData.budget ? parseFloat(formData.budget) : null,
           description: formData.description,
+          leadSourceId: formData.leadSourceId || undefined,
         }),
       });
 
@@ -138,6 +158,30 @@ export default function NewJobPage() {
                     <option value="3">Smith Builders</option>
                     <option value="4">Downtown Development</option>
                   </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <span className="flex items-center gap-1.5">
+                      <Target className="w-4 h-4 text-[#22C55E]" />
+                      Lead Source
+                    </span>
+                  </label>
+                  <select
+                    name="leadSourceId"
+                    value={formData.leadSourceId}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#9FE870] focus:ring-2 focus:ring-[#9FE870]/20 outline-none"
+                  >
+                    <option value="">No lead source (optional)</option>
+                    {leadSources.map((ls) => (
+                      <option key={ls.id} value={ls.id}>
+                        {ls.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Track which marketing source brought this job
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">

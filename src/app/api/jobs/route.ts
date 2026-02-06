@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     const userId = getMockUserId();
     const body = await request.json();
 
-    const { title, name, clientId, description, startDate, endDate, status } = body;
+    const { title, name, clientId, description, startDate, endDate, status, leadSourceId } = body;
     const jobTitle = title || name;
 
     // Validation
@@ -73,9 +73,30 @@ export async function POST(request: NextRequest) {
       status: status || 'active',
       userId,
       createdAt: new Date().toISOString(),
+      leadSourceId: leadSourceId || undefined,
     };
 
     mockDb.jobs.push(newJob);
+
+    // If leadSourceId is provided, create a timeline event
+    if (leadSourceId) {
+      const timelineEvent = {
+        id: generateId(),
+        leadSourceId,
+        userId,
+        eventType: 'job_created' as const,
+        entityId: newJob.id,
+        description: `Job created: "${jobTitle}"`,
+        createdAt: new Date().toISOString(),
+      };
+      mockDb.leadTimelineEvents.push(timelineEvent);
+
+      // Update lead source stats
+      const leadSource = mockDb.leadSources.find(ls => ls.id === leadSourceId);
+      if (leadSource) {
+        leadSource.stats.jobsLinked = (leadSource.stats.jobsLinked || 0) + 1;
+      }
+    }
 
     return NextResponse.json(
       { ...newJob, client },
