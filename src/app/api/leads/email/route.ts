@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockDb, generateId, getMockUserId } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 import { parseEmail } from '@/lib/email-parser';
 
 /**
@@ -61,6 +61,25 @@ interface EmailPayload {
   apiKey?: string;
 }
 
+// Helper to get user ID (for now, return a demo user - later integrate auth)
+async function getUserId() {
+  let user = await prisma.user.findFirst({
+    where: { email: 'demo@subpaid.com' }
+  });
+
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        email: 'demo@subpaid.com',
+        name: 'Demo User',
+        company: 'Demo Company',
+      }
+    });
+  }
+
+  return user.id;
+}
+
 // Normalize various email formats to standard format
 function normalizeEmailPayload(payload: EmailPayload): {
   from: string;
@@ -88,23 +107,25 @@ function normalizeEmailPayload(payload: EmailPayload): {
 }
 
 // Attempt to match email to a lead source by UTM or tracking info
-function findLeadSource(parsedEmail: ReturnType<typeof parseEmail>, explicitId?: string) {
-  const userId = getMockUserId();
-
+async function findLeadSource(
+  userId: string,
+  parsedEmail: ReturnType<typeof parseEmail>,
+  explicitId?: string
+) {
   // If explicitly provided, use that
   if (explicitId) {
-    return mockDb.leadSources.find(
-      ls => ls.id === explicitId && ls.userId === userId
-    );
+    return await prisma.leadSource.findFirst({
+      where: { id: explicitId, userId }
+    });
   }
 
   // Try to match by source name
   if (parsedEmail.sourceName) {
     const sourceLower = parsedEmail.sourceName.toLowerCase();
-    return mockDb.leadSources.find(
-      ls => ls.userId === userId &&
-            ls.name.toLowerCase().includes(sourceLower)
-    );
+    const sources = await prisma.leadSource.findMany({
+      where: { userId }
+    });
+    return sources.find(ls => ls.name.toLowerCase().includes(sourceLower));
   }
 
   return undefined;
@@ -128,49 +149,44 @@ export async function POST(request: NextRequest) {
     // Parse the email
     const parsed = parseEmail(email);
 
-    // Find matching lead source
-    const leadSource = findLeadSource(parsed, payload.leadSourceId);
+    const userId = await getUserId();
 
-    const userId = getMockUserId();
-    const now = new Date().toISOString();
+    // Find matching lead source
+    const leadSource = await findLeadSource(userId, parsed, payload.leadSourceId);
 
     // Create the lead
-    const newLead = {
-      id: generateId(),
-      userId,
-      leadSourceId: leadSource?.id,
-      sourceType: 'email' as const,
-      sourceName: parsed.sourceName,
-      name: parsed.name,
-      email: parsed.email,
-      phone: parsed.phone,
-      company: parsed.company,
-      description: parsed.description,
-      location: parsed.location,
-      trade: parsed.trade,
-      estimatedValue: parsed.estimatedValue,
-      rawContent: parsed.rawContent,
-      rawSubject: parsed.rawSubject,
-      status: 'new' as const,
-      priority: parsed.priority,
-      receivedAt: now,
-      createdAt: now,
-    };
-
-    mockDb.leads.push(newLead);
+    const newLead = await prisma.lead.create({
+      data: {
+        userId,
+        leadSourceId: leadSource?.id || null,
+        sourceType: 'email',
+        sourceName: parsed.sourceName || null,
+        name: parsed.name || null,
+        email: parsed.email || null,
+        phone: parsed.phone || null,
+        company: parsed.company || null,
+        description: parsed.description || null,
+        location: parsed.location || null,
+        trade: parsed.trade || null,
+        estimatedValue: parsed.estimatedValue || null,
+        rawContent: parsed.rawContent || null,
+        rawSubject: parsed.rawSubject || null,
+        status: 'new',
+        priority: parsed.priority,
+      }
+    });
 
     // Create timeline event if linked to lead source
     if (leadSource) {
-      const timelineEvent = {
-        id: generateId(),
-        leadSourceId: leadSource.id,
-        userId,
-        eventType: 'lead_created' as const,
-        entityId: newLead.id,
-        description: `New email lead: ${parsed.name || parsed.email || 'Unknown'} - ${parsed.trade || 'General'}`,
-        createdAt: now,
-      };
-      mockDb.leadTimelineEvents.push(timelineEvent);
+      await prisma.leadTimelineEvent.create({
+        data: {
+          leadSourceId: leadSource.id,
+          userId,
+          eventType: 'lead_created',
+          entityId: newLead.id,
+          description: `New email lead: ${parsed.name || parsed.email || 'Unknown'} - ${parsed.trade || 'General'}`,
+        }
+      });
     }
 
     return NextResponse.json({

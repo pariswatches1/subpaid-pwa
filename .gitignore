@@ -45,3 +45,7 @@ scripts/output/
 
 # Claude
 .claude/
+
+.vercel
+
+/src/generated/prisma

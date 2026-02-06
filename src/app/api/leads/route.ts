@@ -1,10 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockDb, generateId, getMockUserId, Lead } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+
+// Helper to get user ID (for now, return a demo user - later integrate auth)
+async function getUserId() {
+  // Check if demo user exists, create if not
+  let user = await prisma.user.findFirst({
+    where: { email: 'demo@subpaid.com' }
+  });
+
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        email: 'demo@subpaid.com',
+        name: 'Demo User',
+        company: 'Demo Company',
+      }
+    });
+  }
+
+  return user.id;
+}
 
 // GET /api/leads - List leads with filters
 export async function GET(request: NextRequest) {
   try {
-    const userId = getMockUserId();
+    const userId = await getUserId();
     const { searchParams } = new URL(request.url);
 
     // Filter parameters
@@ -13,27 +33,40 @@ export async function GET(request: NextRequest) {
     const priority = searchParams.get('priority');
     const leadSourceId = searchParams.get('leadSourceId');
 
-    let leads = mockDb.leads.filter(lead => lead.userId === userId);
+    // Build where clause
+    const where: any = { userId };
 
-    // Apply filters
     if (status && status !== 'all') {
-      leads = leads.filter(lead => lead.status === status);
+      where.status = status;
     }
     if (sourceType) {
-      leads = leads.filter(lead => lead.sourceType === sourceType);
+      where.sourceType = sourceType;
     }
     if (priority) {
-      leads = leads.filter(lead => lead.priority === priority);
+      where.priority = priority;
     }
     if (leadSourceId) {
-      leads = leads.filter(lead => lead.leadSourceId === leadSourceId);
+      where.leadSourceId = leadSourceId;
     }
 
-    // Sort by receivedAt (newest first)
-    leads.sort((a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime());
+    // Fetch leads
+    const leads = await prisma.lead.findMany({
+      where,
+      orderBy: { receivedAt: 'desc' },
+      include: {
+        leadSource: {
+          select: { name: true }
+        }
+      }
+    });
 
     // Calculate stats
-    const allLeads = mockDb.leads.filter(lead => lead.userId === userId);
+    const allLeads = await prisma.lead.findMany({
+      where: { userId }
+    });
+
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
     const stats = {
       total: allLeads.length,
       new: allLeads.filter(l => l.status === 'new').length,
@@ -41,11 +74,7 @@ export async function GET(request: NextRequest) {
       quoted: allLeads.filter(l => l.status === 'quoted').length,
       won: allLeads.filter(l => l.status === 'won').length,
       lost: allLeads.filter(l => l.status === 'lost').length,
-      thisWeek: allLeads.filter(l => {
-        const received = new Date(l.receivedAt);
-        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        return received >= weekAgo;
-      }).length,
+      thisWeek: allLeads.filter(l => l.receivedAt >= weekAgo).length,
       conversionRate: allLeads.length > 0
         ? Math.round((allLeads.filter(l => l.status === 'won').length / allLeads.length) * 100)
         : 0,
@@ -68,7 +97,7 @@ export async function GET(request: NextRequest) {
 // POST /api/leads - Create a new lead
 export async function POST(request: NextRequest) {
   try {
-    const userId = getMockUserId();
+    const userId = await getUserId();
     const body = await request.json();
 
     const {
@@ -116,9 +145,9 @@ export async function POST(request: NextRequest) {
 
     // If leadSourceId provided, verify ownership
     if (leadSourceId) {
-      const leadSource = mockDb.leadSources.find(
-        ls => ls.id === leadSourceId && ls.userId === userId
-      );
+      const leadSource = await prisma.leadSource.findFirst({
+        where: { id: leadSourceId, userId }
+      });
       if (!leadSource) {
         return NextResponse.json(
           { error: 'Lead source not found' },
@@ -127,44 +156,39 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const now = new Date().toISOString();
-
-    const newLead: Lead = {
-      id: generateId(),
-      userId,
-      leadSourceId: leadSourceId || undefined,
-      sourceType,
-      sourceName: sourceName || undefined,
-      name: name || undefined,
-      email: email || undefined,
-      phone: phone || undefined,
-      company: company || undefined,
-      description: description || undefined,
-      location: location || undefined,
-      trade: trade || undefined,
-      estimatedValue: estimatedValue || undefined,
-      rawContent: rawContent || undefined,
-      rawSubject: rawSubject || undefined,
-      status: 'new',
-      priority,
-      receivedAt: now,
-      createdAt: now,
-    };
-
-    mockDb.leads.push(newLead);
+    // Create the lead
+    const newLead = await prisma.lead.create({
+      data: {
+        userId,
+        leadSourceId: leadSourceId || null,
+        sourceType,
+        sourceName: sourceName || null,
+        name: name || null,
+        email: email || null,
+        phone: phone || null,
+        company: company || null,
+        description: description || null,
+        location: location || null,
+        trade: trade || null,
+        estimatedValue: estimatedValue ? parseFloat(estimatedValue) : null,
+        rawContent: rawContent || null,
+        rawSubject: rawSubject || null,
+        status: 'new',
+        priority,
+      }
+    });
 
     // Create timeline event if linked to a lead source
     if (leadSourceId) {
-      const timelineEvent = {
-        id: generateId(),
-        leadSourceId,
-        userId,
-        eventType: 'lead_created' as const,
-        entityId: newLead.id,
-        description: `New lead from ${sourceName || sourceType}: ${name || email || phone || 'Unknown'}`,
-        createdAt: now,
-      };
-      mockDb.leadTimelineEvents.push(timelineEvent);
+      await prisma.leadTimelineEvent.create({
+        data: {
+          leadSourceId,
+          userId,
+          eventType: 'lead_created',
+          entityId: newLead.id,
+          description: `New lead from ${sourceName || sourceType}: ${name || email || phone || 'Unknown'}`,
+        }
+      });
     }
 
     return NextResponse.json({
@@ -183,10 +207,10 @@ export async function POST(request: NextRequest) {
 // PATCH /api/leads - Update lead status/details
 export async function PATCH(request: NextRequest) {
   try {
-    const userId = getMockUserId();
+    const userId = await getUserId();
     const body = await request.json();
 
-    const { id, status, priority, lastContactedAt, notes } = body;
+    const { id, status, priority, lastContactedAt } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -196,20 +220,20 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Find lead and verify ownership
-    const leadIndex = mockDb.leads.findIndex(
-      lead => lead.id === id && lead.userId === userId
-    );
+    const existingLead = await prisma.lead.findFirst({
+      where: { id, userId }
+    });
 
-    if (leadIndex === -1) {
+    if (!existingLead) {
       return NextResponse.json(
         { error: 'Lead not found' },
         { status: 404 }
       );
     }
 
-    const lead = mockDb.leads[leadIndex];
+    // Build update data
+    const updateData: any = {};
 
-    // Update fields
     if (status) {
       const validStatuses = ['new', 'contacted', 'quoted', 'won', 'lost', 'archived'];
       if (!validStatuses.includes(status)) {
@@ -218,7 +242,7 @@ export async function PATCH(request: NextRequest) {
           { status: 400 }
         );
       }
-      lead.status = status;
+      updateData.status = status;
     }
 
     if (priority) {
@@ -229,16 +253,22 @@ export async function PATCH(request: NextRequest) {
           { status: 400 }
         );
       }
-      lead.priority = priority;
+      updateData.priority = priority;
     }
 
     if (lastContactedAt) {
-      lead.lastContactedAt = lastContactedAt;
+      updateData.lastContactedAt = new Date(lastContactedAt);
     }
+
+    // Update the lead
+    const updatedLead = await prisma.lead.update({
+      where: { id },
+      data: updateData,
+    });
 
     return NextResponse.json({
       success: true,
-      lead,
+      lead: updatedLead,
     });
   } catch (error) {
     console.error('Error updating lead:', error);
