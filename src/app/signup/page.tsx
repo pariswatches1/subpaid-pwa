@@ -89,7 +89,8 @@ export default function SignUpPage() {
       );
 
       if (success) {
-        router.push('/dashboard');
+        // Redirect to onboarding for new users
+        router.push('/onboarding');
       } else {
         setErrors({ form: 'Unable to create account. Please try again.' });
       }

@@ -1,7 +1,8 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Zap, Clock, Mail, Phone, CheckCircle, ArrowRight, Settings, Calendar, TrendingUp, Shield } from 'lucide-react';
+import { Zap, Clock, Mail, Phone, CheckCircle, ArrowRight, Settings, Calendar, TrendingUp, Shield, Play, Pause, RotateCcw, FileText, DollarSign } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 
@@ -72,7 +73,104 @@ const features = [
   'Detailed activity logs',
 ];
 
+// Demo steps for the interactive animation
+const demoSteps = [
+  {
+    day: 0,
+    action: 'Invoice Sent',
+    icon: FileText,
+    color: 'bg-[#54A0FF]',
+    description: 'Invoice #1042 sent to ABC General Contractors',
+    status: 'Sent',
+    statusColor: 'text-[#54A0FF]',
+  },
+  {
+    day: 3,
+    action: 'Reminder Email',
+    icon: Mail,
+    color: 'bg-[#9FE870]',
+    description: 'Friendly payment reminder sent automatically',
+    status: 'Reminder Sent',
+    statusColor: 'text-[#9FE870]',
+  },
+  {
+    day: 7,
+    action: 'SAM Voice Call',
+    icon: Phone,
+    color: 'bg-[#FF9F43]',
+    description: 'SAM calls to follow up on payment',
+    status: 'Calling...',
+    statusColor: 'text-[#FF9F43]',
+    hasTranscript: true,
+    transcript: "Hi, this is SAM calling on behalf of Smith Electric regarding invoice #1042 for $4,500. We wanted to check in on the payment status and see if there's anything we can help with...",
+  },
+  {
+    day: 14,
+    action: 'Demand Email',
+    icon: Mail,
+    color: 'bg-[#FF6B6B]',
+    description: 'Formal payment demand sent',
+    status: 'Overdue - 14 days',
+    statusColor: 'text-[#FF6B6B]',
+  },
+  {
+    day: 21,
+    action: 'Follow-up Call',
+    icon: Phone,
+    color: 'bg-[#FF6B6B]',
+    description: 'SAM makes follow-up call',
+    status: 'Final Notice',
+    statusColor: 'text-[#FF6B6B]',
+    hasTranscript: true,
+    transcript: "Hi, this is SAM following up on invoice #1042 for $4,500 which is now 21 days overdue. We'd like to resolve this matter today. What arrangement can we make?",
+  },
+  {
+    day: 23,
+    action: 'Payment Received!',
+    icon: DollarSign,
+    color: 'bg-[#22C55E]',
+    description: 'Client paid $4,500 - Invoice complete!',
+    status: 'PAID',
+    statusColor: 'text-[#22C55E]',
+    isPaid: true,
+  },
+];
+
 export default function AutopilotPage() {
+  const [demoStep, setDemoStep] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const demoRef = useRef<HTMLDivElement>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Handle demo animation
+  useEffect(() => {
+    if (isPlaying) {
+      intervalRef.current = setInterval(() => {
+        setDemoStep((prev) => (prev + 1) % demoSteps.length);
+      }, 3000);
+    } else if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isPlaying]);
+
+  const scrollToDemo = () => {
+    demoRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleRestart = () => {
+    setDemoStep(0);
+    setIsPlaying(true);
+  };
+
+  const currentStep = demoSteps[demoStep];
+  const StepIcon = currentStep.icon;
+
   return (
     <>
       <Navbar />
@@ -99,12 +197,13 @@ export default function AutopilotPage() {
                     Try It Free
                     <ArrowRight className="w-5 h-5" />
                   </Link>
-                  <Link
-                    href="/demo"
+                  <button
+                    onClick={scrollToDemo}
                     className="inline-flex items-center justify-center gap-2 bg-[#1a1a2e] text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-[#2d2d44] transition-all"
                   >
+                    <Play className="w-5 h-5" />
                     See Demo
-                  </Link>
+                  </button>
                 </div>
               </div>
               <div className="flex-1">
@@ -134,6 +233,171 @@ export default function AutopilotPage() {
                       <span className="text-sm">Avg. collection: 14 days</span>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Interactive Demo Section */}
+        <section ref={demoRef} className="py-20 bg-gradient-to-b from-[#1a1a2e] to-[#2d2d44]">
+          <div className="max-w-5xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <p className="text-[#9FE870] text-sm font-medium mb-2">
+                ↓ This is exactly what happens after you send an invoice in SubPaid — automatically.
+              </p>
+              <h2 className="text-3xl font-bold text-white mb-4">See Autopilot in Action</h2>
+              <p className="text-white/70 max-w-2xl mx-auto">
+                Watch how Autopilot automatically handles the entire collection process from invoice to payment
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Invoice Card */}
+              <div className="bg-white rounded-2xl p-6 shadow-2xl">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <p className="text-sm text-gray-500">INVOICE</p>
+                    <p className="text-2xl font-bold text-[#1a1a2e]">#1042</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-500">AMOUNT</p>
+                    <p className="text-2xl font-bold text-[#1a1a2e]">$4,500</p>
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-100 pt-4 mb-6">
+                  <p className="text-sm text-gray-500 mb-1">Client</p>
+                  <p className="font-semibold text-[#1a1a2e]">ABC General Contractors</p>
+                </div>
+
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm text-gray-500">Status</span>
+                  <span className={`font-bold ${currentStep.statusColor} transition-all duration-500`}>
+                    {currentStep.status}
+                  </span>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="relative h-3 bg-gray-100 rounded-full overflow-hidden mb-4">
+                  <div
+                    className={`absolute inset-y-0 left-0 ${currentStep.isPaid ? 'bg-[#22C55E]' : 'bg-gradient-to-r from-[#9FE870] to-[#54A0FF]'} transition-all duration-500 rounded-full`}
+                    style={{ width: `${((demoStep + 1) / demoSteps.length) * 100}%` }}
+                  />
+                </div>
+
+                <div className="flex justify-between text-xs text-gray-400">
+                  <span>Day 0</span>
+                  <span>Day {currentStep.day}</span>
+                  <span>Paid</span>
+                </div>
+
+                {/* Paid Celebration */}
+                {currentStep.isPaid && (
+                  <div className="mt-6 p-4 bg-[#22C55E]/10 rounded-xl border-2 border-[#22C55E] text-center animate-pulse">
+                    <CheckCircle className="w-10 h-10 text-[#22C55E] mx-auto mb-2" />
+                    <p className="text-[#22C55E] font-bold text-lg">Payment Received!</p>
+                    <p className="text-[#22C55E]/70 text-sm">Invoice collected in 23 days</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Timeline & Activity */}
+              <div className="space-y-6">
+                {/* Current Action Card */}
+                <div className={`${currentStep.color} rounded-2xl p-6 shadow-2xl transition-all duration-500`}>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+                      <StepIcon className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white/70 text-sm">Day {currentStep.day}</p>
+                      <p className="text-white font-bold text-xl">{currentStep.action}</p>
+                    </div>
+                  </div>
+                  <p className="text-white/90">{currentStep.description}</p>
+
+                  {/* Transcript for calls */}
+                  {currentStep.hasTranscript && (
+                    <div className="mt-4 p-4 bg-white/10 rounded-xl">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Phone className="w-4 h-4 text-white/70" />
+                        <span className="text-white/70 text-sm">SAM Voice Agent</span>
+                        <span className="ml-auto flex items-center gap-1 text-white/70 text-xs">
+                          <span className="w-2 h-2 bg-red-400 rounded-full animate-pulse" />
+                          Live
+                        </span>
+                      </div>
+                      <p className="text-white/90 text-sm italic">&ldquo;{currentStep.transcript}&rdquo;</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Timeline */}
+                <div className="bg-white/10 backdrop-blur rounded-2xl p-6">
+                  <p className="text-white/50 text-xs uppercase tracking-wider mb-4">Timeline</p>
+                  <div className="space-y-3">
+                    {demoSteps.map((step, index) => {
+                      const Icon = step.icon;
+                      const isCompleted = index <= demoStep;
+                      const isCurrent = index === demoStep;
+                      return (
+                        <div
+                          key={index}
+                          className={`flex items-center gap-3 transition-all duration-300 ${isCurrent ? 'scale-105' : ''}`}
+                        >
+                          <div
+                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
+                              isCompleted ? step.color : 'bg-white/10'
+                            }`}
+                          >
+                            {isCompleted ? (
+                              <Icon className="w-4 h-4 text-white" />
+                            ) : (
+                              <div className="w-2 h-2 bg-white/30 rounded-full" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className={`text-sm font-medium ${isCompleted ? 'text-white' : 'text-white/40'}`}>
+                              Day {step.day}: {step.action}
+                            </p>
+                          </div>
+                          {isCurrent && (
+                            <span className="text-xs bg-white/20 text-white px-2 py-1 rounded-full">
+                              NOW
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Controls */}
+                <div className="flex items-center justify-center gap-4">
+                  <button
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-full font-medium transition-all"
+                  >
+                    {isPlaying ? (
+                      <>
+                        <Pause className="w-5 h-5" />
+                        Pause
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-5 h-5" />
+                        Play
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={handleRestart}
+                    className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-full font-medium transition-all"
+                  >
+                    <RotateCcw className="w-5 h-5" />
+                    Restart
+                  </button>
                 </div>
               </div>
             </div>

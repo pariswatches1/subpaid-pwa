@@ -25,7 +25,9 @@ import {
   Banknote,
   Calculator,
   BadgeCheck,
-  Receipt
+  Receipt,
+  Search,
+  Target,
 } from 'lucide-react';
 
 const navigation = [
@@ -44,6 +46,8 @@ const aiFeatures = [
   { name: 'Payment Prophet', href: '/dashboard/prophet', icon: TrendingUp, color: 'bg-[#FF9F43]' },
   { name: 'PayScore™', href: '/dashboard/payscore', icon: Shield, color: 'bg-[#FECA57]' },
   { name: 'Autopilot', href: '/dashboard/autopilot', icon: Zap, color: 'bg-[#FF6B6B]' },
+  { name: 'Find More Work', href: '/dashboard/keywords', icon: Briefcase, color: 'bg-[#A855F7]' },
+  { name: 'Lead Sources', href: '/dashboard/lead-sources', icon: Target, color: 'bg-[#22C55E]' },
 ];
 
 const premiumFeatures = [

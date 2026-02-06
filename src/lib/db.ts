@@ -3,6 +3,7 @@
 
 import { StateCode, DataSourceCode } from './states-config';
 import { Contractor } from './types';
+import { KeywordCacheEntry, SavedKeywordList, KeywordRequest, KeywordResponse, LeadSource } from './keyword-types';
 
 // Re-export Contractor for backwards compatibility
 export type { Contractor } from './types';
@@ -363,6 +364,32 @@ export const mockDb = {
     }
   ] as PrequalDocument[],
   profitGuardBids: [] as ProfitGuardBid[],
+  keywordCache: [] as KeywordCacheEntry[],
+  savedKeywordLists: [] as SavedKeywordList[],
+  leadSources: [
+    // Sample lead source to show the feature
+    {
+      id: 'ls-1',
+      userId: 'user1',
+      name: 'Electrical Services - Miami',
+      keywords: ['electrician near me', 'electrical contractor miami', 'licensed electrician miami'],
+      generatedContent: '## Service Page: Electrical Services in Miami\n\nProfessional electrical services...',
+      pageUrl: 'https://example.com/electrical-miami',
+      filters: {
+        trades: ['Electrical'],
+        location: { city: 'Miami', state: 'Florida' },
+        radiusMiles: 25,
+        audience: 'GET_HIRED' as const,
+        vertical: 'ALL' as const,
+      },
+      createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 2 weeks ago
+      stats: {
+        jobsLinked: 3,
+        invoicesLinked: 2,
+        amountPaid: 4500,
+      },
+    },
+  ] as LeadSource[],
 };
 
 // Load contractor data from pre-populated dataset
