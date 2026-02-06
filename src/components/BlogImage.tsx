@@ -953,6 +953,293 @@ function getConfig(slug: string): IllConfig {
         </g>
       ),
     },
+
+    /* ═══════════════════════════════════════════════════════════════
+       15 NEW SEO BLOG ILLUSTRATIONS — UNIQUE KEYWORDS
+       ═══════════════════════════════════════════════════════════════ */
+
+    'construction-retainage-explained': {
+      ...warm, label: 'Construction Retainage Explained',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          {/* Pie chart showing 10% held back */}
+          <circle cx={w * 0.55} cy={h * 0.4} r={h * 0.18} fill="#22C55E" opacity="0.3" />
+          <path d={`M${w * 0.55},${h * 0.4} L${w * 0.55},${h * 0.22} A${h * 0.18},${h * 0.18} 0 0,1 ${w * 0.55 + h * 0.18 * 0.59},${h * 0.4 - h * 0.18 * 0.81} Z`}
+            fill="#F59E0B" opacity="0.8" />
+          <text x={w * 0.68} y={h * 0.28} textAnchor="middle" fill="#F59E0B" fontSize="9" fontWeight="bold" fontFamily="system-ui" opacity="0.7">10%</text>
+          <text x={w * 0.48} y={h * 0.48} textAnchor="middle" fill="#22C55E" fontSize="9" fontWeight="bold" fontFamily="system-ui" opacity="0.6">90%</text>
+          <DollarSign x={w * 0.78} y={h * 0.5} s={0.7} />
+          <Clock x={w * 0.35} y={h * 0.55} s={0.6} />
+        </g>
+      ),
+    },
+
+    'how-to-start-subcontracting-business': {
+      ...blue, label: 'Start Your Subcontracting Business',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.5} y={h * 0.72} s={0.95} vest="#3B82F6" />
+          {/* Rocket/growth icon */}
+          <g transform={`translate(${w * 0.72}, ${h * 0.35})`}>
+            <polygon points="0,-20 8,5 0,0 -8,5" fill="#3B82F6" opacity="0.7" />
+            <polygon points="-5,5 0,15 5,5" fill="#F59E0B" opacity="0.6" />
+          </g>
+          <Document x={w * 0.25} y={h * 0.45} s={0.8} accent="#3B82F6" />
+          <HardHat x={w * 0.32} y={h * 0.2} s={1.1} />
+          {/* Checklist items */}
+          {[0, 8, 16].map((dy, i) => (
+            <g key={i}>
+              <rect x={w * 0.1} y={h * 0.38 + dy} width={5} height={5} rx={1} stroke="#22C55E" strokeWidth="1" fill="none" opacity="0.6" />
+              <polyline points={`${w * 0.11},${h * 0.405 + dy} ${w * 0.12},${h * 0.415 + dy} ${w * 0.14},${h * 0.39 + dy}`}
+                stroke="#22C55E" strokeWidth="1" fill="none" opacity="0.7" />
+            </g>
+          ))}
+        </g>
+      ),
+    },
+
+    'construction-contract-red-flags': {
+      ...warm, skyTop: '#FCA5A5', skyMid: '#FECACA', skyBot: '#FEE2E2', label: '12 Contract Red Flags',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} vest="#EF4444" />
+          <Document x={w * 0.55} y={h * 0.4} s={1.2} accent="#EF4444" />
+          {/* Warning triangles */}
+          {[0.38, 0.52, 0.66].map((xp, i) => (
+            <g key={i}>
+              <polygon points={`${w * xp},${h * 0.2} ${w * xp - 8},${h * 0.32} ${w * xp + 8},${h * 0.32}`}
+                fill="#FDE68A" stroke="#F59E0B" strokeWidth="1" />
+              <text x={w * xp} y={h * 0.29} textAnchor="middle" fill="#DC2626" fontSize="10" fontWeight="bold">!</text>
+            </g>
+          ))}
+          <text x={w * 0.52} y={h * 0.18} textAnchor="middle" fill="#EF4444" fontSize="10" fontWeight="bold" fontFamily="system-ui" opacity="0.5">RED FLAGS</text>
+        </g>
+      ),
+    },
+
+    'subcontractor-bonding-guide': {
+      ...blue, label: 'Bonding Guide for Subcontractors',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          {/* Bond certificate */}
+          <g transform={`translate(${w * 0.55}, ${h * 0.4})`}>
+            <rect x={-30} y={-25} width={60} height={50} rx={3} fill="white" stroke="#3B82F6" strokeWidth="2" />
+            <rect x={-25} y={-20} width={50} height={8} rx={2} fill="#3B82F6" opacity="0.2" />
+            <text x={0} y={-13} textAnchor="middle" fill="#3B82F6" fontSize="8" fontWeight="bold">BOND</text>
+            <circle cx={0} cy={8} r={12} fill="#F59E0B" opacity="0.3" stroke="#F59E0B" strokeWidth="1" />
+            <text x={0} y={11} textAnchor="middle" fill="#F59E0B" fontSize="7" fontWeight="bold">✓</text>
+          </g>
+          <Shield x={w * 0.78} y={h * 0.55} s={0.7} color="#3B82F6" />
+          <DollarSign x={w * 0.35} y={h * 0.25} s={0.6} />
+        </g>
+      ),
+    },
+
+    'prevailing-wage-requirements-contractors': {
+      ...base, label: 'Prevailing Wage Requirements',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          <Person x={w * 0.4} y={h * 0.72} s={0.85} shirt="#3B82F6" facingRight={false} />
+          {/* Government building silhouette */}
+          <g opacity="0.3">
+            <rect x={w * 0.55} y={h * 0.35} width={w * 0.25} height={h * 0.25} fill="#64748B" />
+            <polygon points={`${w * 0.55},${h * 0.35} ${w * 0.675},${h * 0.22} ${w * 0.8},${h * 0.35}`} fill="#64748B" />
+            {[0.58, 0.64, 0.7, 0.76].map((xp, i) => (
+              <rect key={i} x={w * xp} y={h * 0.4} width={4} height={h * 0.15} fill="white" opacity="0.5" />
+            ))}
+          </g>
+          <DollarSign x={w * 0.65} y={h * 0.55} s={0.8} />
+          <Calculator x={w * 0.82} y={h * 0.5} s={0.7} />
+        </g>
+      ),
+    },
+
+    'commercial-vs-residential-subcontracting': {
+      ...base, label: 'Commercial vs. Residential',
+      render: (w, h) => (
+        <g>
+          {/* Commercial building */}
+          <g opacity="0.5">
+            <rect x={w * 0.15} y={h * 0.3} width={w * 0.2} height={h * 0.35} fill="#3B82F6" />
+            {[0, 6, 12, 18, 24].map((dy, i) => (
+              [0, 8, 16].map((dx, j) => (
+                <rect key={`${i}-${j}`} x={w * 0.17 + dx} y={h * 0.33 + dy} width={4} height={4} fill="white" opacity="0.4" />
+              ))
+            ))}
+          </g>
+          {/* House */}
+          <g opacity="0.5">
+            <rect x={w * 0.6} y={h * 0.45} width={w * 0.2} height={h * 0.2} fill="#22C55E" />
+            <polygon points={`${w * 0.6},${h * 0.45} ${w * 0.7},${h * 0.32} ${w * 0.8},${h * 0.45}`} fill="#22C55E" />
+            <rect x={w * 0.67} y={h * 0.52} width={6} height={10} fill="white" opacity="0.4" />
+          </g>
+          {/* VS */}
+          <circle cx={w * 0.5} cy={h * 0.45} r={12} fill="#1a1a2e" opacity="0.7" />
+          <text x={w * 0.5} y={h * 0.47} textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">VS</text>
+          <Person x={w * 0.5} y={h * 0.72} s={0.85} />
+        </g>
+      ),
+    },
+
+    'subcontractor-insurance-requirements': {
+      ...green, label: 'Insurance Requirements Guide',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          <Shield x={w * 0.55} y={h * 0.38} s={1.4} color="#22C55E" />
+          {/* Insurance policy documents */}
+          <Document x={w * 0.75} y={h * 0.35} s={0.6} accent="#3B82F6" />
+          <Document x={w * 0.8} y={h * 0.42} s={0.6} accent="#F59E0B" />
+          <HardHat x={w * 0.55} y={h * 0.15} s={1} />
+          <text x={w * 0.55} y={h * 0.42} textAnchor="middle" fill="white" fontSize="12" fontWeight="bold" opacity="0.9">✓</text>
+        </g>
+      ),
+    },
+
+    'construction-material-price-increases': {
+      ...warm, label: 'Handle Material Price Increases',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          {/* Rising price chart */}
+          <polyline points={`${w * 0.35},${h * 0.55} ${w * 0.45},${h * 0.48} ${w * 0.55},${h * 0.52} ${w * 0.65},${h * 0.38} ${w * 0.75},${h * 0.25}`}
+            stroke="#EF4444" strokeWidth="3" fill="none" strokeLinecap="round" />
+          {/* Arrow up */}
+          <polygon points={`${w * 0.75},${h * 0.25} ${w * 0.72},${h * 0.32} ${w * 0.78},${h * 0.32}`} fill="#EF4444" />
+          <DollarSign x={w * 0.78} y={h * 0.45} s={0.7} color="#EF4444" />
+          {/* Materials */}
+          <Toolbox x={w * 0.35} y={h * 0.68} s={0.7} />
+          <text x={w * 0.6} y={h * 0.2} textAnchor="middle" fill="#EF4444" fontSize="10" fontWeight="bold" fontFamily="system-ui" opacity="0.6">PRICE ↑</text>
+        </g>
+      ),
+    },
+
+    'construction-project-delays-subcontractor': {
+      ...base, label: 'Surviving Project Delays',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} vest="#F59E0B" />
+          <Clock x={w * 0.55} y={h * 0.38} s={1.4} />
+          {/* Delay indicators */}
+          {[0, 8, 16].map((dy, i) => (
+            <rect key={i} x={w * 0.72} y={h * 0.32 + dy} width={w * 0.12 - i * 4} height={5} rx={2} fill="#EF4444" opacity={0.4 + i * 0.15} />
+          ))}
+          <text x={w * 0.78} y={h * 0.28} textAnchor="middle" fill="#EF4444" fontSize="8" fontWeight="bold" fontFamily="system-ui" opacity="0.6">DELAYED</text>
+          <Blueprints x={w * 0.35} y={h * 0.6} s={0.8} />
+        </g>
+      ),
+    },
+
+    'subcontractor-estimating-tips': {
+      ...blue, label: 'Estimating Tips for Profit',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          <Calculator x={w * 0.5} y={h * 0.42} s={1.3} />
+          <Clipboard x={w * 0.75} y={h * 0.45} s={0.9} />
+          <DollarSign x={w * 0.65} y={h * 0.2} s={0.7} />
+          <Target x={w * 0.35} y={h * 0.3} s={0.6} />
+          <Blueprints x={w * 0.15} y={h * 0.55} s={0.7} />
+        </g>
+      ),
+    },
+
+    'construction-warranty-claims': {
+      ...warm, label: 'Handle Warranty Claims',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          {/* Warranty badge */}
+          <g transform={`translate(${w * 0.55}, ${h * 0.38})`}>
+            <circle r={h * 0.15} fill="#F59E0B" opacity="0.2" stroke="#F59E0B" strokeWidth="2" />
+            <text x={0} y={-5} textAnchor="middle" fill="#F59E0B" fontSize="9" fontWeight="bold">WARRANTY</text>
+            <text x={0} y={8} textAnchor="middle" fill="#F59E0B" fontSize="7">1 YEAR</text>
+          </g>
+          <Wrench x={w * 0.75} y={h * 0.5} s={0.8} rot={30} />
+          <Document x={w * 0.78} y={h * 0.35} s={0.6} accent="#F59E0B" />
+          <ThumbsUp x={w * 0.35} y={h * 0.3} s={0.7} />
+        </g>
+      ),
+    },
+
+    'subcontractor-change-order-management': {
+      ...green, label: 'Master Change Orders',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          <Document x={w * 0.5} y={h * 0.4} s={1.1} accent="#22C55E" />
+          {/* Change/edit icon */}
+          <g transform={`translate(${w * 0.65}, ${h * 0.32})`}>
+            <circle r={12} fill="#F59E0B" opacity="0.3" />
+            <text x={0} y={4} textAnchor="middle" fill="#F59E0B" fontSize="14">✎</text>
+          </g>
+          <DollarSign x={w * 0.75} y={h * 0.5} s={0.8} />
+          <Clipboard x={w * 0.32} y={h * 0.55} s={0.7} />
+          <text x={w * 0.5} y={h * 0.2} textAnchor="middle" fill="#22C55E" fontSize="9" fontWeight="bold" fontFamily="system-ui" opacity="0.6">CHANGE ORDER</text>
+        </g>
+      ),
+    },
+
+    'construction-lien-waiver-guide': {
+      ...blue, label: 'Lien Waivers Explained',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          <Document x={w * 0.5} y={h * 0.4} s={1.2} accent="#3B82F6" />
+          {/* Signature line */}
+          <line x1={w * 0.42} y1={h * 0.52} x2={w * 0.58} y2={h * 0.52} stroke="#64748B" strokeWidth="1" />
+          <text x={w * 0.5} y={h * 0.58} textAnchor="middle" fill="#64748B" fontSize="6" fontFamily="system-ui" opacity="0.5">SIGNATURE</text>
+          <Shield x={w * 0.75} y={h * 0.4} s={0.8} color="#3B82F6" />
+          <Gavel x={w * 0.32} y={h * 0.55} s={0.6} />
+          <text x={w * 0.5} y={h * 0.2} textAnchor="middle" fill="#3B82F6" fontSize="9" fontWeight="bold" fontFamily="system-ui" opacity="0.5">LIEN WAIVER</text>
+        </g>
+      ),
+    },
+
+    'subcontractor-networking-tips': {
+      ...green, label: 'Networking for Work',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.25} y={h * 0.72} s={0.8} />
+          <Person x={w * 0.5} y={h * 0.72} s={0.8} shirt="#3B82F6" />
+          <Person x={w * 0.75} y={h * 0.72} s={0.8} facingRight={false} shirt="#22C55E" />
+          {/* Connection lines */}
+          <line x1={w * 0.3} y1={h * 0.45} x2={w * 0.45} y2={h * 0.45} stroke="#22C55E" strokeWidth="2" strokeDasharray="4 2" opacity="0.5" />
+          <line x1={w * 0.55} y1={h * 0.45} x2={w * 0.7} y2={h * 0.45} stroke="#22C55E" strokeWidth="2" strokeDasharray="4 2" opacity="0.5" />
+          <line x1={w * 0.38} y1={h * 0.35} x2={w * 0.62} y2={h * 0.35} stroke="#22C55E" strokeWidth="2" strokeDasharray="4 2" opacity="0.5" />
+          {/* Nodes */}
+          {[0.25, 0.5, 0.75].map((xp, i) => (
+            <circle key={i} cx={w * xp} cy={h * 0.45} r={6} fill="#22C55E" opacity="0.6" />
+          ))}
+          <circle cx={w * 0.5} cy={h * 0.28} r={8} fill="#22C55E" opacity="0.8" />
+          <ThumbsUp x={w * 0.5} y={h * 0.28} s={0.4} />
+        </g>
+      ),
+    },
+
+    'construction-project-closeout-checklist': {
+      ...base, label: 'Project Closeout Checklist',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} vest="#22C55E" />
+          <Clipboard x={w * 0.55} y={h * 0.4} s={1.3} />
+          {/* Checkmarks on clipboard */}
+          {[0, 10, 20, 30].map((dy, i) => (
+            <g key={i}>
+              <circle cx={w * 0.48} cy={h * 0.3 + dy * 0.5} r={4} fill="#22C55E" opacity="0.7" />
+              <polyline points={`${w * 0.46},${h * 0.3 + dy * 0.5} ${w * 0.48},${h * 0.32 + dy * 0.5} ${w * 0.51},${h * 0.28 + dy * 0.5}`}
+                stroke="white" strokeWidth="1.5" fill="none" />
+            </g>
+          ))}
+          <MoneyStack x={w * 0.78} y={h * 0.45} s={0.8} />
+          <DollarSign x={w * 0.35} y={h * 0.25} s={0.6} />
+          <text x={w * 0.55} y={h * 0.18} textAnchor="middle" fill="#22C55E" fontSize="9" fontWeight="bold" fontFamily="system-ui" opacity="0.6">CLOSEOUT</text>
+        </g>
+      ),
+    },
   };
 
   return configs[slug] || {

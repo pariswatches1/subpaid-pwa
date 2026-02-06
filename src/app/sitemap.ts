@@ -164,6 +164,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'ai-voice-agents-construction-collections',
     'payment-prediction-construction',
     'how-ai-is-transforming-invoicing',
+    // 15 New SEO-Optimized Posts
+    'construction-retainage-explained',
+    'how-to-start-subcontracting-business',
+    'construction-contract-red-flags',
+    'subcontractor-bonding-guide',
+    'prevailing-wage-requirements-contractors',
+    'commercial-vs-residential-subcontracting',
+    'subcontractor-insurance-requirements',
+    'construction-material-price-increases',
+    'construction-project-delays-subcontractor',
+    'subcontractor-estimating-tips',
+    'construction-warranty-claims',
+    'subcontractor-change-order-management',
+    'construction-lien-waiver-guide',
+    'subcontractor-networking-tips',
+    'construction-project-closeout-checklist',
   ];
 
   const blogPosts: MetadataRoute.Sitemap = blogSlugs.map((slug) => ({
