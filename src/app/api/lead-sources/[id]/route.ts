@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { mockDb, getMockUserId } from '@/lib/db';
 import { LeadSource } from '@/lib/keyword-types';
+import { calculatePaybackSpeedScore } from '@/lib/payback-speed';
 
 // Calculate ROI metrics for a lead source
 function calculateMetrics(leadSource: LeadSource) {
@@ -44,66 +45,6 @@ function calculateMetrics(leadSource: LeadSource) {
   };
 }
 
-// Calculate Payback Speed Score
-function calculatePaybackScore(leadSource: LeadSource) {
-  const metrics = calculateMetrics(leadSource);
-  let score = 0;
-
-  // Conversion Rate scoring (25 points max)
-  // We'll use jobs per source as a proxy since we don't track leads separately
-  if (leadSource.stats.jobsLinked >= 10) score += 25;
-  else if (leadSource.stats.jobsLinked >= 5) score += 20;
-  else if (leadSource.stats.jobsLinked >= 3) score += 15;
-  else if (leadSource.stats.jobsLinked >= 1) score += 10;
-
-  // Avg Invoice Amount scoring (25 points max)
-  const avgInvoice = leadSource.stats.invoicesLinked > 0
-    ? leadSource.stats.amountPaid / leadSource.stats.invoicesLinked
-    : 0;
-  if (avgInvoice >= 10000) score += 25;
-  else if (avgInvoice >= 5000) score += 20;
-  else if (avgInvoice >= 2500) score += 15;
-  else if (avgInvoice >= 1000) score += 10;
-  else if (avgInvoice > 0) score += 5;
-
-  // Speed to Payment scoring (25 points max)
-  if (metrics.avgDaysToPaid > 0) {
-    if (metrics.avgDaysToPaid <= 14) score += 25;
-    else if (metrics.avgDaysToPaid <= 21) score += 20;
-    else if (metrics.avgDaysToPaid <= 30) score += 15;
-    else if (metrics.avgDaysToPaid <= 45) score += 10;
-    else score += 5;
-  }
-
-  // ROI scoring (25 points max)
-  if (metrics.roi >= 300) score += 25;
-  else if (metrics.roi >= 200) score += 20;
-  else if (metrics.roi >= 100) score += 15;
-  else if (metrics.roi >= 50) score += 10;
-  else if (metrics.roi > 0) score += 5;
-
-  // Determine grade
-  let grade: 'A' | 'B' | 'C' | 'D' | 'F';
-  if (score >= 80) grade = 'A';
-  else if (score >= 60) grade = 'B';
-  else if (score >= 40) grade = 'C';
-  else if (score >= 20) grade = 'D';
-  else grade = 'F';
-
-  return {
-    leadSourceId: leadSource.id,
-    userId: leadSource.userId,
-    conversionRate: leadSource.stats.jobsLinked,  // Simplified for now
-    avgInvoiceAmount: avgInvoice,
-    avgDaysToPaid: metrics.avgDaysToPaid,
-    latePaymentRate: 0,  // Would need payment terms tracking
-    score,
-    grade,
-    trend: 'stable' as const,
-    calculatedAt: new Date().toISOString(),
-  };
-}
-
 // GET - Get single lead source with full details
 export async function GET(
   request: NextRequest,
@@ -139,12 +80,18 @@ export async function GET(
     .filter(c => c.leadSourceId === id)
     .sort((a, b) => new Date(b.callDate).getTime() - new Date(a.callDate).getTime());
 
+  // Calculate payback score using shared utility
+  const paybackScore = calculatePaybackSpeedScore({
+    leadSource,
+    linkedInvoices,
+  });
+
   return NextResponse.json({
     leadSource: {
       ...leadSource,
       calculatedMetrics: calculateMetrics(leadSource),
     },
-    paybackScore: calculatePaybackScore(leadSource),
+    paybackScore,
     linkedJobs,
     linkedInvoices,
     timelineEvents,

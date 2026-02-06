@@ -91,8 +91,8 @@ export async function POST(request: NextRequest) {
       };
       mockDb.leadTimelineEvents.push(timelineEvent);
 
-      // Update lead source stats
-      const leadSource = mockDb.leadSources.find(ls => ls.id === leadSourceId);
+      // Update lead source stats (only if user owns the lead source)
+      const leadSource = mockDb.leadSources.find(ls => ls.id === leadSourceId && ls.userId === userId);
       if (leadSource) {
         leadSource.stats.jobsLinked = (leadSource.stats.jobsLinked || 0) + 1;
       }

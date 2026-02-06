@@ -126,8 +126,8 @@ export async function POST(request: NextRequest) {
       };
       mockDb.leadTimelineEvents.push(timelineEvent);
 
-      // Update lead source stats
-      const leadSource = mockDb.leadSources.find(ls => ls.id === leadSourceId);
+      // Update lead source stats (only if user owns the lead source)
+      const leadSource = mockDb.leadSources.find(ls => ls.id === leadSourceId && ls.userId === userId);
       if (leadSource) {
         leadSource.stats.invoicesLinked = (leadSource.stats.invoicesLinked || 0) + 1;
       }
@@ -141,6 +141,94 @@ export async function POST(request: NextRequest) {
     console.error('Create invoice error:', error);
     return NextResponse.json(
       { error: 'Failed to create invoice. Please try again.' },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH /api/invoices - Update invoice status
+export async function PATCH(request: NextRequest) {
+  try {
+    const userId = getMockUserId();
+    const body = await request.json();
+    const { id, status, paidAt } = body;
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Invoice ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Find invoice and verify ownership
+    const invoiceIndex = mockDb.invoices.findIndex(
+      inv => inv.id === id && inv.userId === userId
+    );
+
+    if (invoiceIndex === -1) {
+      return NextResponse.json(
+        { error: 'Invoice not found' },
+        { status: 404 }
+      );
+    }
+
+    const invoice = mockDb.invoices[invoiceIndex];
+    const previousStatus = invoice.status;
+
+    // Update status if provided
+    if (status) {
+      invoice.status = status;
+
+      // If status changed to 'paid', update lead source amountPaid
+      if (status === 'paid' && previousStatus !== 'paid') {
+        invoice.paidAt = paidAt || new Date().toISOString();
+
+        // Update lead source stats if linked
+        if (invoice.leadSourceId) {
+          const leadSource = mockDb.leadSources.find(
+            ls => ls.id === invoice.leadSourceId && ls.userId === userId
+          );
+          if (leadSource) {
+            leadSource.stats.amountPaid = (leadSource.stats.amountPaid || 0) + invoice.total;
+
+            // Create timeline event for payment
+            const timelineEvent = {
+              id: generateId(),
+              leadSourceId: invoice.leadSourceId,
+              userId,
+              eventType: 'payment_received' as const,
+              entityId: invoice.id,
+              description: `Payment received: ${invoice.invoiceNumber}`,
+              amount: invoice.total,
+              createdAt: new Date().toISOString(),
+            };
+            mockDb.leadTimelineEvents.push(timelineEvent);
+          }
+        }
+      }
+
+      // If status changed FROM 'paid' to something else, subtract amount (edge case)
+      if (previousStatus === 'paid' && status !== 'paid') {
+        if (invoice.leadSourceId) {
+          const leadSource = mockDb.leadSources.find(
+            ls => ls.id === invoice.leadSourceId && ls.userId === userId
+          );
+          if (leadSource) {
+            leadSource.stats.amountPaid = Math.max(0, (leadSource.stats.amountPaid || 0) - invoice.total);
+          }
+        }
+        invoice.paidAt = undefined;
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      invoice,
+    });
+  } catch (error) {
+    console.error('Update invoice error:', error);
+    return NextResponse.json(
+      { error: 'Failed to update invoice' },
       { status: 500 }
     );
   }

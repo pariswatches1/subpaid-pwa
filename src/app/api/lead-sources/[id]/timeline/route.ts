@@ -63,6 +63,27 @@ export async function POST(
       );
     }
 
+    // Validate eventType is one of the allowed values
+    const validEventTypes = [
+      'call', 'form_submit', 'job_created', 'estimate_sent',
+      'estimate_accepted', 'invoice_sent', 'reminder_sent',
+      'sam_call', 'payment_received'
+    ];
+    if (!validEventTypes.includes(eventType)) {
+      return NextResponse.json(
+        { error: `Invalid eventType. Must be one of: ${validEventTypes.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    // Validate amount is non-negative if provided
+    if (amount !== undefined && amount < 0) {
+      return NextResponse.json(
+        { error: 'Amount cannot be negative' },
+        { status: 400 }
+      );
+    }
+
     const newEvent = {
       id: generateId(),
       leadSourceId: id,

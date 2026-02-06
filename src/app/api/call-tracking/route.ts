@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       callerNumber,
       callDate: callDate || new Date().toISOString(),
       duration: duration || 0,
-      answered: answered !== undefined ? answered : true,
+      answered: answered !== undefined ? answered : false,  // Default to false for safety
       outcome: outcome || undefined,
       createdAt: new Date().toISOString(),
     };
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     // Update lead source stats
     leadSource.stats.totalCalls = (leadSource.stats.totalCalls || 0) + 1;
-    if (answered) {
+    if (newRecord.answered) {
       leadSource.stats.callsAnswered = (leadSource.stats.callsAnswered || 0) + 1;
     }
 

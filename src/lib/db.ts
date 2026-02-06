@@ -37,6 +37,9 @@ export interface Job {
   endDate?: string;
   userId: string;
   createdAt: string;
+  // Additional fields
+  budget?: number;
+  address?: string;
   // Lead Source Attribution
   leadSourceId?: string;
 }

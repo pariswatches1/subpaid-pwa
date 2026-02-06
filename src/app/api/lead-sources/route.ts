@@ -89,6 +89,16 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate cost fields are non-negative
+    if ((monthlyAdSpend !== undefined && monthlyAdSpend < 0) ||
+        (seoRetainerCost !== undefined && seoRetainerCost < 0) ||
+        (otherCosts !== undefined && otherCosts < 0)) {
+      return NextResponse.json(
+        { error: 'Cost values cannot be negative' },
+        { status: 400 }
+      );
+    }
+
     const userId = getMockUserId();
 
     const newLeadSource: LeadSource = {
@@ -155,6 +165,16 @@ export async function PATCH(request: Request) {
     if (!id) {
       return NextResponse.json(
         { error: 'Lead source ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate cost fields are non-negative
+    if ((monthlyAdSpend !== undefined && monthlyAdSpend < 0) ||
+        (seoRetainerCost !== undefined && seoRetainerCost < 0) ||
+        (otherCosts !== undefined && otherCosts < 0)) {
+      return NextResponse.json(
+        { error: 'Cost values cannot be negative' },
         { status: 400 }
       );
     }
