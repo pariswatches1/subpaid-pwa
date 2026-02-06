@@ -122,10 +122,15 @@ async function findLeadSource(
   // Try to match by source name
   if (parsedEmail.sourceName) {
     const sourceLower = parsedEmail.sourceName.toLowerCase();
-    const sources = await prisma.leadSource.findMany({
-      where: { userId }
+    return await prisma.leadSource.findFirst({
+      where: {
+        userId,
+        name: {
+          contains: sourceLower,
+          mode: 'insensitive'
+        }
+      }
     });
-    return sources.find(ls => ls.name.toLowerCase().includes(sourceLower));
   }
 
   return undefined;
