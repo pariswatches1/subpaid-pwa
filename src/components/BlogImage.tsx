@@ -427,6 +427,7 @@ function getConfig(slug: string): IllConfig {
   const warm = { ...base, skyTop: '#FDE68A', skyMid: '#FEF3C7', skyBot: '#FFFBEB' };
   const blue = { ...base, skyTop: '#60A5FA', skyMid: '#93C5FD', skyBot: '#DBEAFE' };
   const green = { ...base, skyTop: '#6EE7B7', skyMid: '#A7F3D0', skyBot: '#D1FAE5', groundTop: '#86EFAC', groundBot: '#6EE7B7' };
+  const red = { ...base, skyTop: '#FCA5A5', skyMid: '#FECACA', skyBot: '#FEE2E2' };
 
   const configs: Record<string, IllConfig> = {
 
@@ -1237,6 +1238,327 @@ function getConfig(slug: string): IllConfig {
           <MoneyStack x={w * 0.78} y={h * 0.45} s={0.8} />
           <DollarSign x={w * 0.35} y={h * 0.25} s={0.6} />
           <text x={w * 0.55} y={h * 0.18} textAnchor="middle" fill="#22C55E" fontSize="9" fontWeight="bold" fontFamily="system-ui" opacity="0.6">CLOSEOUT</text>
+        </g>
+      ),
+    },
+
+    /* ═══════════════════════════════════════════════════════════════
+       20 NEW SEO BLOG ILLUSTRATIONS
+       ═══════════════════════════════════════════════════════════════ */
+
+    'how-long-to-pay-subcontractors': {
+      ...warm, label: 'Payment Deadline Laws',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          <Clock x={w * 0.5} y={h * 0.35} s={1.4} />
+          <Document x={w * 0.72} y={h * 0.35} s={1.1} />
+          <Scales x={w * 0.35} y={h * 0.25} s={0.7} />
+          <DollarSign x={w * 0.78} y={h * 0.55} s={0.6} />
+          <text x={w * 0.5} y={h * 0.18} textAnchor="middle" fill="#F59E0B" fontSize="9" fontWeight="bold" fontFamily="system-ui" opacity="0.6">STATE LAWS</text>
+        </g>
+      ),
+    },
+
+    'subcontractor-payment-application': {
+      ...green, label: 'Payment Application Process',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.22} y={h * 0.72} s={0.85} vest="#22C55E" />
+          <Clipboard x={w * 0.5} y={h * 0.38} s={1.3} />
+          <DollarSign x={w * 0.72} y={h * 0.3} s={0.9} />
+          {/* Progress bar */}
+          <rect x={w * 0.35} y={h * 0.6} width={w * 0.4} height={8} rx={4} fill="#E5E7EB" />
+          <rect x={w * 0.35} y={h * 0.6} width={w * 0.3} height={8} rx={4} fill="#22C55E" />
+          <text x={w * 0.5} y={h * 0.18} textAnchor="middle" fill="#22C55E" fontSize="9" fontWeight="bold" fontFamily="system-ui" opacity="0.6">PAY APP</text>
+        </g>
+      ),
+    },
+
+    'construction-back-charges-guide': {
+      ...red, label: 'Back Charges Guide',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} vest="#EF4444" />
+          <Document x={w * 0.5} y={h * 0.35} s={1.2} accent="#EF4444" />
+          {/* X mark on document */}
+          <line x1={w * 0.45} y1={h * 0.35} x2={w * 0.55} y2={h * 0.45} stroke="#EF4444" strokeWidth="3" opacity="0.7" />
+          <line x1={w * 0.55} y1={h * 0.35} x2={w * 0.45} y2={h * 0.45} stroke="#EF4444" strokeWidth="3" opacity="0.7" />
+          <Shield x={w * 0.72} y={h * 0.35} s={1} color="#22C55E" />
+          <DollarSign x={w * 0.35} y={h * 0.2} s={0.6} color="#EF4444" />
+        </g>
+      ),
+    },
+
+    'best-accounting-software-subcontractors': {
+      ...blue, label: 'Accounting Software Guide',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.18} y={h * 0.72} s={0.8} shirt="#3B82F6" />
+          <Calculator x={w * 0.42} y={h * 0.38} s={1.2} />
+          <Phone x={w * 0.65} y={h * 0.35} s={1.1} />
+          <BarChart x={w * 0.78} y={h * 0.5} s={0.8} />
+          {/* Stars for ratings */}
+          {[0.35, 0.45, 0.55].map((xp, i) => (
+            <text key={i} x={w * xp} y={h * 0.2} textAnchor="middle" fill="#F59E0B" fontSize="12" opacity="0.7">★</text>
+          ))}
+        </g>
+      ),
+    },
+
+    'construction-draw-schedule-explained': {
+      ...warm, label: 'Draw Schedule Explained',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          {/* Calendar/timeline */}
+          <rect x={w * 0.35} y={h * 0.25} width={w * 0.4} height={h * 0.35} rx={4} fill="white" stroke="#E5E7EB" strokeWidth="1" />
+          {[0, 1, 2, 3].map((i) => (
+            <g key={i}>
+              <rect x={w * 0.38} y={h * (0.3 + i * 0.07)} width={w * 0.32} height={h * 0.05} rx={2} fill={i < 2 ? '#22C55E' : '#E5E7EB'} opacity="0.5" />
+            </g>
+          ))}
+          <DollarSign x={w * 0.78} y={h * 0.35} s={0.8} />
+          <MoneyStack x={w * 0.78} y={h * 0.55} s={0.7} />
+        </g>
+      ),
+    },
+
+    'subcontractor-scope-creep-management': {
+      ...warm, label: 'Managing Scope Creep',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} vest="#F59E0B" />
+          {/* Expanding document */}
+          <Document x={w * 0.45} y={h * 0.35} s={0.9} />
+          <Document x={w * 0.52} y={h * 0.32} s={1} />
+          <Document x={w * 0.59} y={h * 0.29} s={1.1} />
+          {/* Warning triangles */}
+          <polygon points={`${w * 0.75},${h * 0.25} ${w * 0.72},${h * 0.32} ${w * 0.78},${h * 0.32}`} fill="#F59E0B" opacity="0.7" />
+          <text x={w * 0.75} y={h * 0.3} textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">!</text>
+          <DollarSign x={w * 0.35} y={h * 0.22} s={0.5} color="#EF4444" />
+        </g>
+      ),
+    },
+
+    'joint-check-agreements-construction': {
+      ...blue, label: 'Joint Check Agreements',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.22} y={h * 0.72} s={0.8} />
+          <Person x={w * 0.78} y={h * 0.72} s={0.8} facingRight={false} shirt="#3B82F6" />
+          {/* Check document in middle */}
+          <rect x={w * 0.38} y={h * 0.3} width={w * 0.24} height={h * 0.15} rx={3} fill="white" stroke="#3B82F6" strokeWidth="1.5" />
+          <rect x={w * 0.4} y={h * 0.35} width={w * 0.12} height={3} fill="#E5E7EB" />
+          <rect x={w * 0.4} y={h * 0.4} width={w * 0.08} height={3} fill="#E5E7EB" />
+          <DollarSign x={w * 0.5} y={h * 0.5} s={0.8} />
+          {/* Connection arrows */}
+          <line x1={w * 0.32} y1={h * 0.4} x2={w * 0.38} y2={h * 0.38} stroke="#3B82F6" strokeWidth="2" opacity="0.5" />
+          <line x1={w * 0.68} y1={h * 0.4} x2={w * 0.62} y2={h * 0.38} stroke="#3B82F6" strokeWidth="2" opacity="0.5" />
+        </g>
+      ),
+    },
+
+    'subcontractor-default-insurance-guide': {
+      ...blue, label: 'Default Insurance Guide',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          <Shield x={w * 0.5} y={h * 0.35} s={1.5} color="#3B82F6" />
+          <Document x={w * 0.72} y={h * 0.4} s={0.9} />
+          <HardHat x={w * 0.35} y={h * 0.22} s={0.9} />
+          <text x={w * 0.5} y={h * 0.18} textAnchor="middle" fill="#3B82F6" fontSize="8" fontWeight="bold" fontFamily="system-ui" opacity="0.6">SDI</text>
+        </g>
+      ),
+    },
+
+    'construction-demand-letter-template': {
+      ...warm, label: 'Demand Letter Template',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} vest="#F59E0B" />
+          <Document x={w * 0.48} y={h * 0.35} s={1.3} accent="#EF4444" />
+          <Gavel x={w * 0.72} y={h * 0.35} s={1} />
+          <Clock x={w * 0.35} y={h * 0.25} s={0.7} />
+          <text x={w * 0.48} y={h * 0.35} textAnchor="middle" fill="#EF4444" fontSize="8" fontWeight="bold" fontFamily="system-ui" opacity="0.7">DEMAND</text>
+        </g>
+      ),
+    },
+
+    'notice-to-owner-requirements-states': {
+      ...blue, label: 'Notice to Owner Guide',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.18} y={h * 0.72} s={0.8} />
+          <Document x={w * 0.45} y={h * 0.35} s={1.2} />
+          {/* Map/states representation */}
+          <rect x={w * 0.62} y={h * 0.25} width={w * 0.22} height={h * 0.28} rx={3} fill="#DBEAFE" stroke="#3B82F6" strokeWidth="1" />
+          {[0.3, 0.35, 0.4].map((yp, i) => (
+            <rect key={i} x={w * 0.65} y={h * yp} width={w * 0.07} height={h * 0.03} rx={1} fill="#3B82F6" opacity={0.3 + i * 0.2} />
+          ))}
+          <Shield x={w * 0.35} y={h * 0.22} s={0.6} color="#22C55E" />
+          <text x={w * 0.73} y={h * 0.2} textAnchor="middle" fill="#3B82F6" fontSize="8" fontWeight="bold" fontFamily="system-ui" opacity="0.6">50 STATES</text>
+        </g>
+      ),
+    },
+
+    'construction-mediation-vs-arbitration': {
+      ...warm, label: 'Mediation vs Arbitration',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.75} />
+          <Person x={w * 0.8} y={h * 0.72} s={0.75} facingRight={false} vest="#EF4444" />
+          <Scales x={w * 0.5} y={h * 0.32} s={1.3} />
+          <Gavel x={w * 0.35} y={h * 0.25} s={0.7} />
+          {/* VS */}
+          <circle cx={w * 0.5} cy={h * 0.58} r={12} fill="#1a1a2e" opacity="0.8" />
+          <text x={w * 0.5} y={h * 0.6} textAnchor="middle" fill="white" fontSize="9" fontWeight="bold" fontFamily="system-ui">VS</text>
+        </g>
+      ),
+    },
+
+    'how-to-fire-general-contractor': {
+      ...red, label: 'Terminating GC Relationships',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.25} y={h * 0.72} s={0.8} />
+          <Person x={w * 0.75} y={h * 0.72} s={0.8} facingRight={false} vest="#EF4444" />
+          {/* X between them */}
+          <line x1={w * 0.45} y1={h * 0.4} x2={w * 0.55} y2={h * 0.5} stroke="#EF4444" strokeWidth="4" opacity="0.7" />
+          <line x1={w * 0.55} y1={h * 0.4} x2={w * 0.45} y2={h * 0.5} stroke="#EF4444" strokeWidth="4" opacity="0.7" />
+          <Document x={w * 0.5} y={h * 0.22} s={0.8} accent="#EF4444" />
+          <Shield x={w * 0.35} y={h * 0.5} s={0.6} color="#22C55E" />
+        </g>
+      ),
+    },
+
+    'construction-payment-bond-claims': {
+      ...blue, label: 'Payment Bond Claims',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          <Shield x={w * 0.48} y={h * 0.32} s={1.4} color="#3B82F6" />
+          <Document x={w * 0.7} y={h * 0.38} s={1} />
+          <DollarSign x={w * 0.48} y={h * 0.35} s={0.7} />
+          <MoneyStack x={w * 0.78} y={h * 0.55} s={0.7} />
+          <text x={w * 0.48} y={h * 0.18} textAnchor="middle" fill="#3B82F6" fontSize="9" fontWeight="bold" fontFamily="system-ui" opacity="0.6">BOND CLAIM</text>
+        </g>
+      ),
+    },
+
+    'time-and-materials-contracts-guide': {
+      ...warm, label: 'T&M Contracts Guide',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          <Clock x={w * 0.42} y={h * 0.35} s={1.1} />
+          <Calculator x={w * 0.62} y={h * 0.38} s={1} />
+          <Document x={w * 0.78} y={h * 0.35} s={0.9} />
+          {/* Plus symbol */}
+          <circle cx={w * 0.52} cy={h * 0.4} r={8} fill="#F59E0B" opacity="0.8" />
+          <text x={w * 0.52} y={h * 0.42} textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">+</text>
+          <DollarSign x={w * 0.35} y={h * 0.22} s={0.6} />
+        </g>
+      ),
+    },
+
+    'subcontractor-business-credit-building': {
+      ...green, label: 'Building Business Credit',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} vest="#22C55E" />
+          {/* Rising chart */}
+          <rect x={w * 0.35} y={h * 0.25} width={w * 0.35} height={h * 0.35} rx={3} fill="white" stroke="#E5E7EB" strokeWidth="1" />
+          <polyline points={`${w * 0.38},${h * 0.52} ${w * 0.45},${h * 0.45} ${w * 0.52},${h * 0.48} ${w * 0.58},${h * 0.38} ${w * 0.65},${h * 0.32}`}
+            stroke="#22C55E" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+          <DollarSign x={w * 0.75} y={h * 0.3} s={0.9} />
+          <Shield x={w * 0.75} y={h * 0.5} s={0.7} color="#22C55E" />
+          <text x={w * 0.52} y={h * 0.2} textAnchor="middle" fill="#22C55E" fontSize="8" fontWeight="bold" fontFamily="system-ui" opacity="0.6">CREDIT ↑</text>
+        </g>
+      ),
+    },
+
+    'construction-stop-work-notice': {
+      ...red, label: 'Stop Work Notice',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} vest="#EF4444" />
+          {/* Stop sign shape */}
+          <polygon points={`${w * 0.5},${h * 0.2} ${w * 0.6},${h * 0.25} ${w * 0.6},${h * 0.4} ${w * 0.5},${h * 0.45} ${w * 0.4},${h * 0.4} ${w * 0.4},${h * 0.25}`}
+            fill="#EF4444" opacity="0.85" />
+          <text x={w * 0.5} y={h * 0.35} textAnchor="middle" fill="white" fontSize="8" fontWeight="bold" fontFamily="system-ui">STOP</text>
+          <Document x={w * 0.72} y={h * 0.35} s={1} accent="#EF4444" />
+          <HardHat x={w * 0.35} y={h * 0.22} s={0.8} />
+        </g>
+      ),
+    },
+
+    'subcontractor-progress-billing-guide': {
+      ...green, label: 'Progress Billing Guide',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.18} y={h * 0.72} s={0.8} vest="#22C55E" />
+          <BarChart x={w * 0.45} y={h * 0.4} s={1.3} />
+          {/* Calendar */}
+          <rect x={w * 0.65} y={h * 0.25} width={w * 0.2} height={h * 0.22} rx={3} fill="white" stroke="#E5E7EB" strokeWidth="1" />
+          <rect x={w * 0.65} y={h * 0.25} width={w * 0.2} height={h * 0.06} rx={3} fill="#22C55E" opacity="0.6" />
+          <Document x={w * 0.75} y={h * 0.55} s={0.8} />
+          <DollarSign x={w * 0.35} y={h * 0.25} s={0.6} />
+        </g>
+      ),
+    },
+
+    'construction-punch-list-tips': {
+      ...green, label: 'Punch List Tips',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} vest="#22C55E" />
+          <Clipboard x={w * 0.52} y={h * 0.38} s={1.3} />
+          {/* Checkmarks */}
+          {[0, 12, 24].map((dy, i) => (
+            <g key={i}>
+              <circle cx={w * 0.48} cy={h * 0.32 + dy * 0.4} r={5} fill="#22C55E" opacity="0.8" />
+              <polyline points={`${w * 0.46},${h * 0.32 + dy * 0.4} ${w * 0.48},${h * 0.34 + dy * 0.4} ${w * 0.51},${h * 0.3 + dy * 0.4}`}
+                stroke="white" strokeWidth="1.5" fill="none" />
+            </g>
+          ))}
+          <ThumbsUp x={w * 0.75} y={h * 0.35} s={1} />
+          <DollarSign x={w * 0.75} y={h * 0.55} s={0.6} />
+        </g>
+      ),
+    },
+
+    'subcontractor-vs-prime-contractor': {
+      ...blue, label: 'Sub vs Prime Contractor',
+      render: (w, h) => (
+        <g>
+          {/* Org chart structure */}
+          <rect x={w * 0.4} y={h * 0.18} width={w * 0.2} height={h * 0.1} rx={3} fill="#3B82F6" opacity="0.8" />
+          <text x={w * 0.5} y={h * 0.25} textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">PRIME</text>
+          <line x1={w * 0.5} y1={h * 0.28} x2={w * 0.5} y2={h * 0.35} stroke="#3B82F6" strokeWidth="2" opacity="0.5" />
+          <line x1={w * 0.35} y1={h * 0.35} x2={w * 0.65} y2={h * 0.35} stroke="#3B82F6" strokeWidth="2" opacity="0.5" />
+          <rect x={w * 0.25} y={h * 0.38} width={w * 0.18} height={h * 0.08} rx={3} fill="#22C55E" opacity="0.8" />
+          <rect x={w * 0.57} y={h * 0.38} width={w * 0.18} height={h * 0.08} rx={3} fill="#22C55E" opacity="0.8" />
+          <text x={w * 0.34} y={h * 0.43} textAnchor="middle" fill="white" fontSize="6" fontWeight="bold">SUB</text>
+          <text x={w * 0.66} y={h * 0.43} textAnchor="middle" fill="white" fontSize="6" fontWeight="bold">SUB</text>
+          <Person x={w * 0.25} y={h * 0.72} s={0.75} />
+          <Person x={w * 0.75} y={h * 0.72} s={0.75} facingRight={false} shirt="#3B82F6" />
+        </g>
+      ),
+    },
+
+    'construction-cost-plus-contracts': {
+      ...warm, label: 'Cost Plus Contracts',
+      render: (w, h) => (
+        <g>
+          <Person x={w * 0.2} y={h * 0.72} s={0.85} />
+          <Calculator x={w * 0.45} y={h * 0.38} s={1.2} />
+          <Document x={w * 0.68} y={h * 0.35} s={1} />
+          {/* Plus symbol */}
+          <circle cx={w * 0.56} cy={h * 0.4} r={10} fill="#F59E0B" opacity="0.9" />
+          <text x={w * 0.56} y={h * 0.43} textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">+</text>
+          <DollarSign x={w * 0.78} y={h * 0.5} s={0.8} />
+          <text x={w * 0.56} y={h * 0.2} textAnchor="middle" fill="#F59E0B" fontSize="9" fontWeight="bold" fontFamily="system-ui" opacity="0.6">COST + FEE</text>
         </g>
       ),
     },

@@ -180,6 +180,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'construction-lien-waiver-guide',
     'subcontractor-networking-tips',
     'construction-project-closeout-checklist',
+    // 20 Additional SEO-Optimized Posts
+    'how-long-to-pay-subcontractors',
+    'subcontractor-payment-application',
+    'construction-back-charges-guide',
+    'best-accounting-software-subcontractors',
+    'construction-draw-schedule-explained',
+    'subcontractor-scope-creep-management',
+    'joint-check-agreements-construction',
+    'subcontractor-default-insurance-guide',
+    'construction-demand-letter-template',
+    'notice-to-owner-requirements-states',
+    'construction-mediation-vs-arbitration',
+    'how-to-fire-general-contractor',
+    'construction-payment-bond-claims',
+    'time-and-materials-contracts-guide',
+    'subcontractor-business-credit-building',
+    'construction-stop-work-notice',
+    'subcontractor-progress-billing-guide',
+    'construction-punch-list-tips',
+    'subcontractor-vs-prime-contractor',
+    'construction-cost-plus-contracts',
   ];
 
   const blogPosts: MetadataRoute.Sitemap = blogSlugs.map((slug) => ({
