@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import type { Lead } from '@prisma/client';
 
 // Helper to get user ID (for now, return a demo user - later integrate auth)
 async function getUserId() {
@@ -69,14 +70,14 @@ export async function GET(request: NextRequest) {
 
     const stats = {
       total: allLeads.length,
-      new: allLeads.filter(l => l.status === 'new').length,
-      contacted: allLeads.filter(l => l.status === 'contacted').length,
-      quoted: allLeads.filter(l => l.status === 'quoted').length,
-      won: allLeads.filter(l => l.status === 'won').length,
-      lost: allLeads.filter(l => l.status === 'lost').length,
-      thisWeek: allLeads.filter(l => l.receivedAt >= weekAgo).length,
+      new: allLeads.filter((l: Lead) => l.status === 'new').length,
+      contacted: allLeads.filter((l: Lead) => l.status === 'contacted').length,
+      quoted: allLeads.filter((l: Lead) => l.status === 'quoted').length,
+      won: allLeads.filter((l: Lead) => l.status === 'won').length,
+      lost: allLeads.filter((l: Lead) => l.status === 'lost').length,
+      thisWeek: allLeads.filter((l: Lead) => l.receivedAt >= weekAgo).length,
       conversionRate: allLeads.length > 0
-        ? Math.round((allLeads.filter(l => l.status === 'won').length / allLeads.length) * 100)
+        ? Math.round((allLeads.filter((l: Lead) => l.status === 'won').length / allLeads.length) * 100)
         : 0,
     };
 
