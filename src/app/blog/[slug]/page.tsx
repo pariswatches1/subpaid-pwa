@@ -1286,8 +1286,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${post.title} - SubPaid Blog`,
+    title: `${post.title} | SubPaid Blog`,
     description: post.excerpt,
+    keywords: [post.category, 'contractor tips', 'invoicing', 'payment collection', 'subcontractor'],
+    authors: [{ name: post.author }],
+    alternates: {
+      canonical: `https://subpaid-pwa.vercel.app/blog/${slug}`,
+    },
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: 'article',
+      publishedTime: post.date,
+      authors: [post.author],
+      url: `https://subpaid-pwa.vercel.app/blog/${slug}`,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt,
+    },
   };
 }
 
@@ -1313,8 +1331,38 @@ export default async function BlogPostPage({ params }: Props) {
     );
   }
 
+  // Article structured data for SEO
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt,
+    author: {
+      '@type': 'Person',
+      name: post.author,
+      jobTitle: post.authorRole,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'SubPaid',
+      url: 'https://subpaid-pwa.vercel.app',
+    },
+    datePublished: post.date,
+    dateModified: post.date,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://subpaid-pwa.vercel.app/blog/${slug}`,
+    },
+    articleSection: post.category,
+  };
+
   return (
     <>
+      {/* Article Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
       <Navbar />
       <main className="pt-16">
         {/* Hero */}

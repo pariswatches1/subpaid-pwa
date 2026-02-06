@@ -130,8 +130,42 @@ export default function ContractorProfilePage({ params }: { params: { id: string
   const status = getStatusBadge(contractor.licenseStatus);
   const fullAddress = `${contractor.address}, ${contractor.city}, ${contractor.state} ${contractor.zipCode}`;
 
+  // LocalBusiness structured data for SEO
+  const localBusinessSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    '@id': `https://subpaid-pwa.vercel.app/directory/${contractor.id}`,
+    name: contractor.businessName,
+    description: `Licensed ${contractor.licenseType} in ${contractor.city}, ${contractor.state}`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: contractor.address,
+      addressLocality: contractor.city,
+      addressRegion: contractor.state,
+      postalCode: contractor.zipCode,
+      addressCountry: 'US',
+    },
+    ...(contractor.phone && { telephone: contractor.phone }),
+    ...(contractor.email && { email: contractor.email }),
+    ...(contractor.website && { url: contractor.website }),
+    ...(contractor.payScore && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: (contractor.payScore / 20).toFixed(1), // Convert 0-100 to 0-5 scale
+        bestRating: '5',
+        worstRating: '1',
+        ratingCount: contractor.reviewCount || 1,
+      },
+    }),
+  };
+
   return (
     <>
+      {/* LocalBusiness Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+      />
       <Navbar />
       <main className="pt-16">
         {/* Breadcrumb */}
