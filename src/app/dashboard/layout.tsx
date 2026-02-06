@@ -28,10 +28,12 @@ import {
   Receipt,
   Search,
   Target,
+  Inbox,
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Leads Inbox', href: '/dashboard/leads-inbox', icon: Inbox },
   { name: 'Jobs', href: '/dashboard/jobs', icon: Briefcase },
   { name: 'Estimates', href: '/dashboard/estimates', icon: ClipboardList },
   { name: 'Invoices', href: '/dashboard/invoices', icon: FileText },

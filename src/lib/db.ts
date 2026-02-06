@@ -19,11 +19,13 @@ export interface User {
 
 export interface Client {
   id: string;
+  userId?: string;
   name: string;
   email: string;
   phone?: string;
   company?: string;
   payScore?: number;
+  createdAt?: string;
 }
 
 export interface Job {
@@ -66,10 +68,54 @@ export interface LeadTimelineEvent {
   userId: string;
   eventType: 'call' | 'form_submit' | 'job_created' | 'estimate_sent' |
              'estimate_accepted' | 'invoice_sent' | 'reminder_sent' |
-             'sam_call' | 'payment_received';
+             'sam_call' | 'payment_received' | 'lead_created' | 'lead_converted';
   entityId?: string;
   description: string;
   amount?: number;
+  createdAt: string;
+}
+
+// Lead - Automatic Leads Inbox
+export interface Lead {
+  id: string;
+  userId: string;
+
+  // Source tracking
+  leadSourceId?: string;           // Links to LeadSource for attribution
+  sourceType: 'email' | 'call' | 'form' | 'bid' | 'manual';
+  sourceName?: string;             // "Thumbtack", "Angi", "Google Ads", etc.
+
+  // Contact info
+  name?: string;
+  email?: string;
+  phone?: string;
+  company?: string;
+
+  // Job details
+  description?: string;
+  location?: string;
+  trade?: string;
+  estimatedValue?: number;
+
+  // Raw data (for parsing failures)
+  rawContent?: string;             // Original email body, form data, etc.
+  rawSubject?: string;             // Email subject if applicable
+
+  // Status tracking
+  status: 'new' | 'contacted' | 'quoted' | 'won' | 'lost' | 'archived';
+  priority: 'hot' | 'warm' | 'cold';
+
+  // Conversion tracking
+  convertedToJobId?: string;
+  convertedToEstimateId?: string;
+  convertedToInvoiceId?: string;
+
+  // Call tracking link
+  callTrackingRecordId?: string;
+
+  // Timestamps
+  receivedAt: string;              // When lead came in
+  lastContactedAt?: string;
   createdAt: string;
 }
 
@@ -431,6 +477,79 @@ export const mockDb = {
   ] as LeadSource[],
   callTrackingRecords: [] as CallTrackingRecord[],
   leadTimelineEvents: [] as LeadTimelineEvent[],
+  leads: [
+    // Sample leads to demonstrate the Leads Inbox
+    {
+      id: 'lead-1',
+      userId: 'user1',
+      leadSourceId: 'ls-1',
+      sourceType: 'email' as const,
+      sourceName: 'Thumbtack',
+      name: 'John Martinez',
+      email: 'john.martinez@email.com',
+      phone: '(305) 555-0123',
+      description: 'Need electrical work for kitchen remodel. Looking to install new outlets and update panel.',
+      location: 'Miami, FL',
+      trade: 'Electrical',
+      estimatedValue: 2500,
+      status: 'new' as const,
+      priority: 'hot' as const,
+      receivedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: 'lead-2',
+      userId: 'user1',
+      sourceType: 'call' as const,
+      sourceName: 'Google Ads',
+      name: 'Sarah Chen',
+      phone: '(305) 555-0456',
+      description: 'Incoming call - interested in commercial electrical installation',
+      location: 'Coral Gables, FL',
+      trade: 'Electrical',
+      status: 'contacted' as const,
+      priority: 'warm' as const,
+      receivedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+      lastContactedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: 'lead-3',
+      userId: 'user1',
+      sourceType: 'form' as const,
+      sourceName: 'Website',
+      name: 'Mike Johnson',
+      email: 'mike.j@company.com',
+      phone: '(786) 555-0789',
+      company: 'Johnson Properties LLC',
+      description: 'Need quote for rewiring a 3-unit apartment building',
+      location: 'North Miami, FL',
+      trade: 'Electrical',
+      estimatedValue: 8000,
+      status: 'quoted' as const,
+      priority: 'hot' as const,
+      convertedToEstimateId: 'est-1',
+      receivedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
+      lastContactedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: 'lead-4',
+      userId: 'user1',
+      sourceType: 'bid' as const,
+      sourceName: 'City of Miami',
+      company: 'City of Miami - Parks Dept',
+      description: 'Electrical upgrades for community center. Public bid opportunity.',
+      location: 'Miami, FL',
+      trade: 'Electrical',
+      estimatedValue: 25000,
+      status: 'new' as const,
+      priority: 'warm' as const,
+      rawSubject: 'Bid Opportunity: Community Center Electrical Upgrade',
+      receivedAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
+      createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    },
+  ] as Lead[],
 };
 
 // Load contractor data from pre-populated dataset
