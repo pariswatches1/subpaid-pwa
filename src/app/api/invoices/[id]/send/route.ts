@@ -1,27 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockDb, getMockUserId } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+import { getUserId } from '@/lib/auth';
 
 // POST /api/invoices/[id]/send - Send invoice to client
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = getMockUserId();
-    const { id } = params;
+    const userId = await getUserId();
+    const { id } = await params;
 
-    const invoiceIndex = mockDb.invoices.findIndex(
-      inv => inv.id === id && inv.userId === userId
-    );
+    const invoice = await prisma.invoice.findFirst({
+      where: { id, userId },
+      include: { client: true },
+    });
 
-    if (invoiceIndex === -1) {
+    if (!invoice) {
       return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
     }
 
-    const invoice = mockDb.invoices[invoiceIndex];
-    const client = mockDb.clients.find(c => c.id === invoice.clientId);
-
-    if (!client?.email) {
+    if (!invoice.client?.email) {
       return NextResponse.json(
         { error: 'Client email not found' },
         { status: 400 }
@@ -30,7 +29,7 @@ export async function POST(
 
     // In production, send email using SendGrid, Resend, etc.
     // await sendInvoiceEmail({
-    //   to: client.email,
+    //   to: invoice.client.email,
     //   subject: `Invoice ${invoice.invoiceNumber}`,
     //   invoiceId: invoice.id,
     //   amount: invoice.total,
@@ -38,16 +37,33 @@ export async function POST(
     // });
 
     // Update invoice status
-    mockDb.invoices[invoiceIndex] = {
-      ...invoice,
-      status: 'sent',
-      sentAt: new Date().toISOString(),
-    };
+    const updatedInvoice = await prisma.invoice.update({
+      where: { id },
+      data: {
+        status: 'sent',
+        sentAt: new Date(),
+      },
+      include: { client: true },
+    });
+
+    // Create timeline event if linked to lead source
+    if (invoice.leadSourceId) {
+      await prisma.leadTimelineEvent.create({
+        data: {
+          leadSourceId: invoice.leadSourceId,
+          userId,
+          eventType: 'invoice_sent',
+          entityId: invoice.id,
+          description: `Invoice ${invoice.invoiceNumber} sent to ${invoice.client.email}`,
+          amount: Number(invoice.total),
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,
-      message: `Invoice sent to ${client.email}`,
-      invoice: mockDb.invoices[invoiceIndex],
+      message: `Invoice sent to ${invoice.client.email}`,
+      invoice: updatedInvoice,
     });
   } catch (error) {
     console.error('Error sending invoice:', error);

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockDb, generateId, getMockUserId, Lead } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+import { getUserId, generateEstimateNumber, generateInvoiceNumber } from '@/lib/auth';
 
 /**
  * Lead Conversion API
@@ -38,7 +39,7 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const userId = getMockUserId();
+    const userId = await getUserId();
     const body: ConvertRequest = await request.json();
 
     // Validate conversion type
@@ -51,25 +52,22 @@ export async function POST(
     }
 
     // Find the lead
-    const leadIndex = mockDb.leads.findIndex(
-      l => l.id === id && l.userId === userId
-    );
+    const lead = await prisma.lead.findFirst({
+      where: { id, userId },
+    });
 
-    if (leadIndex === -1) {
+    if (!lead) {
       return NextResponse.json(
         { error: 'Lead not found' },
         { status: 404 }
       );
     }
 
-    const lead = mockDb.leads[leadIndex];
-    const now = new Date().toISOString();
-
     // Prepare common data
     const clientName = body.customData?.clientName || lead.name || lead.company || 'Unknown Client';
     const clientEmail = body.customData?.clientEmail || lead.email || '';
     const description = body.customData?.description || lead.description || 'Converted from lead';
-    const value = body.customData?.value || lead.estimatedValue || 0;
+    const value = body.customData?.value || Number(lead.estimatedValue) || 0;
 
     let result: { type: string; id: string; entity: object } | null = null;
 
@@ -77,62 +75,68 @@ export async function POST(
     switch (body.type) {
       case 'job': {
         // Create or find client
-        let clientId = '';
-        const existingClient = mockDb.clients.find(
-          c => c.userId === userId && (c.email === clientEmail || c.name === clientName)
-        );
-        if (existingClient) {
-          clientId = existingClient.id;
-        } else {
-          // Create new client
-          const newClient = {
-            id: generateId(),
+        let client = await prisma.client.findFirst({
+          where: {
             userId,
-            name: clientName,
-            email: clientEmail,
-            phone: lead.phone,
-            createdAt: now,
-          };
-          mockDb.clients.push(newClient);
-          clientId = newClient.id;
+            OR: [
+              { email: clientEmail },
+              { name: clientName },
+            ],
+          },
+        });
+
+        if (!client) {
+          client = await prisma.client.create({
+            data: {
+              userId,
+              name: clientName,
+              email: clientEmail,
+              phone: lead.phone,
+            },
+          });
         }
 
-        const newJob = {
-          id: generateId(),
-          userId,
-          title: lead.trade ? `${lead.trade} - ${clientName}` : `Job for ${clientName}`,
-          description,
-          clientId,
-          status: 'active',
-          leadSourceId: lead.leadSourceId,
-          budget: value,
-          address: lead.location,
-          createdAt: now,
-        };
+        const newJob = await prisma.job.create({
+          data: {
+            userId,
+            clientId: client.id,
+            leadSourceId: lead.leadSourceId,
+            title: lead.trade ? `${lead.trade} - ${clientName}` : `Job for ${clientName}`,
+            description,
+            status: 'active',
+            budget: value,
+            address: lead.location,
+          },
+        });
 
-        mockDb.jobs.push(newJob as any);
-        lead.convertedToJobId = newJob.id;
-        lead.status = 'won';
+        // Update lead
+        await prisma.lead.update({
+          where: { id },
+          data: {
+            convertedToJobId: newJob.id,
+            status: 'won',
+          },
+        });
 
         // Update lead source stats
         if (lead.leadSourceId) {
-          const leadSource = mockDb.leadSources.find(
-            ls => ls.id === lead.leadSourceId && ls.userId === userId
-          );
-          if (leadSource) {
-            leadSource.stats.jobsLinked = (leadSource.stats.jobsLinked || 0) + 1;
+          await prisma.leadSource.update({
+            where: { id: lead.leadSourceId },
+            data: {
+              jobsLinked: { increment: 1 },
+            },
+          });
 
-            // Create timeline event
-            mockDb.leadTimelineEvents.push({
-              id: generateId(),
+          // Create timeline event
+          await prisma.leadTimelineEvent.create({
+            data: {
               leadSourceId: lead.leadSourceId,
               userId,
               eventType: 'job_created',
               entityId: newJob.id,
               description: `Job created from lead: ${clientName}`,
-              createdAt: now,
-            });
-          }
+            },
+          });
         }
 
         result = { type: 'job', id: newJob.id, entity: newJob };
@@ -141,64 +145,72 @@ export async function POST(
 
       case 'estimate': {
         // Create or find client
-        let estClientId = '';
-        const existingEstClient = mockDb.clients.find(
-          c => c.userId === userId && (c.email === clientEmail || c.name === clientName)
-        );
-        if (existingEstClient) {
-          estClientId = existingEstClient.id;
-        } else {
-          const newClient = {
-            id: generateId(),
+        let client = await prisma.client.findFirst({
+          where: {
             userId,
-            name: clientName,
-            email: clientEmail,
-            phone: lead.phone,
-            createdAt: now,
-          };
-          mockDb.clients.push(newClient);
-          estClientId = newClient.id;
+            OR: [
+              { email: clientEmail },
+              { name: clientName },
+            ],
+          },
+        });
+
+        if (!client) {
+          client = await prisma.client.create({
+            data: {
+              userId,
+              name: clientName,
+              email: clientEmail,
+              phone: lead.phone,
+            },
+          });
         }
 
-        const newEstimate = {
-          id: generateId(),
-          estimateNumber: `EST-${Date.now().toString().slice(-6)}`,
-          userId,
-          clientId: estClientId,
-          title: lead.trade ? `${lead.trade} Estimate` : 'Project Estimate',
-          leadSourceId: lead.leadSourceId,
-          status: 'draft',
-          lineItems: [
-            {
-              id: generateId(),
-              description: description,
-              quantity: 1,
-              rate: value,
-              amount: value,
-            },
-          ],
-          subtotal: value,
-          markup: 0,
-          total: value,
-          validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
-          createdAt: now,
-        };
+        const newEstimate = await prisma.estimate.create({
+          data: {
+            userId,
+            clientId: client.id,
+            leadSourceId: lead.leadSourceId,
+            estimateNumber: generateEstimateNumber(),
+            title: lead.trade ? `${lead.trade} Estimate` : 'Project Estimate',
+            status: 'draft',
+            lineItems: [
+              {
+                id: '1',
+                description: description,
+                quantity: 1,
+                rate: value,
+                total: value,
+              },
+            ],
+            subtotal: value,
+            markup: 0,
+            tax: 0,
+            total: value,
+            validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+          },
+        });
 
-        mockDb.estimates.push(newEstimate as any);
-        lead.convertedToEstimateId = newEstimate.id;
-        lead.status = 'quoted';
+        // Update lead
+        await prisma.lead.update({
+          where: { id },
+          data: {
+            convertedToEstimateId: newEstimate.id,
+            status: 'quoted',
+          },
+        });
 
         // Create timeline event
         if (lead.leadSourceId) {
-          mockDb.leadTimelineEvents.push({
-            id: generateId(),
-            leadSourceId: lead.leadSourceId,
-            userId,
-            eventType: 'estimate_sent',
-            entityId: newEstimate.id,
-            description: `Estimate created for ${clientName}: $${value.toLocaleString()}`,
-            amount: value,
-            createdAt: now,
+          await prisma.leadTimelineEvent.create({
+            data: {
+              leadSourceId: lead.leadSourceId,
+              userId,
+              eventType: 'estimate_sent',
+              entityId: newEstimate.id,
+              description: `Estimate created for ${clientName}: $${value.toLocaleString()}`,
+              amount: value,
+            },
           });
         }
 
@@ -208,75 +220,82 @@ export async function POST(
 
       case 'invoice': {
         // Create or find client
-        let invClientId = '';
-        const existingInvClient = mockDb.clients.find(
-          c => c.userId === userId && (c.email === clientEmail || c.name === clientName)
-        );
-        if (existingInvClient) {
-          invClientId = existingInvClient.id;
-        } else {
-          const newClient = {
-            id: generateId(),
+        let client = await prisma.client.findFirst({
+          where: {
             userId,
-            name: clientName,
-            email: clientEmail,
-            phone: lead.phone,
-            createdAt: now,
-          };
-          mockDb.clients.push(newClient);
-          invClientId = newClient.id;
+            OR: [
+              { email: clientEmail },
+              { name: clientName },
+            ],
+          },
+        });
+
+        if (!client) {
+          client = await prisma.client.create({
+            data: {
+              userId,
+              name: clientName,
+              email: clientEmail,
+              phone: lead.phone,
+            },
+          });
         }
 
-        const dueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        const dueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
-        const newInvoice = {
-          id: generateId(),
-          invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
-          userId,
-          clientId: invClientId,
-          leadSourceId: lead.leadSourceId,
-          status: 'draft',
-          lineItems: [
-            {
-              id: generateId(),
-              description: description,
-              quantity: 1,
-              rate: value,
-              amount: value,
-            },
-          ],
-          subtotal: value,
-          tax: 0,
-          total: value,
-          dueDate,
-          autopilotEnabled: body.enableAutopilot || false,
-          createdAt: now,
-        };
+        const newInvoice = await prisma.invoice.create({
+          data: {
+            userId,
+            clientId: client.id,
+            leadSourceId: lead.leadSourceId,
+            invoiceNumber: generateInvoiceNumber(),
+            status: 'draft',
+            lineItems: [
+              {
+                id: '1',
+                description: description,
+                quantity: 1,
+                rate: value,
+                total: value,
+              },
+            ],
+            subtotal: value,
+            tax: 0,
+            total: value,
+            dueDate,
+            autopilotEnabled: body.enableAutopilot || false,
+          },
+        });
 
-        mockDb.invoices.push(newInvoice as any);
-        lead.convertedToInvoiceId = newInvoice.id;
-        lead.status = 'won';
+        // Update lead
+        await prisma.lead.update({
+          where: { id },
+          data: {
+            convertedToInvoiceId: newInvoice.id,
+            status: 'won',
+          },
+        });
 
         // Update lead source stats
         if (lead.leadSourceId) {
-          const leadSource = mockDb.leadSources.find(
-            ls => ls.id === lead.leadSourceId && ls.userId === userId
-          );
-          if (leadSource) {
-            leadSource.stats.invoicesLinked = (leadSource.stats.invoicesLinked || 0) + 1;
+          await prisma.leadSource.update({
+            where: { id: lead.leadSourceId },
+            data: {
+              invoicesLinked: { increment: 1 },
+            },
+          });
 
-            // Create timeline event
-            mockDb.leadTimelineEvents.push({
-              id: generateId(),
+          // Create timeline event
+          await prisma.leadTimelineEvent.create({
+            data: {
               leadSourceId: lead.leadSourceId,
               userId,
               eventType: 'invoice_sent',
               entityId: newInvoice.id,
               description: `Invoice created for ${clientName}: $${value.toLocaleString()}${body.enableAutopilot ? ' (Autopilot enabled)' : ''}`,
               amount: value,
-              createdAt: now,
-            });
-          }
+            },
+          });
         }
 
         result = { type: 'invoice', id: newInvoice.id, entity: newInvoice };
@@ -284,23 +303,15 @@ export async function POST(
       }
     }
 
-    // Create lead conversion timeline event
-    if (lead.leadSourceId) {
-      mockDb.leadTimelineEvents.push({
-        id: generateId(),
-        leadSourceId: lead.leadSourceId,
-        userId,
-        eventType: 'lead_converted',
-        entityId: lead.id,
-        description: `Lead converted to ${body.type}: ${clientName}`,
-        createdAt: now,
-      });
-    }
+    // Get updated lead
+    const updatedLead = await prisma.lead.findFirst({
+      where: { id },
+    });
 
     return NextResponse.json({
       success: true,
       conversion: result,
-      lead,
+      lead: updatedLead,
       message: `Lead successfully converted to ${body.type}`,
     });
 

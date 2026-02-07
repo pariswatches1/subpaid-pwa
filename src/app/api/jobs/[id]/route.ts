@@ -1,31 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockDb, getMockUserId } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+import { getUserId } from '@/lib/auth';
 
 // GET /api/jobs/[id] - Get single job
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = getMockUserId();
-    const { id } = params;
+    const userId = await getUserId();
+    const { id } = await params;
 
-    const job = mockDb.jobs.find(j => j.id === id && j.userId === userId);
+    const job = await prisma.job.findFirst({
+      where: { id, userId },
+      include: {
+        client: true,
+        leadSource: true,
+        invoices: true,
+        timeEntries: true,
+      },
+    });
 
     if (!job) {
       return NextResponse.json({ error: 'Job not found' }, { status: 404 });
     }
 
-    const client = mockDb.clients.find(c => c.id === job.clientId);
-    const timeEntries = mockDb.timeEntries.filter(t => t.jobId === id);
-    const invoices = mockDb.invoices.filter(i => i.jobId === id);
-
-    return NextResponse.json({
-      ...job,
-      client,
-      timeEntries,
-      invoices,
-    });
+    return NextResponse.json(job);
   } catch (error) {
     console.error('Error fetching job:', error);
     return NextResponse.json({ error: 'Failed to fetch job' }, { status: 500 });
@@ -35,28 +35,39 @@ export async function GET(
 // PUT /api/jobs/[id] - Update job
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = getMockUserId();
-    const { id } = params;
+    const userId = await getUserId();
+    const { id } = await params;
     const body = await request.json();
 
-    const jobIndex = mockDb.jobs.findIndex(j => j.id === id && j.userId === userId);
+    // Verify job exists and belongs to user
+    const existingJob = await prisma.job.findFirst({
+      where: { id, userId },
+    });
 
-    if (jobIndex === -1) {
+    if (!existingJob) {
       return NextResponse.json({ error: 'Job not found' }, { status: 404 });
     }
 
-    // Update job with provided fields
-    mockDb.jobs[jobIndex] = {
-      ...mockDb.jobs[jobIndex],
-      ...body,
-      id, // Prevent ID from being changed
-      userId, // Prevent userId from being changed
-    };
+    const updatedJob = await prisma.job.update({
+      where: { id },
+      data: {
+        title: body.title,
+        description: body.description,
+        status: body.status,
+        address: body.address,
+        budget: body.budget ? parseFloat(body.budget) : undefined,
+        startDate: body.startDate ? new Date(body.startDate) : undefined,
+        endDate: body.endDate ? new Date(body.endDate) : undefined,
+      },
+      include: {
+        client: true,
+      },
+    });
 
-    return NextResponse.json(mockDb.jobs[jobIndex]);
+    return NextResponse.json(updatedJob);
   } catch (error) {
     console.error('Error updating job:', error);
     return NextResponse.json({ error: 'Failed to update job' }, { status: 500 });
@@ -66,19 +77,24 @@ export async function PUT(
 // DELETE /api/jobs/[id] - Delete job
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = getMockUserId();
-    const { id } = params;
+    const userId = await getUserId();
+    const { id } = await params;
 
-    const jobIndex = mockDb.jobs.findIndex(j => j.id === id && j.userId === userId);
+    // Verify job exists and belongs to user
+    const existingJob = await prisma.job.findFirst({
+      where: { id, userId },
+    });
 
-    if (jobIndex === -1) {
+    if (!existingJob) {
       return NextResponse.json({ error: 'Job not found' }, { status: 404 });
     }
 
-    mockDb.jobs.splice(jobIndex, 1);
+    await prisma.job.delete({
+      where: { id },
+    });
 
     return NextResponse.json({ success: true, message: 'Job deleted' });
   } catch (error) {

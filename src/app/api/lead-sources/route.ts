@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server';
-import { mockDb, generateId, getMockUserId } from '@/lib/db';
-import { LeadSource } from '@/lib/keyword-types';
+import { prisma } from '@/lib/prisma';
+import { getUserId } from '@/lib/auth';
 
 // Calculate ROI metrics for a lead source
-function calculateMetrics(leadSource: LeadSource) {
-  const totalCost = (leadSource.monthlyAdSpend || 0) +
-                    (leadSource.seoRetainerCost || 0) +
-                    (leadSource.otherCosts || 0);
+async function calculateMetrics(leadSource: any, userId: string) {
+  const totalCost = Number(leadSource.monthlyAdSpend || 0) +
+                    Number(leadSource.seoRetainerCost || 0) +
+                    Number(leadSource.otherCosts || 0);
 
-  const revenue = leadSource.stats.amountPaid || 0;
-  const jobsLinked = leadSource.stats.jobsLinked || 0;
+  const revenue = Number(leadSource.amountPaid || 0);
+  const jobsLinked = leadSource.jobsLinked || 0;
 
   // Calculate ROI: (revenue - cost) / cost * 100
   const roi = totalCost > 0 ? ((revenue - totalCost) / totalCost) * 100 : (revenue > 0 ? Infinity : 0);
@@ -18,9 +18,14 @@ function calculateMetrics(leadSource: LeadSource) {
   const costPerJob = jobsLinked > 0 ? totalCost / jobsLinked : 0;
 
   // Calculate average days to paid (from invoices linked to this source)
-  const linkedInvoices = mockDb.invoices.filter(
-    inv => inv.leadSourceId === leadSource.id && inv.paidAt
-  );
+  const linkedInvoices = await prisma.invoice.findMany({
+    where: {
+      leadSourceId: leadSource.id,
+      userId,
+      paidAt: { not: null },
+      sentAt: { not: null },
+    },
+  });
 
   let avgDaysToPaid = 0;
   if (linkedInvoices.length > 0) {
@@ -38,7 +43,7 @@ function calculateMetrics(leadSource: LeadSource) {
   return {
     totalCost,
     revenue,
-    roi: isFinite(roi) ? Math.round(roi) : (revenue > 0 ? 999 : 0), // Cap at 999% for display
+    roi: isFinite(roi) ? Math.round(roi) : (revenue > 0 ? 999 : 0),
     costPerJob: Math.round(costPerJob * 100) / 100,
     avgDaysToPaid: Math.round(avgDaysToPaid),
   };
@@ -46,45 +51,59 @@ function calculateMetrics(leadSource: LeadSource) {
 
 // GET - List all lead sources with calculated metrics
 export async function GET() {
-  const userId = getMockUserId();
-  const leadSources = mockDb.leadSources.filter((ls) => ls.userId === userId);
+  try {
+    const userId = await getUserId();
 
-  // Add calculated metrics to each lead source
-  const enrichedLeadSources = leadSources.map(ls => ({
-    ...ls,
-    calculatedMetrics: calculateMetrics(ls),
-  }));
+    const leadSources = await prisma.leadSource.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
 
-  return NextResponse.json({
-    leadSources: enrichedLeadSources,
-    total: leadSources.length,
-  });
+    // Add calculated metrics to each lead source
+    const enrichedLeadSources = await Promise.all(
+      leadSources.map(async (ls) => ({
+        ...ls,
+        calculatedMetrics: await calculateMetrics(ls, userId),
+      }))
+    );
+
+    return NextResponse.json({
+      leadSources: enrichedLeadSources,
+      total: leadSources.length,
+    });
+  } catch (error) {
+    console.error('Error fetching lead sources:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch lead sources' },
+      { status: 500 }
+    );
+  }
 }
 
 // POST - Create a new lead source
 export async function POST(request: Request) {
   try {
+    const userId = await getUserId();
     const body = await request.json();
+
     const {
       name,
       keywords,
       generatedContent,
-      filters,
       pageUrl,
-      // New cost tracking fields
       monthlyAdSpend,
       seoRetainerCost,
       otherCosts,
       costNotes,
-      // UTM parameters
-      utmParams,
-      // Tracking phone number
+      utmSource,
+      utmMedium,
+      utmCampaign,
       trackingPhoneNumber,
     } = body;
 
-    if (!name || !keywords || !generatedContent) {
+    if (!name) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Name is required' },
         { status: 400 }
       );
     }
@@ -99,42 +118,29 @@ export async function POST(request: Request) {
       );
     }
 
-    const userId = getMockUserId();
-
-    const newLeadSource: LeadSource = {
-      id: generateId(),
-      userId,
-      name,
-      keywords,
-      generatedContent,
-      pageUrl: pageUrl || undefined,
-      filters,
-      createdAt: new Date().toISOString(),
-      // Cost tracking
-      monthlyAdSpend: monthlyAdSpend || undefined,
-      seoRetainerCost: seoRetainerCost || undefined,
-      otherCosts: otherCosts || undefined,
-      costNotes: costNotes || undefined,
-      // UTM tracking
-      utmParams: utmParams || undefined,
-      // Tracking phone
-      trackingPhoneNumber: trackingPhoneNumber || undefined,
-      stats: {
-        jobsLinked: 0,
-        invoicesLinked: 0,
-        amountPaid: 0,
-        totalCalls: 0,
-        callsAnswered: 0,
+    const newLeadSource = await prisma.leadSource.create({
+      data: {
+        userId,
+        name,
+        keywords: keywords || [],
+        generatedContent: generatedContent || null,
+        pageUrl: pageUrl || null,
+        monthlyAdSpend: monthlyAdSpend || null,
+        seoRetainerCost: seoRetainerCost || null,
+        otherCosts: otherCosts || null,
+        costNotes: costNotes || null,
+        utmSource: utmSource || null,
+        utmMedium: utmMedium || null,
+        utmCampaign: utmCampaign || null,
+        trackingPhoneNumber: trackingPhoneNumber || null,
       },
-    };
-
-    mockDb.leadSources.push(newLeadSource);
+    });
 
     return NextResponse.json({
       success: true,
       leadSource: {
         ...newLeadSource,
-        calculatedMetrics: calculateMetrics(newLeadSource),
+        calculatedMetrics: await calculateMetrics(newLeadSource, userId),
       },
     });
   } catch (error) {
@@ -146,10 +152,12 @@ export async function POST(request: Request) {
   }
 }
 
-// PATCH - Update an existing lead source (for cost tracking updates)
+// PATCH - Update an existing lead source
 export async function PATCH(request: Request) {
   try {
+    const userId = await getUserId();
     const body = await request.json();
+
     const {
       id,
       name,
@@ -157,7 +165,9 @@ export async function PATCH(request: Request) {
       seoRetainerCost,
       otherCosts,
       costNotes,
-      utmParams,
+      utmSource,
+      utmMedium,
+      utmCampaign,
       trackingPhoneNumber,
       pageUrl,
     } = body;
@@ -179,35 +189,40 @@ export async function PATCH(request: Request) {
       );
     }
 
-    const userId = getMockUserId();
-    const leadSourceIndex = mockDb.leadSources.findIndex(
-      ls => ls.id === id && ls.userId === userId
-    );
+    // Verify lead source exists and belongs to user
+    const existingSource = await prisma.leadSource.findFirst({
+      where: { id, userId },
+    });
 
-    if (leadSourceIndex === -1) {
+    if (!existingSource) {
       return NextResponse.json(
         { error: 'Lead source not found' },
         { status: 404 }
       );
     }
 
-    // Update the lead source
-    const leadSource = mockDb.leadSources[leadSourceIndex];
+    const updateData: any = {};
+    if (name !== undefined) updateData.name = name;
+    if (monthlyAdSpend !== undefined) updateData.monthlyAdSpend = monthlyAdSpend;
+    if (seoRetainerCost !== undefined) updateData.seoRetainerCost = seoRetainerCost;
+    if (otherCosts !== undefined) updateData.otherCosts = otherCosts;
+    if (costNotes !== undefined) updateData.costNotes = costNotes;
+    if (utmSource !== undefined) updateData.utmSource = utmSource;
+    if (utmMedium !== undefined) updateData.utmMedium = utmMedium;
+    if (utmCampaign !== undefined) updateData.utmCampaign = utmCampaign;
+    if (trackingPhoneNumber !== undefined) updateData.trackingPhoneNumber = trackingPhoneNumber;
+    if (pageUrl !== undefined) updateData.pageUrl = pageUrl;
 
-    if (name !== undefined) leadSource.name = name;
-    if (monthlyAdSpend !== undefined) leadSource.monthlyAdSpend = monthlyAdSpend;
-    if (seoRetainerCost !== undefined) leadSource.seoRetainerCost = seoRetainerCost;
-    if (otherCosts !== undefined) leadSource.otherCosts = otherCosts;
-    if (costNotes !== undefined) leadSource.costNotes = costNotes;
-    if (utmParams !== undefined) leadSource.utmParams = utmParams;
-    if (trackingPhoneNumber !== undefined) leadSource.trackingPhoneNumber = trackingPhoneNumber;
-    if (pageUrl !== undefined) leadSource.pageUrl = pageUrl;
+    const updatedSource = await prisma.leadSource.update({
+      where: { id },
+      data: updateData,
+    });
 
     return NextResponse.json({
       success: true,
       leadSource: {
-        ...leadSource,
-        calculatedMetrics: calculateMetrics(leadSource),
+        ...updatedSource,
+        calculatedMetrics: await calculateMetrics(updatedSource, userId),
       },
     });
   } catch (error) {

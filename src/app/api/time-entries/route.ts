@@ -1,40 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockDb, generateId, getMockUserId } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+import { getUserId } from '@/lib/auth';
 
 // GET /api/time-entries - List time entries
 export async function GET(request: NextRequest) {
   try {
-    const userId = getMockUserId();
+    const userId = await getUserId();
     const { searchParams } = new URL(request.url);
     const jobId = searchParams.get('jobId');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
 
-    let entries = mockDb.timeEntries.filter(entry => entry.userId === userId);
-
-    if (jobId) {
-      entries = entries.filter(entry => entry.jobId === jobId);
-    }
-
+    const where: any = { userId };
+    if (jobId) where.jobId = jobId;
     if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      entries = entries.filter(entry => {
-        const entryDate = new Date(entry.date);
-        return entryDate >= start && entryDate <= end;
-      });
+      where.date = {
+        gte: new Date(startDate),
+        lte: new Date(endDate),
+      };
     }
 
-    // Include job data
-    const entriesWithJob = entries.map(entry => ({
-      ...entry,
-      job: mockDb.jobs.find(j => j.id === entry.jobId),
-    }));
+    const entries = await prisma.timeEntry.findMany({
+      where,
+      include: {
+        job: true,
+      },
+      orderBy: { date: 'desc' },
+    });
 
-    // Sort by date descending
-    entriesWithJob.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-    return NextResponse.json(entriesWithJob);
+    return NextResponse.json(entries);
   } catch (error) {
     console.error('Error fetching time entries:', error);
     return NextResponse.json({ error: 'Failed to fetch time entries' }, { status: 500 });
@@ -44,7 +38,7 @@ export async function GET(request: NextRequest) {
 // POST /api/time-entries - Create time entry
 export async function POST(request: NextRequest) {
   try {
-    const userId = getMockUserId();
+    const userId = await getUserId();
     const body = await request.json();
 
     const jobId = body.job_id || body.jobId;
@@ -74,7 +68,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify job exists
-    const job = mockDb.jobs.find(j => j.id === jobId);
+    const job = await prisma.job.findFirst({
+      where: { id: jobId, userId },
+    });
     if (!job) {
       return NextResponse.json(
         { error: 'Job not found' },
@@ -82,27 +78,118 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newEntry = {
-      id: generateId(),
-      jobId,
-      userId,
-      date,
-      hours: parseFloat(hours),
-      description: body.description || '',
-      billable: body.billable !== false,
-      createdAt: new Date().toISOString(),
-    };
+    const newEntry = await prisma.timeEntry.create({
+      data: {
+        userId,
+        jobId,
+        date: new Date(date),
+        hours: parseFloat(hours),
+        description: body.description || null,
+        rate: body.rate ? parseFloat(body.rate) : null,
+      },
+      include: {
+        job: true,
+      },
+    });
 
-    mockDb.timeEntries.push(newEntry);
-
-    return NextResponse.json(
-      { ...newEntry, job },
-      { status: 201 }
-    );
+    return NextResponse.json(newEntry, { status: 201 });
   } catch (error) {
     console.error('Error creating time entry:', error);
     return NextResponse.json(
       { error: 'Failed to create time entry. Please try again.' },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH /api/time-entries - Update time entry
+export async function PATCH(request: NextRequest) {
+  try {
+    const userId = await getUserId();
+    const body = await request.json();
+    const { id, hours, description, date, rate } = body;
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Time entry ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Verify entry exists and belongs to user
+    const existingEntry = await prisma.timeEntry.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existingEntry) {
+      return NextResponse.json(
+        { error: 'Time entry not found' },
+        { status: 404 }
+      );
+    }
+
+    const updateData: any = {};
+    if (hours !== undefined) updateData.hours = parseFloat(hours);
+    if (description !== undefined) updateData.description = description;
+    if (date !== undefined) updateData.date = new Date(date);
+    if (rate !== undefined) updateData.rate = rate ? parseFloat(rate) : null;
+
+    const updatedEntry = await prisma.timeEntry.update({
+      where: { id },
+      data: updateData,
+    });
+
+    return NextResponse.json({
+      success: true,
+      timeEntry: updatedEntry,
+    });
+  } catch (error) {
+    console.error('Error updating time entry:', error);
+    return NextResponse.json(
+      { error: 'Failed to update time entry' },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE /api/time-entries - Delete time entry
+export async function DELETE(request: NextRequest) {
+  try {
+    const userId = await getUserId();
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Time entry ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Verify entry exists and belongs to user
+    const existingEntry = await prisma.timeEntry.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existingEntry) {
+      return NextResponse.json(
+        { error: 'Time entry not found' },
+        { status: 404 }
+      );
+    }
+
+    await prisma.timeEntry.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Time entry deleted',
+    });
+  } catch (error) {
+    console.error('Error deleting time entry:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete time entry' },
       { status: 500 }
     );
   }

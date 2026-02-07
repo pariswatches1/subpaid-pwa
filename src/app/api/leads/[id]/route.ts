@@ -1,73 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockDb, getMockUserId } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+import { getUserId } from '@/lib/auth';
 
 // GET /api/leads/[id] - Get single lead with full details
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  const userId = getMockUserId();
+  try {
+    const { id } = await params;
+    const userId = await getUserId();
 
-  const lead = mockDb.leads.find(
-    l => l.id === id && l.userId === userId
-  );
+    const lead = await prisma.lead.findFirst({
+      where: { id, userId },
+      include: {
+        leadSource: true,
+      },
+    });
 
-  if (!lead) {
+    if (!lead) {
+      return NextResponse.json(
+        { error: 'Lead not found' },
+        { status: 404 }
+      );
+    }
+
+    // Get converted entities if they exist
+    let convertedJob = null;
+    let convertedEstimate = null;
+    let convertedInvoice = null;
+
+    if (lead.convertedToJobId) {
+      convertedJob = await prisma.job.findFirst({
+        where: { id: lead.convertedToJobId, userId },
+        include: { client: true },
+      });
+    }
+
+    if (lead.convertedToEstimateId) {
+      convertedEstimate = await prisma.estimate.findFirst({
+        where: { id: lead.convertedToEstimateId, userId },
+        include: { client: true },
+      });
+    }
+
+    if (lead.convertedToInvoiceId) {
+      convertedInvoice = await prisma.invoice.findFirst({
+        where: { id: lead.convertedToInvoiceId, userId },
+        include: { client: true },
+      });
+    }
+
+    return NextResponse.json({
+      lead,
+      leadSource: lead.leadSource,
+      convertedJob,
+      convertedEstimate,
+      convertedInvoice,
+    });
+  } catch (error) {
+    console.error('Error fetching lead:', error);
     return NextResponse.json(
-      { error: 'Lead not found' },
-      { status: 404 }
+      { error: 'Failed to fetch lead' },
+      { status: 500 }
     );
   }
-
-  // Get linked lead source if exists
-  let leadSource = null;
-  if (lead.leadSourceId) {
-    leadSource = mockDb.leadSources.find(
-      ls => ls.id === lead.leadSourceId && ls.userId === userId
-    );
-  }
-
-  // Get converted job if exists
-  let convertedJob = null;
-  if (lead.convertedToJobId) {
-    convertedJob = mockDb.jobs.find(
-      j => j.id === lead.convertedToJobId && j.userId === userId
-    );
-  }
-
-  // Get converted estimate if exists
-  let convertedEstimate = null;
-  if (lead.convertedToEstimateId) {
-    convertedEstimate = mockDb.estimates.find(
-      e => e.id === lead.convertedToEstimateId && e.userId === userId
-    );
-  }
-
-  // Get converted invoice if exists
-  let convertedInvoice = null;
-  if (lead.convertedToInvoiceId) {
-    convertedInvoice = mockDb.invoices.find(
-      i => i.id === lead.convertedToInvoiceId && i.userId === userId
-    );
-  }
-
-  // Get call tracking record if exists
-  let callRecord = null;
-  if (lead.callTrackingRecordId) {
-    callRecord = mockDb.callTrackingRecords.find(
-      c => c.id === lead.callTrackingRecordId
-    );
-  }
-
-  return NextResponse.json({
-    lead,
-    leadSource,
-    convertedJob,
-    convertedEstimate,
-    convertedInvoice,
-    callRecord,
-  });
 }
 
 // PATCH /api/leads/[id] - Update lead
@@ -77,31 +74,31 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const userId = getMockUserId();
+    const userId = await getUserId();
     const body = await request.json();
 
-    const leadIndex = mockDb.leads.findIndex(
-      l => l.id === id && l.userId === userId
-    );
+    const existingLead = await prisma.lead.findFirst({
+      where: { id, userId },
+    });
 
-    if (leadIndex === -1) {
+    if (!existingLead) {
       return NextResponse.json(
         { error: 'Lead not found' },
         { status: 404 }
       );
     }
 
-    const lead = mockDb.leads[leadIndex];
+    const updateData: any = {};
 
     // Update allowed fields
-    if (body.name !== undefined) lead.name = body.name;
-    if (body.email !== undefined) lead.email = body.email;
-    if (body.phone !== undefined) lead.phone = body.phone;
-    if (body.company !== undefined) lead.company = body.company;
-    if (body.description !== undefined) lead.description = body.description;
-    if (body.location !== undefined) lead.location = body.location;
-    if (body.trade !== undefined) lead.trade = body.trade;
-    if (body.estimatedValue !== undefined) lead.estimatedValue = body.estimatedValue;
+    if (body.name !== undefined) updateData.name = body.name;
+    if (body.email !== undefined) updateData.email = body.email;
+    if (body.phone !== undefined) updateData.phone = body.phone;
+    if (body.company !== undefined) updateData.company = body.company;
+    if (body.description !== undefined) updateData.description = body.description;
+    if (body.location !== undefined) updateData.location = body.location;
+    if (body.trade !== undefined) updateData.trade = body.trade;
+    if (body.estimatedValue !== undefined) updateData.estimatedValue = body.estimatedValue ? parseFloat(body.estimatedValue) : null;
 
     // Validate and update status
     if (body.status !== undefined) {
@@ -112,7 +109,7 @@ export async function PATCH(
           { status: 400 }
         );
       }
-      lead.status = body.status;
+      updateData.status = body.status;
     }
 
     // Validate and update priority
@@ -124,16 +121,21 @@ export async function PATCH(
           { status: 400 }
         );
       }
-      lead.priority = body.priority;
+      updateData.priority = body.priority;
     }
 
     if (body.lastContactedAt !== undefined) {
-      lead.lastContactedAt = body.lastContactedAt;
+      updateData.lastContactedAt = body.lastContactedAt ? new Date(body.lastContactedAt) : null;
     }
+
+    const updatedLead = await prisma.lead.update({
+      where: { id },
+      data: updateData,
+    });
 
     return NextResponse.json({
       success: true,
-      lead,
+      lead: updatedLead,
     });
   } catch (error) {
     console.error('Error updating lead:', error);
@@ -149,25 +151,34 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  const userId = getMockUserId();
+  try {
+    const { id } = await params;
+    const userId = await getUserId();
 
-  const leadIndex = mockDb.leads.findIndex(
-    l => l.id === id && l.userId === userId
-  );
+    const existingLead = await prisma.lead.findFirst({
+      where: { id, userId },
+    });
 
-  if (leadIndex === -1) {
+    if (!existingLead) {
+      return NextResponse.json(
+        { error: 'Lead not found' },
+        { status: 404 }
+      );
+    }
+
+    await prisma.lead.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Lead deleted',
+    });
+  } catch (error) {
+    console.error('Error deleting lead:', error);
     return NextResponse.json(
-      { error: 'Lead not found' },
-      { status: 404 }
+      { error: 'Failed to delete lead' },
+      { status: 500 }
     );
   }
-
-  // Remove from array
-  mockDb.leads.splice(leadIndex, 1);
-
-  return NextResponse.json({
-    success: true,
-    message: 'Lead deleted',
-  });
 }

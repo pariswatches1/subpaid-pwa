@@ -1,27 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockDb, getMockUserId } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+import { getUserId } from '@/lib/auth';
 
 // POST /api/invoices/[id]/remind - Send payment reminder
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = getMockUserId();
-    const { id } = params;
+    const userId = await getUserId();
+    const { id } = await params;
     const body = await request.json();
 
-    const invoice = mockDb.invoices.find(
-      inv => inv.id === id && inv.userId === userId
-    );
+    const invoice = await prisma.invoice.findFirst({
+      where: { id, userId },
+      include: { client: true },
+    });
 
     if (!invoice) {
       return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
     }
 
-    const client = mockDb.clients.find(c => c.id === invoice.clientId);
-
-    if (!client) {
+    if (!invoice.client) {
       return NextResponse.json({ error: 'Client not found' }, { status: 404 });
     }
 
@@ -30,10 +30,10 @@ export async function POST(
 
     // Send email reminder
     if (channel === 'email' || channel === 'both') {
-      if (client.email) {
+      if (invoice.client.email) {
         // In production, send via email service
         // await sendReminderEmail({
-        //   to: client.email,
+        //   to: invoice.client.email,
         //   invoiceNumber: invoice.invoiceNumber,
         //   amount: invoice.total,
         //   dueDate: invoice.dueDate
@@ -44,10 +44,10 @@ export async function POST(
 
     // Send SMS reminder
     if (channel === 'sms' || channel === 'both') {
-      if (client.phone) {
+      if (invoice.client.phone) {
         // In production, send via SMS service (Twilio, etc.)
         // await sendReminderSMS({
-        //   to: client.phone,
+        //   to: invoice.client.phone,
         //   message: `Reminder: Invoice ${invoice.invoiceNumber} for $${invoice.total} is due`
         // });
         sentChannels.push('sms');
@@ -59,6 +59,28 @@ export async function POST(
         { error: 'No valid contact method found for client' },
         { status: 400 }
       );
+    }
+
+    // Update reminder count
+    await prisma.invoice.update({
+      where: { id },
+      data: {
+        remindersSent: { increment: 1 },
+        lastReminderAt: new Date(),
+      },
+    });
+
+    // Create timeline event if linked to lead source
+    if (invoice.leadSourceId) {
+      await prisma.leadTimelineEvent.create({
+        data: {
+          leadSourceId: invoice.leadSourceId,
+          userId,
+          eventType: 'reminder_sent',
+          entityId: invoice.id,
+          description: `Payment reminder sent for Invoice ${invoice.invoiceNumber} via ${sentChannels.join(' and ')}`,
+        },
+      });
     }
 
     return NextResponse.json({

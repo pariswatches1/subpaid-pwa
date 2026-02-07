@@ -1,30 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockDb, generateId, generateInvoiceNumber, getMockUserId } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+import { getUserId, generateInvoiceNumber } from '@/lib/auth';
 
 // GET /api/invoices - List all invoices
 export async function GET(request: NextRequest) {
   try {
-    const userId = getMockUserId();
+    const userId = await getUserId();
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const clientId = searchParams.get('clientId');
 
-    let invoices = mockDb.invoices.filter(inv => inv.userId === userId);
+    const where: any = { userId };
+    if (status) where.status = status;
+    if (clientId) where.clientId = clientId;
 
-    if (status) {
-      invoices = invoices.filter(inv => inv.status === status);
-    }
-    if (clientId) {
-      invoices = invoices.filter(inv => inv.clientId === clientId);
-    }
+    const invoices = await prisma.invoice.findMany({
+      where,
+      include: {
+        client: true,
+        job: true,
+        leadSource: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
 
-    // Include client data
-    const invoicesWithClient = invoices.map(inv => ({
-      ...inv,
-      client: mockDb.clients.find(c => c.id === inv.clientId),
-    }));
-
-    return NextResponse.json(invoicesWithClient);
+    return NextResponse.json(invoices);
   } catch (error) {
     console.error('Error fetching invoices:', error);
     return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 });
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 // POST /api/invoices - Create new invoice
 export async function POST(request: NextRequest) {
   try {
-    const userId = getMockUserId();
+    const userId = await getUserId();
     const body = await request.json();
 
     const clientId = body.client_id || body.clientId;
@@ -57,7 +57,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify client exists
-    const client = mockDb.clients.find(c => c.id === clientId);
+    const client = await prisma.client.findFirst({
+      where: { id: clientId, userId },
+    });
     if (!client) {
       return NextResponse.json(
         { error: 'Client not found' },
@@ -75,68 +77,68 @@ export async function POST(request: NextRequest) {
     const total = subtotal + tax;
 
     // Generate invoice number
-    const invoiceNumber = generateInvoiceNumber(mockDb.invoices.length);
+    const invoiceNumber = generateInvoiceNumber();
 
     // Determine leadSourceId: from body, or inherit from linked job
     let leadSourceId = body.leadSourceId;
     if (!leadSourceId && body.jobId) {
-      const job = mockDb.jobs.find(j => j.id === body.jobId);
-      if (job && job.leadSourceId) {
+      const job = await prisma.job.findFirst({
+        where: { id: body.jobId, userId },
+      });
+      if (job?.leadSourceId) {
         leadSourceId = job.leadSourceId;
       }
     }
 
-    const newInvoice = {
-      id: generateId(),
-      invoiceNumber,
-      clientId,
-      jobId: body.jobId || undefined,
-      userId,
-      lineItems: lineItems.map((item: { description?: string; quantity?: number; rate?: number; amount?: number }, index: number) => ({
-        id: String(index + 1),
-        description: item.description || '',
-        quantity: item.quantity || 1,
-        rate: item.rate || item.amount || 0,
-        total: item.quantity && item.rate ? item.quantity * item.rate : item.amount || 0,
-      })),
-      subtotal,
-      tax,
-      total,
-      dueDate: dueDate ? new Date(dueDate).toISOString() : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      notes: body.notes || '',
-      status: body.status || 'draft',
-      autopilotEnabled: body.autopilotEnabled || false,
-      createdAt: new Date().toISOString(),
-      leadSourceId: leadSourceId || undefined,
-    };
-
-    mockDb.invoices.push(newInvoice);
+    const newInvoice = await prisma.invoice.create({
+      data: {
+        userId,
+        clientId,
+        jobId: body.jobId || null,
+        leadSourceId: leadSourceId || null,
+        invoiceNumber,
+        lineItems: lineItems.map((item: { description?: string; quantity?: number; rate?: number; amount?: number }, index: number) => ({
+          id: String(index + 1),
+          description: item.description || '',
+          quantity: item.quantity || 1,
+          rate: item.rate || item.amount || 0,
+          total: item.quantity && item.rate ? item.quantity * item.rate : item.amount || 0,
+        })),
+        subtotal,
+        tax,
+        total,
+        dueDate: dueDate ? new Date(dueDate) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        notes: body.notes || null,
+        status: body.status || 'draft',
+        autopilotEnabled: body.autopilotEnabled || false,
+      },
+      include: {
+        client: true,
+      },
+    });
 
     // If leadSourceId exists, create a timeline event and update stats
     if (leadSourceId) {
-      const timelineEvent = {
-        id: generateId(),
-        leadSourceId,
-        userId,
-        eventType: 'invoice_sent' as const,
-        entityId: newInvoice.id,
-        description: `Invoice sent: ${invoiceNumber}`,
-        amount: total,
-        createdAt: new Date().toISOString(),
-      };
-      mockDb.leadTimelineEvents.push(timelineEvent);
+      await prisma.leadTimelineEvent.create({
+        data: {
+          leadSourceId,
+          userId,
+          eventType: 'invoice_sent',
+          entityId: newInvoice.id,
+          description: `Invoice created: ${invoiceNumber}`,
+          amount: total,
+        },
+      });
 
-      // Update lead source stats (only if user owns the lead source)
-      const leadSource = mockDb.leadSources.find(ls => ls.id === leadSourceId && ls.userId === userId);
-      if (leadSource) {
-        leadSource.stats.invoicesLinked = (leadSource.stats.invoicesLinked || 0) + 1;
-      }
+      await prisma.leadSource.update({
+        where: { id: leadSourceId },
+        data: {
+          invoicesLinked: { increment: 1 },
+        },
+      });
     }
 
-    return NextResponse.json(
-      { ...newInvoice, client },
-      { status: 201 }
-    );
+    return NextResponse.json(newInvoice, { status: 201 });
   } catch (error) {
     console.error('Create invoice error:', error);
     return NextResponse.json(
@@ -149,7 +151,7 @@ export async function POST(request: NextRequest) {
 // PATCH /api/invoices - Update invoice status
 export async function PATCH(request: NextRequest) {
   try {
-    const userId = getMockUserId();
+    const userId = await getUserId();
     const body = await request.json();
     const { id, status, paidAt } = body;
 
@@ -161,69 +163,73 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Find invoice and verify ownership
-    const invoiceIndex = mockDb.invoices.findIndex(
-      inv => inv.id === id && inv.userId === userId
-    );
+    const invoice = await prisma.invoice.findFirst({
+      where: { id, userId },
+    });
 
-    if (invoiceIndex === -1) {
+    if (!invoice) {
       return NextResponse.json(
         { error: 'Invoice not found' },
         { status: 404 }
       );
     }
 
-    const invoice = mockDb.invoices[invoiceIndex];
     const previousStatus = invoice.status;
+    const updateData: any = {};
 
     // Update status if provided
     if (status) {
-      invoice.status = status;
+      updateData.status = status;
 
       // If status changed to 'paid', update lead source amountPaid
       if (status === 'paid' && previousStatus !== 'paid') {
-        invoice.paidAt = paidAt || new Date().toISOString();
+        updateData.paidAt = paidAt ? new Date(paidAt) : new Date();
 
         // Update lead source stats if linked
         if (invoice.leadSourceId) {
-          const leadSource = mockDb.leadSources.find(
-            ls => ls.id === invoice.leadSourceId && ls.userId === userId
-          );
-          if (leadSource) {
-            leadSource.stats.amountPaid = (leadSource.stats.amountPaid || 0) + invoice.total;
+          await prisma.leadSource.update({
+            where: { id: invoice.leadSourceId },
+            data: {
+              amountPaid: { increment: Number(invoice.total) },
+            },
+          });
 
-            // Create timeline event for payment
-            const timelineEvent = {
-              id: generateId(),
+          // Create timeline event for payment
+          await prisma.leadTimelineEvent.create({
+            data: {
               leadSourceId: invoice.leadSourceId,
               userId,
-              eventType: 'payment_received' as const,
+              eventType: 'payment_received',
               entityId: invoice.id,
               description: `Payment received: ${invoice.invoiceNumber}`,
               amount: invoice.total,
-              createdAt: new Date().toISOString(),
-            };
-            mockDb.leadTimelineEvents.push(timelineEvent);
-          }
+            },
+          });
         }
       }
 
-      // If status changed FROM 'paid' to something else, subtract amount (edge case)
+      // If status changed FROM 'paid' to something else, subtract amount
       if (previousStatus === 'paid' && status !== 'paid') {
         if (invoice.leadSourceId) {
-          const leadSource = mockDb.leadSources.find(
-            ls => ls.id === invoice.leadSourceId && ls.userId === userId
-          );
-          if (leadSource) {
-            leadSource.stats.amountPaid = Math.max(0, (leadSource.stats.amountPaid || 0) - invoice.total);
-          }
+          await prisma.leadSource.update({
+            where: { id: invoice.leadSourceId },
+            data: {
+              amountPaid: { decrement: Number(invoice.total) },
+            },
+          });
         }
-        invoice.paidAt = undefined;
+        updateData.paidAt = null;
       }
     }
 
+    const updatedInvoice = await prisma.invoice.update({
+      where: { id },
+      data: updateData,
+    });
+
     return NextResponse.json({
       success: true,
-      invoice,
+      invoice: updatedInvoice,
     });
   } catch (error) {
     console.error('Update invoice error:', error);

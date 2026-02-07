@@ -1,35 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockDb, generateId, getMockUserId } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+import { getUserId } from '@/lib/auth';
 
 // GET - Get timeline events for a lead source
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  const userId = getMockUserId();
+  try {
+    const { id } = await params;
+    const userId = await getUserId();
 
-  // Verify lead source exists and belongs to user
-  const leadSource = mockDb.leadSources.find(
-    ls => ls.id === id && ls.userId === userId
-  );
+    // Verify lead source exists and belongs to user
+    const leadSource = await prisma.leadSource.findFirst({
+      where: { id, userId },
+    });
 
-  if (!leadSource) {
+    if (!leadSource) {
+      return NextResponse.json(
+        { error: 'Lead source not found' },
+        { status: 404 }
+      );
+    }
+
+    // Get timeline events
+    const events = await prisma.leadTimelineEvent.findMany({
+      where: { leadSourceId: id },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return NextResponse.json({
+      events,
+      total: events.length,
+    });
+  } catch (error) {
+    console.error('Error fetching timeline events:', error);
     return NextResponse.json(
-      { error: 'Lead source not found' },
-      { status: 404 }
+      { error: 'Failed to fetch timeline events' },
+      { status: 500 }
     );
   }
-
-  // Get timeline events
-  const events = mockDb.leadTimelineEvents
-    .filter(e => e.leadSourceId === id)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-  return NextResponse.json({
-    events,
-    total: events.length,
-  });
 }
 
 // POST - Add a manual timeline event
@@ -39,13 +49,13 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const userId = getMockUserId();
+    const userId = await getUserId();
     const body = await request.json();
 
     // Verify lead source exists
-    const leadSource = mockDb.leadSources.find(
-      ls => ls.id === id && ls.userId === userId
-    );
+    const leadSource = await prisma.leadSource.findFirst({
+      where: { id, userId },
+    });
 
     if (!leadSource) {
       return NextResponse.json(
@@ -84,18 +94,16 @@ export async function POST(
       );
     }
 
-    const newEvent = {
-      id: generateId(),
-      leadSourceId: id,
-      userId,
-      eventType,
-      entityId: entityId || undefined,
-      description,
-      amount: amount || undefined,
-      createdAt: new Date().toISOString(),
-    };
-
-    mockDb.leadTimelineEvents.push(newEvent);
+    const newEvent = await prisma.leadTimelineEvent.create({
+      data: {
+        leadSourceId: id,
+        userId,
+        eventType,
+        entityId: entityId || null,
+        description,
+        amount: amount || null,
+      },
+    });
 
     return NextResponse.json({
       success: true,
