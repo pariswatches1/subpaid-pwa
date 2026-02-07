@@ -13,7 +13,7 @@ interface JoobleJob {
   link: string;
   company: string;
   updated: string;
-  id: string;
+  id: string | number; // Jooble returns this as a number
 }
 
 interface JoobleResponse {
@@ -36,12 +36,14 @@ export const joobleAdapter: JobSourceAdapter = {
     }
 
     try {
-      // Build search keywords
+      // Build search keywords - use construction-specific terms
+      // Avoid using "OR" as a keyword since it matches "Operating Room"
       const keywords = params.keywords?.length
         ? params.keywords
-        : CONSTRUCTION_KEYWORDS.slice(0, 5); // Use top 5 construction keywords
+        : ['construction', 'contractor', 'electrician', 'plumber', 'HVAC'];
 
-      const searchQuery = keywords.join(' OR ');
+      // Use the first keyword as the primary search term
+      const searchQuery = keywords[0] + ' ' + keywords.slice(1).join(' ');
 
       // Build location string
       let locationQuery = '';
@@ -114,7 +116,7 @@ export const joobleAdapter: JobSourceAdapter = {
 
         return {
           source: 'jooble',
-          externalId: job.id || `jooble-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          externalId: String(job.id) || `jooble-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           externalUrl: job.link,
           title: job.title,
           description: job.snippet,

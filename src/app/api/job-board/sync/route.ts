@@ -30,9 +30,16 @@ export async function POST(request: NextRequest) {
     // Upsert jobs into database
     let imported = 0;
     let updated = 0;
+    const errors: string[] = [];
 
     for (const job of jobs) {
       try {
+        // Validate required fields
+        if (!job.externalId || !job.source || !job.title) {
+          errors.push(`Missing required fields for job`);
+          continue;
+        }
+
         const existing = await prisma.jobListing.findUnique({
           where: {
             source_externalId: {
@@ -63,7 +70,7 @@ export async function POST(request: NextRequest) {
               isRemote: job.isRemote,
               deadline: job.deadline,
               expiresAt: job.expiresAt,
-              rawData: job.rawData,
+              rawData: job.rawData as object,
               isActive: true,
             },
           });
@@ -92,13 +99,15 @@ export async function POST(request: NextRequest) {
               postedAt: job.postedAt,
               deadline: job.deadline,
               expiresAt: job.expiresAt,
-              rawData: job.rawData,
+              rawData: job.rawData as object,
               isActive: true,
             },
           });
           imported++;
         }
       } catch (jobError) {
+        const errorMsg = jobError instanceof Error ? jobError.message : String(jobError);
+        errors.push(errorMsg);
         console.error(`Error upserting job ${job.externalId}:`, jobError);
       }
     }
@@ -109,6 +118,7 @@ export async function POST(request: NextRequest) {
       imported,
       updated,
       total: jobs.length,
+      errors: errors.length > 0 ? errors.slice(0, 5) : undefined,
     });
   } catch (error) {
     console.error('Error syncing jobs:', error);
