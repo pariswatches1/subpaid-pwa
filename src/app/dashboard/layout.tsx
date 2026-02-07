@@ -31,9 +31,10 @@ import {
   Inbox,
 } from 'lucide-react';
 
-const navigation = [
+const navigation: { name: string; href: string; icon: React.ComponentType<{ className?: string }>; badge?: string }[] = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Leads Inbox', href: '/dashboard/leads-inbox', icon: Inbox },
+  { name: 'Job Board', href: '/dashboard/job-board', icon: Search, badge: 'New' },
   { name: 'Jobs', href: '/dashboard/jobs', icon: Briefcase },
   { name: 'Estimates', href: '/dashboard/estimates', icon: ClipboardList },
   { name: 'Invoices', href: '/dashboard/invoices', icon: FileText },
@@ -119,7 +120,10 @@ export default function DashboardLayout({
                     onClick={() => setSidebarOpen(false)}
                   >
                     <item.icon className="w-5 h-5" />
-                    {item.name}
+                    <span className="flex-1">{item.name}</span>
+                    {'badge' in item && item.badge && (
+                      <span className="text-[8px] bg-gradient-to-r from-[#FF9F43] to-[#FF6B6B] text-white px-1.5 py-0.5 rounded font-bold">{item.badge}</span>
+                    )}
                   </Link>
                 </li>
               );
