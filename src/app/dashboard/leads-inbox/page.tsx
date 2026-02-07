@@ -152,6 +152,12 @@ export default function LeadsInboxPage() {
   const [sourceFilter, setSourceFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [actionMenuId, setActionMenuId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // Set mounted state to prevent hydration mismatch with time formatting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     fetchLeads();
@@ -400,7 +406,7 @@ export default function LeadsInboxPage() {
                               {lead.sourceName || lead.sourceType}
                             </span>
                             <span className="text-xs text-[#1a1a2e]/50">
-                              {formatRelativeTime(lead.receivedAt)}
+                              {mounted ? formatRelativeTime(lead.receivedAt) : ''}
                             </span>
                             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${status.bg} ${status.text}`}>
                               {status.label}

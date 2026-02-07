@@ -128,8 +128,10 @@ export default function LeadDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isConverting, setIsConverting] = useState(false);
   const [convertType, setConvertType] = useState<'job' | 'estimate' | 'invoice' | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     fetchLead();
   }, [id]);
 
@@ -495,7 +497,7 @@ export default function LeadDetailPage() {
                 <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
                 <div>
                   <p className="text-sm font-medium text-[#1a1a2e]">Lead Received</p>
-                  <p className="text-xs text-gray-500">{formatRelativeTime(lead.receivedAt)}</p>
+                  <p className="text-xs text-gray-500">{mounted ? formatRelativeTime(lead.receivedAt) : ''}</p>
                 </div>
               </div>
               {lead.lastContactedAt && (
@@ -503,7 +505,7 @@ export default function LeadDetailPage() {
                   <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2" />
                   <div>
                     <p className="text-sm font-medium text-[#1a1a2e]">Last Contacted</p>
-                    <p className="text-xs text-gray-500">{formatRelativeTime(lead.lastContactedAt)}</p>
+                    <p className="text-xs text-gray-500">{mounted ? formatRelativeTime(lead.lastContactedAt) : ''}</p>
                   </div>
                 </div>
               )}

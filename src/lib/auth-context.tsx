@@ -11,27 +11,40 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Demo user for development
-const DEMO_USER: User = {
+// Demo user for development - use string dates to avoid hydration mismatch
+const DEMO_USER_BASE = {
   id: 'demo-user-1',
   name: 'Sam Johnson',
   email: 'sam@electricalpros.com',
   company: 'Electrical Pros LLC',
   phone: '(555) 123-4567',
   address: '123 Main St, Orlando, FL 32801',
-  role: 'user',
-  plan: 'pro',
-  createdAt: new Date('2025-01-01'),
+  role: 'user' as const,
+  plan: 'pro' as const,
 };
 
-const DEMO_ADMIN: User = {
+const DEMO_ADMIN_BASE = {
   id: 'demo-admin-1',
   name: 'Admin User',
   email: 'admin@subpaid.com',
-  role: 'admin',
-  plan: 'autopilot',
-  createdAt: new Date('2024-01-01'),
+  role: 'admin' as const,
+  plan: 'autopilot' as const,
 };
+
+// Create user with Date object only when needed (client-side)
+function createDemoUser(): User {
+  return {
+    ...DEMO_USER_BASE,
+    createdAt: new Date('2025-01-01'),
+  };
+}
+
+function createDemoAdmin(): User {
+  return {
+    ...DEMO_ADMIN_BASE,
+    createdAt: new Date('2024-01-01'),
+  };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
@@ -79,11 +92,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let user: User | null = null;
 
     if (email === 'admin@subpaid.com' && password === 'admin123') {
-      user = DEMO_ADMIN;
+      user = createDemoAdmin();
     } else if (email && password.length >= 6) {
       // Accept any valid-looking credentials for demo
       user = {
-        ...DEMO_USER,
+        ...createDemoUser(),
         email,
         name: email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
       };

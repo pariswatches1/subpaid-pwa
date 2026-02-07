@@ -105,8 +105,10 @@ export default function LeadSourcesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     fetchLeadSources();
   }, []);
 
@@ -311,7 +313,7 @@ export default function LeadSourcesPage() {
                         <div className="flex items-center gap-3 text-sm text-gray-500 mt-1 flex-wrap">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3.5 h-3.5" />
-                            {formatRelativeTime(ls.createdAt)}
+                            {mounted ? formatRelativeTime(ls.createdAt) : ''}
                           </span>
                           <span className="flex items-center gap-1">
                             <Search className="w-3.5 h-3.5" />
