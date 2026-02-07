@@ -80,7 +80,10 @@ export async function fetchJobsFromSource(
     throw new Error(`Job source ${sourceName} is not configured. Please add API key.`);
   }
 
-  return adapter.fetchJobs(params);
+  console.log(`Fetching jobs from ${sourceName} with params:`, params);
+  const jobs = await adapter.fetchJobs(params);
+  console.log(`${sourceName}: fetched ${jobs.length} jobs`);
+  return jobs;
 }
 
 // Check which sources are configured

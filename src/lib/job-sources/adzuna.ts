@@ -4,7 +4,7 @@
 import { JobSourceAdapter, JobListingInput, JobSearchParams, CONSTRUCTION_KEYWORDS } from './types';
 
 interface AdzunaJob {
-  id: string;
+  id: string | number; // Can be number from API
   title: string;
   description: string;
   company: { display_name: string };
@@ -41,10 +41,10 @@ export const adzunaAdapter: JobSourceAdapter = {
     }
 
     try {
-      // Build search query
+      // Build search query - use construction-specific terms
       const keywords = params.keywords?.length
         ? params.keywords
-        : CONSTRUCTION_KEYWORDS.slice(0, 3);
+        : ['construction', 'contractor', 'electrician'];
 
       const searchQuery = keywords.join(' ');
       const page = params.page || 1;
@@ -57,7 +57,6 @@ export const adzunaAdapter: JobSourceAdapter = {
         app_key: appKey,
         what: searchQuery,
         results_per_page: limit.toString(),
-        content_type: 'application/json',
       });
 
       // Add location filter if provided
@@ -65,17 +64,27 @@ export const adzunaAdapter: JobSourceAdapter = {
         urlParams.append('where', params.location);
       }
 
-      // Filter for construction category
-      urlParams.append('category', 'construction-jobs');
+      // Don't filter by category - the keyword search is sufficient
+      // and category filter was too restrictive
 
-      const response = await fetch(`${baseUrl}?${urlParams.toString()}`);
+      const fullUrl = `${baseUrl}?${urlParams.toString()}`;
+      console.log('Adzuna API URL:', fullUrl);
+
+      const response = await fetch(fullUrl);
 
       if (!response.ok) {
-        console.error('Adzuna API error:', response.status, response.statusText);
+        const errorText = await response.text();
+        console.error('Adzuna API error:', response.status, response.statusText, errorText);
         return [];
       }
 
       const data: AdzunaResponse = await response.json();
+
+      console.log(`Adzuna API returned ${data.results?.length || 0} jobs (total count: ${data.count})`);
+
+      if (!data.results || data.results.length === 0) {
+        return [];
+      }
 
       // Transform Adzuna jobs to our format
       const jobs: JobListingInput[] = data.results.map((job) => {
@@ -112,7 +121,7 @@ export const adzunaAdapter: JobSourceAdapter = {
 
         return {
           source: 'adzuna',
-          externalId: job.id,
+          externalId: String(job.id),
           externalUrl: job.redirect_url,
           title: job.title,
           description: job.description,
