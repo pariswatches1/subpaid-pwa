@@ -18,7 +18,8 @@ import {
   Send,
   X,
   Settings,
-  Folder
+  Folder,
+  ExternalLink
 } from 'lucide-react';
 
 interface LienProject {
@@ -45,116 +46,67 @@ interface LienProject {
   status: 'protected' | 'at-risk' | 'expired';
 }
 
-const initialProjects: LienProject[] = [
-  {
-    id: '1',
-    projectName: 'Highland Shopping Center - Electrical',
-    gcName: 'Metro Builders Inc',
-    address: '1234 Highland Ave, Denver, CO 80202',
-    state: 'CO',
-    startDate: '2025-08-01',
-    lastWorkDate: '2025-10-15',
-    contractAmount: 125000,
-    amountOwed: 38500,
-    preliminaryNotice: {
-      required: true,
-      deadline: '2025-08-21',
-      sent: true,
-      sentDate: '2025-08-15',
-    },
-    mechanicsLien: {
-      deadline: '2026-02-15',
-      daysRemaining: 13,
-      filed: false,
-    },
-    status: 'protected',
-  },
-  {
-    id: '2',
-    projectName: 'Riverside Apartments - Phase 2',
-    gcName: 'Downtown Development LLC',
-    address: '567 River Rd, Phoenix, AZ 85001',
-    state: 'AZ',
-    startDate: '2025-09-15',
-    lastWorkDate: '2025-12-20',
-    contractAmount: 89000,
-    amountOwed: 24300,
-    preliminaryNotice: {
-      required: true,
-      deadline: '2025-10-05',
-      sent: true,
-      sentDate: '2025-09-28',
-    },
-    mechanicsLien: {
-      deadline: '2026-04-18',
-      daysRemaining: 75,
-      filed: false,
-    },
-    status: 'protected',
-  },
-  {
-    id: '3',
-    projectName: 'Medical Office Build-out',
-    gcName: 'Thompson Construction',
-    address: '890 Health Pkwy, Las Vegas, NV 89101',
-    state: 'NV',
-    startDate: '2025-11-01',
-    lastWorkDate: '2026-01-28',
-    contractAmount: 67500,
-    amountOwed: 67500,
-    preliminaryNotice: {
-      required: true,
-      deadline: '2025-11-21',
-      sent: false,
-    },
-    mechanicsLien: {
-      deadline: '2026-05-27',
-      daysRemaining: 114,
-      filed: false,
-    },
-    status: 'at-risk',
-  },
-  {
-    id: '4',
-    projectName: 'Warehouse Expansion',
-    gcName: 'ABC General Contractors',
-    address: '456 Industrial Blvd, Denver, CO 80239',
-    state: 'CO',
-    startDate: '2025-06-01',
-    lastWorkDate: '2025-09-15',
-    contractAmount: 45000,
-    amountOwed: 12000,
-    preliminaryNotice: {
-      required: true,
-      deadline: '2025-06-21',
-      sent: true,
-      sentDate: '2025-06-18',
-    },
-    mechanicsLien: {
-      deadline: '2025-12-15',
-      daysRemaining: -49,
-      filed: false,
-    },
-    status: 'expired',
-  },
-];
+// Projects are now fetched from the database via API
 
-const stateRules: Record<string, { preLienDays: number; lienDays: number; notes: string }> = {
-  CO: { preLienDays: 20, lienDays: 120, notes: 'Preliminary notice required for subs. 4-month lien deadline.' },
-  AZ: { preLienDays: 20, lienDays: 120, notes: '20-day preliminary notice. 120 days from completion to file.' },
-  NV: { preLienDays: 31, lienDays: 90, notes: 'Notice must be sent within 31 days. 90-day lien window.' },
-  CA: { preLienDays: 20, lienDays: 90, notes: '20-day preliminary notice mandatory. 90 days to file lien.' },
-  TX: { preLienDays: 15, lienDays: 0, notes: 'Complex tiered system. Notice to owner required 15th of 2nd month.' },
-  FL: { preLienDays: 45, lienDays: 90, notes: '45-day notice to owner. 90 days from last work to file.' },
-  NY: { preLienDays: 0, lienDays: 240, notes: 'No preliminary notice required. 8 months from last work.' },
-  WA: { preLienDays: 60, lienDays: 90, notes: '60-day pre-lien notice. 90 days from completion.' },
+const stateRules: Record<string, { preLienDays: number; lienDays: number; notes: string; filingUrl: string }> = {
+  AL: { preLienDays: 0, lienDays: 180, notes: 'No preliminary notice required. 6 months from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/alabama-lien-law-faqs/' },
+  AK: { preLienDays: 0, lienDays: 120, notes: 'Notice of right to lien required. 120 days from completion.', filingUrl: 'https://www.levelset.com/mechanics-lien/alaska-lien-law-faqs/' },
+  AZ: { preLienDays: 20, lienDays: 120, notes: '20-day preliminary notice. 120 days from completion to file.', filingUrl: 'https://recorder.maricopa.gov/' },
+  AR: { preLienDays: 0, lienDays: 120, notes: 'No preliminary notice. 120 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/arkansas-lien-law-faqs/' },
+  CA: { preLienDays: 20, lienDays: 90, notes: '20-day preliminary notice mandatory. 90 days to file lien.', filingUrl: 'https://www.levelset.com/mechanics-lien/california-lien-law-faqs/' },
+  CO: { preLienDays: 10, lienDays: 120, notes: '10-day notice of intent required. 4-month lien deadline.', filingUrl: 'https://www.levelset.com/mechanics-lien/colorado-lien-law-faqs/' },
+  CT: { preLienDays: 90, lienDays: 90, notes: 'Notice of intent within 90 days of last work. 90-day lien window.', filingUrl: 'https://www.levelset.com/mechanics-lien/connecticut-lien-law-faqs/' },
+  DE: { preLienDays: 0, lienDays: 60, notes: 'No preliminary notice required. 60 days from completion.', filingUrl: 'https://www.levelset.com/mechanics-lien/delaware-lien-law-faqs/' },
+  FL: { preLienDays: 45, lienDays: 90, notes: '45-day notice to owner. 90 days from last work to file.', filingUrl: 'https://www.levelset.com/mechanics-lien/florida-lien-law-faqs/' },
+  GA: { preLienDays: 30, lienDays: 90, notes: '30-day notice to contractor and owner. 90 days to file.', filingUrl: 'https://www.levelset.com/mechanics-lien/georgia-lien-law-faqs/' },
+  HI: { preLienDays: 0, lienDays: 45, notes: 'No preliminary notice. 45 days from completion.', filingUrl: 'https://www.levelset.com/mechanics-lien/hawaii-lien-law-faqs/' },
+  ID: { preLienDays: 0, lienDays: 90, notes: 'No preliminary notice for most. 90 days from completion.', filingUrl: 'https://www.levelset.com/mechanics-lien/idaho-lien-law-faqs/' },
+  IL: { preLienDays: 60, lienDays: 120, notes: 'Notice within 60 days on residential. 4 months from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/illinois-lien-law-faqs/' },
+  IN: { preLienDays: 60, lienDays: 90, notes: '60-day notice on residential. 90 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/indiana-lien-law-faqs/' },
+  IA: { preLienDays: 0, lienDays: 90, notes: 'File through state MNLR registry. 90 days from last work.', filingUrl: 'https://sos.iowa.gov/mnlr/index.aspx' },
+  KS: { preLienDays: 0, lienDays: 90, notes: 'Notice of intent required before filing. 90 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/kansas-lien-law-faqs/' },
+  KY: { preLienDays: 75, lienDays: 180, notes: '75-day notice on residential. 6 months from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/kentucky-lien-law-faqs/' },
+  LA: { preLienDays: 30, lienDays: 60, notes: 'Various notices required. 60 days from project completion.', filingUrl: 'https://www.levelset.com/mechanics-lien/louisiana-lien-law-faqs/' },
+  ME: { preLienDays: 0, lienDays: 90, notes: 'No preliminary notice. 90 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/maine-lien-law-faqs/' },
+  MD: { preLienDays: 120, lienDays: 180, notes: '120-day notice for subs. 180 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/maryland-lien-law-faqs/' },
+  MA: { preLienDays: 0, lienDays: 120, notes: 'No preliminary notice. 120 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/massachusetts-lien-law-faqs/' },
+  MI: { preLienDays: 20, lienDays: 90, notes: '20-day notice for subs on residential. 90 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/michigan-lien-law-faqs/' },
+  MN: { preLienDays: 45, lienDays: 120, notes: '45-day preliminary notice. 120 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/minnesota-lien-law-faqs/' },
+  MS: { preLienDays: 30, lienDays: 90, notes: '30-day notice for suppliers. 90 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/mississippi-lien-law-faqs/' },
+  MO: { preLienDays: 0, lienDays: 180, notes: 'Disclosure notice required. 6 months from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/missouri-lien-law-faqs/' },
+  MT: { preLienDays: 20, lienDays: 90, notes: '20-day notice of lien rights. 90 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/montana-lien-law-faqs/' },
+  NE: { preLienDays: 0, lienDays: 120, notes: 'No preliminary notice for most. 120 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/nebraska-lien-law-faqs/' },
+  NV: { preLienDays: 31, lienDays: 90, notes: 'Notice within 31 days of first work. 90-day lien window.', filingUrl: 'https://www.levelset.com/mechanics-lien/nevada-lien-law-faqs/' },
+  NH: { preLienDays: 0, lienDays: 120, notes: 'Recommended but not required. 120 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/new-hampshire-lien-law-faqs/' },
+  NJ: { preLienDays: 60, lienDays: 90, notes: '60-day notice on residential. 90 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/new-jersey-lien-law-faqs/' },
+  NM: { preLienDays: 60, lienDays: 90, notes: '60-day notice for subs. 90 days from completion.', filingUrl: 'https://www.levelset.com/mechanics-lien/new-mexico-lien-law-faqs/' },
+  NY: { preLienDays: 0, lienDays: 240, notes: 'No preliminary notice required. 8 months from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/new-york-lien-law-faqs/' },
+  NC: { preLienDays: 15, lienDays: 120, notes: '15-day notice for lower-tier subs. 120 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/north-carolina-lien-law-faqs/' },
+  ND: { preLienDays: 0, lienDays: 90, notes: 'Notice of intent 10 days before filing. 90 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/north-dakota-lien-law-faqs/' },
+  OH: { preLienDays: 21, lienDays: 75, notes: '21-day notice of furnishing. 75 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/ohio-lien-law-faqs/' },
+  OK: { preLienDays: 75, lienDays: 90, notes: '75-day notice on residential. 90 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/oklahoma-lien-law-faqs/' },
+  OR: { preLienDays: 8, lienDays: 75, notes: '8-day notice on residential. 75 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/oregon-lien-law-faqs/' },
+  PA: { preLienDays: 45, lienDays: 180, notes: '45-day notice on large projects. 6 months from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/pennsylvania-lien-law-faqs/' },
+  RI: { preLienDays: 10, lienDays: 200, notes: '10-day notice from start. 200 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/rhode-island-lien-law-faqs/' },
+  SC: { preLienDays: 0, lienDays: 90, notes: 'No preliminary notice. 90 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/south-carolina-lien-law-faqs/' },
+  SD: { preLienDays: 60, lienDays: 120, notes: '60-day notice for lower-tier. 120 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/south-dakota-lien-law-faqs/' },
+  TN: { preLienDays: 90, lienDays: 90, notes: '90-day notice of non-payment. 90 days for subs to file.', filingUrl: 'https://www.levelset.com/mechanics-lien/tennessee-lien-law-faqs/' },
+  TX: { preLienDays: 15, lienDays: 0, notes: 'Complex tiered system. Monthly notices required.', filingUrl: 'https://www.levelset.com/mechanics-lien/texas-lien-law-faqs/' },
+  UT: { preLienDays: 20, lienDays: 180, notes: '20-day notice via State Registry. 180 days from completion.', filingUrl: 'https://secure.utah.gov/scr/preliminary-notice/index.html' },
+  VT: { preLienDays: 0, lienDays: 180, notes: 'No preliminary notice. 180 days from payment due.', filingUrl: 'https://www.levelset.com/mechanics-lien/vermont-lien-law-faqs/' },
+  VA: { preLienDays: 30, lienDays: 90, notes: '30-day notice on residential. 90 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/virginia-lien-law-faqs/' },
+  WA: { preLienDays: 60, lienDays: 90, notes: '60-day pre-lien notice. 90 days from completion.', filingUrl: 'https://www.levelset.com/mechanics-lien/washington-lien-law-faqs/' },
+  WV: { preLienDays: 0, lienDays: 100, notes: 'No preliminary notice required. 100 days from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/west-virginia-lien-law-faqs/' },
+  WI: { preLienDays: 60, lienDays: 180, notes: '60-day notice for subs. 6 months from last work.', filingUrl: 'https://www.levelset.com/mechanics-lien/wisconsin-lien-law-faqs/' },
+  WY: { preLienDays: 30, lienDays: 150, notes: '30-day notice. 150 days for GCs, 120 for subs.', filingUrl: 'https://www.levelset.com/mechanics-lien/wyoming-lien-law-faqs/' },
 };
 
-const stateOptions = Object.keys(stateRules);
+const stateOptions = Object.keys(stateRules).sort();
 
 export default function LienGuardPage() {
-  const [projects, setProjects] = useState<LienProject[]>(initialProjects);
+  const [projects, setProjects] = useState<LienProject[]>([]);
   const [selectedProject, setSelectedProject] = useState<LienProject | null>(null);
+  const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<'all' | 'protected' | 'at-risk' | 'expired'>('all');
   const [activeTab, setActiveTab] = useState<'projects' | 'documents' | 'settings'>('projects');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -173,13 +125,29 @@ export default function LienGuardPage() {
     amountOwed: '',
   });
 
-  // Set mounted state and select first project
+  // Fetch projects from API
+  const fetchProjects = async () => {
+    try {
+      const res = await fetch('/api/lien-guard/projects');
+      const data = await res.json();
+      if (data.projects) {
+        setProjects(data.projects);
+        if (data.projects.length > 0 && !selectedProject) {
+          setSelectedProject(data.projects[0]);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Set mounted state and fetch projects
   useEffect(() => {
     setMounted(true);
-    if (projects.length > 0 && !selectedProject) {
-      setSelectedProject(projects[0]);
-    }
-  }, [projects, selectedProject]);
+    fetchProjects();
+  }, []);
 
   const filteredProjects = projects.filter(p => filterStatus === 'all' || p.status === filterStatus);
 
@@ -219,78 +187,66 @@ export default function LienGuardPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Calculate deadlines based on state rules
-    const rules = stateRules[newProject.state];
-    const startDate = new Date(newProject.startDate);
-    const prelienDeadline = new Date(startDate);
-    prelienDeadline.setDate(prelienDeadline.getDate() + rules.preLienDays);
+    try {
+      const res = await fetch('/api/lien-guard/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectName: newProject.projectName,
+          gcName: newProject.gcName,
+          address: newProject.address,
+          state: newProject.state,
+          startDate: newProject.startDate,
+          lastWorkDate: newProject.lastWorkDate || null,
+          contractAmount: newProject.contractAmount,
+          amountOwed: newProject.amountOwed,
+        }),
+      });
 
-    const lastWorkDate = new Date(newProject.lastWorkDate || newProject.startDate);
-    const lienDeadline = new Date(lastWorkDate);
-    lienDeadline.setDate(lienDeadline.getDate() + rules.lienDays);
+      const data = await res.json();
 
-    const today = new Date();
-    const daysRemaining = Math.ceil((lienDeadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-    const project: LienProject = {
-      id: `${Date.now()}`,
-      projectName: newProject.projectName,
-      gcName: newProject.gcName,
-      address: newProject.address,
-      state: newProject.state,
-      startDate: newProject.startDate,
-      lastWorkDate: newProject.lastWorkDate || newProject.startDate,
-      contractAmount: parseFloat(newProject.contractAmount) || 0,
-      amountOwed: parseFloat(newProject.amountOwed) || 0,
-      preliminaryNotice: {
-        required: rules.preLienDays > 0,
-        deadline: prelienDeadline.toISOString().split('T')[0],
-        sent: false,
-      },
-      mechanicsLien: {
-        deadline: lienDeadline.toISOString().split('T')[0],
-        daysRemaining,
-        filed: false,
-      },
-      status: daysRemaining < 0 ? 'expired' : daysRemaining <= 30 ? 'at-risk' : 'protected',
-    };
-
-    // Add to local state
-    setProjects(prev => [...prev, project]);
-    setSelectedProject(project);
-    setShowAddModal(false);
-    setNewProject({
-      projectName: '',
-      gcName: '',
-      address: '',
-      state: 'CO',
-      startDate: '',
-      lastWorkDate: '',
-      contractAmount: '',
-      amountOwed: '',
-    });
-    setIsLoading(false);
+      if (res.ok && data.project) {
+        setProjects(prev => [...prev, data.project]);
+        setSelectedProject(data.project);
+        setShowAddModal(false);
+        setNewProject({
+          projectName: '',
+          gcName: '',
+          address: '',
+          state: 'CO',
+          startDate: '',
+          lastWorkDate: '',
+          contractAmount: '',
+          amountOwed: '',
+        });
+      } else {
+        console.error('Error adding project:', data.error);
+      }
+    } catch (error) {
+      console.error('Error adding project:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSendPreliminaryNotice = (project: LienProject) => {
-    const today = new Date().toISOString().split('T')[0];
-    const updatedProjects = projects.map(p => {
-      if (p.id === project.id) {
-        return {
-          ...p,
-          preliminaryNotice: {
-            ...p.preliminaryNotice,
-            sent: true,
-            sentDate: today,
-          },
-          status: 'protected' as const,
-        };
+  const handleSendPreliminaryNotice = async (project: LienProject) => {
+    try {
+      const res = await fetch(`/api/lien-guard/projects/${project.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preNoticeSent: true }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.project) {
+          setProjects(prev => prev.map(p => p.id === project.id ? data.project : p));
+          setSelectedProject(data.project);
+        }
       }
-      return p;
-    });
-    setProjects(updatedProjects);
-    const updated = updatedProjects.find(p => p.id === project.id);
-    if (updated) setSelectedProject(updated);
+    } catch (error) {
+      console.error('Error sending notice:', error);
+    }
   };
 
   const handleDownloadDocument = (project: LienProject) => {
@@ -476,9 +432,20 @@ This notice is provided in accordance with ${project.state} state law requiremen
         <div className="grid md:grid-cols-2 gap-4">
           {Object.entries(stateRules).map(([state, rules]) => (
             <div key={state} className="p-4 bg-[#F8FAFC] rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="px-2 py-1 bg-[#54A0FF] text-white text-xs font-bold rounded">{state}</span>
-                <span className="text-sm text-[#1a1a2e]/60">Pre-lien: {rules.preLienDays}d | Lien: {rules.lienDays}d</span>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-1 bg-[#54A0FF] text-white text-xs font-bold rounded">{state}</span>
+                  <span className="text-sm text-[#1a1a2e]/60">Pre-lien: {rules.preLienDays}d | Lien: {rules.lienDays}d</span>
+                </div>
+                <a
+                  href={rules.filingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-xs text-[#54A0FF] hover:underline"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  Filing Info
+                </a>
               </div>
               <p className="text-sm text-[#1a1a2e]/70">{rules.notes}</p>
             </div>
@@ -666,9 +633,22 @@ This notice is provided in accordance with ${project.state} state law requiremen
 
                   {/* State Rules */}
                   <div className="p-4 bg-[#54A0FF]/5 border-b border-[#1a1a2e]/10">
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="px-2 py-1 bg-[#54A0FF] text-white rounded font-medium">{selectedProject.state}</span>
-                      <span className="text-[#1a1a2e]/70">{stateRules[selectedProject.state]?.notes || 'State rules not found'}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="px-2 py-1 bg-[#54A0FF] text-white rounded font-medium">{selectedProject.state}</span>
+                        <span className="text-[#1a1a2e]/70">{stateRules[selectedProject.state]?.notes || 'State rules not found'}</span>
+                      </div>
+                      {stateRules[selectedProject.state]?.filingUrl && (
+                        <a
+                          href={stateRules[selectedProject.state].filingUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#54A0FF] hover:bg-[#54A0FF]/10 rounded-lg transition-colors"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          Filing Resources
+                        </a>
+                      )}
                     </div>
                   </div>
 

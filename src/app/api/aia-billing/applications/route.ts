@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockDb, generateId, getMockUserId } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+import { getMockUserId } from '@/lib/db';
 
 // GET /api/aia-billing/applications - List AIA billing applications
 export async function GET(request: NextRequest) {
@@ -7,22 +8,34 @@ export async function GET(request: NextRequest) {
     const userId = getMockUserId();
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
-    const projectId = searchParams.get('project_id') || searchParams.get('projectId');
 
-    let applications = mockDb.aiaApplications.filter(app => app.userId === userId);
+    const applications = await prisma.aIAApplication.findMany({
+      where: {
+        userId,
+        ...(status ? { status } : {}),
+      },
+      orderBy: { createdAt: 'desc' },
+    });
 
-    if (status) {
-      applications = applications.filter(app => app.status === status);
-    }
+    // Transform to frontend format
+    const formattedApps = applications.map(app => ({
+      id: app.id,
+      applicationNumber: app.applicationNumber,
+      projectName: app.projectName,
+      contractSum: Number(app.contractSum),
+      changeOrdersTotal: Number(app.changeOrdersTotal),
+      completedToDate: Number(app.completedToDate),
+      retainagePercentage: Number(app.retainagePercent),
+      previousPayments: Number(app.previousPayments),
+      currentPaymentDue: Number(app.currentDue),
+      periodFrom: app.periodFrom?.toISOString().split('T')[0],
+      periodTo: app.periodTo?.toISOString().split('T')[0],
+      status: app.status,
+      lineItems: app.lineItems,
+      createdAt: app.createdAt.toISOString(),
+    }));
 
-    if (projectId) {
-      applications = applications.filter(app => app.projectId === projectId);
-    }
-
-    // Sort by period date descending
-    applications.sort((a, b) => new Date(b.periodTo).getTime() - new Date(a.periodTo).getTime());
-
-    return NextResponse.json(applications);
+    return NextResponse.json({ applications: formattedApps });
   } catch (error) {
     console.error('Error fetching applications:', error);
     return NextResponse.json({ error: 'Failed to fetch applications' }, { status: 500 });
@@ -35,92 +48,76 @@ export async function POST(request: NextRequest) {
     const userId = getMockUserId();
     const body = await request.json();
 
-    const projectId = body.project_id || body.projectId;
     const projectName = body.project_name || body.projectName;
-    const periodTo = body.period_to || body.periodTo;
-    const scheduledValue = body.scheduled_value || body.scheduledValue;
-    const retainagePercentage = body.retainage_percentage || body.retainagePercentage || 10;
+    const contractSum = parseFloat(body.contract_sum || body.contractSum || body.scheduledValue || '0');
+    const changeOrdersTotal = parseFloat(body.change_orders || body.changeOrdersTotal || '0');
+    const completedToDate = parseFloat(body.completed_to_date || body.completedToDate || body.totalCompleted || '0');
+    const retainagePercent = parseFloat(body.retainage_percentage || body.retainagePercentage || body.retainagePercent || '10');
+    const previousPayments = parseFloat(body.previous_payments || body.previousPayments || '0');
+    const periodFrom = body.period_from || body.periodFrom ? new Date(body.period_from || body.periodFrom) : null;
+    const periodTo = body.period_to || body.periodTo ? new Date(body.period_to || body.periodTo) : null;
+    const lineItems = body.line_items || body.lineItems || [];
 
     // Validation
-    if (!projectId) {
-      return NextResponse.json(
-        { error: 'Project ID is required' },
-        { status: 400 }
-      );
-    }
-
     if (!projectName) {
-      return NextResponse.json(
-        { error: 'Project name is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Project name is required' }, { status: 400 });
     }
 
-    if (!periodTo) {
-      return NextResponse.json(
-        { error: 'Period end date is required' },
-        { status: 400 }
-      );
+    if (contractSum <= 0) {
+      return NextResponse.json({ error: 'Contract sum must be greater than 0' }, { status: 400 });
     }
 
-    if (!scheduledValue || scheduledValue <= 0) {
-      return NextResponse.json(
-        { error: 'Scheduled value is required and must be greater than 0' },
-        { status: 400 }
-      );
-    }
+    // Calculate application number (next in sequence for user)
+    const existingApps = await prisma.aIAApplication.count({
+      where: { userId },
+    });
+    const applicationNumber = existingApps + 1;
 
-    // Get previous applications for this project to calculate previous completed
-    const previousApps = mockDb.aiaApplications.filter(
-      app => app.projectId === projectId && app.userId === userId && app.status === 'approved'
-    );
+    // Calculate current due
+    const totalContractValue = contractSum + changeOrdersTotal;
+    const retainageAmount = completedToDate * (retainagePercent / 100);
+    const currentDue = completedToDate - retainageAmount - previousPayments;
 
-    const previousCompleted = previousApps.reduce((sum, app) => sum + app.totalCompleted, 0);
+    const newApplication = await prisma.aIAApplication.create({
+      data: {
+        userId,
+        applicationNumber,
+        projectName,
+        contractSum,
+        changeOrdersTotal,
+        completedToDate,
+        retainagePercent,
+        previousPayments,
+        currentDue: Math.max(0, currentDue),
+        periodFrom,
+        periodTo,
+        status: 'draft',
+        lineItems,
+      },
+    });
 
-    // Calculate application number (next in sequence for this project)
-    const projectApps = mockDb.aiaApplications.filter(
-      app => app.projectId === projectId && app.userId === userId
-    );
-    const applicationNumber = projectApps.length + 1;
-
-    // Get work completed and materials stored from request
-    const workCompleted = parseFloat(body.work_completed || body.workCompleted || '0');
-    const materialsStored = parseFloat(body.materials_stored || body.materialsStored || '0');
-
-    // Calculate AIA values
-    const totalCompleted = workCompleted + materialsStored;
-    const retainageAmount = totalCompleted * (retainagePercentage / 100);
-    const lessRetainage = retainageAmount;
-    const lessPreviousCertificates = previousCompleted * (1 - retainagePercentage / 100);
-    const currentPaymentDue = totalCompleted - lessRetainage - lessPreviousCertificates;
-
-    const newApplication = {
-      id: generateId(),
-      applicationNumber,
-      projectId,
-      projectName,
-      periodTo,
-      scheduledValue: parseFloat(scheduledValue),
-      workCompleted,
-      materialsStored,
-      totalCompleted,
-      retainagePercentage,
+    const formattedApp = {
+      id: newApplication.id,
+      applicationNumber: newApplication.applicationNumber,
+      projectName: newApplication.projectName,
+      contractSum: Number(newApplication.contractSum),
+      changeOrdersTotal: Number(newApplication.changeOrdersTotal),
+      completedToDate: Number(newApplication.completedToDate),
+      retainagePercentage: Number(newApplication.retainagePercent),
       retainageAmount,
-      previousCompleted,
-      currentPaymentDue: Math.max(0, currentPaymentDue),
-      status: 'draft',
-      userId,
-      createdAt: new Date().toISOString(),
+      previousPayments: Number(newApplication.previousPayments),
+      currentPaymentDue: Number(newApplication.currentDue),
+      totalContractValue,
+      periodFrom: newApplication.periodFrom?.toISOString().split('T')[0],
+      periodTo: newApplication.periodTo?.toISOString().split('T')[0],
+      status: newApplication.status,
+      lineItems: newApplication.lineItems,
+      createdAt: newApplication.createdAt.toISOString(),
     };
 
-    mockDb.aiaApplications.push(newApplication);
-
-    return NextResponse.json(newApplication, { status: 201 });
+    return NextResponse.json({ application: formattedApp }, { status: 201 });
   } catch (error) {
     console.error('Error creating application:', error);
-    return NextResponse.json(
-      { error: 'Failed to create application. Please try again.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to create application. Please try again.' }, { status: 500 });
   }
 }

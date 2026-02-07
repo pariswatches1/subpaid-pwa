@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockDb, generateId, getMockUserId } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+import { getMockUserId } from '@/lib/db';
 
 // GET /api/prequal/documents - List prequalification documents
 export async function GET(request: NextRequest) {
@@ -9,24 +10,28 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const docType = searchParams.get('type');
 
-    let documents = mockDb.prequalDocuments.filter(doc => doc.userId === userId);
-
-    if (status) {
-      documents = documents.filter(doc => doc.status === status);
-    }
-
-    if (docType) {
-      documents = documents.filter(doc => doc.documentType === docType);
-    }
-
-    // Sort by expiration date ascending (soonest expiring first)
-    documents.sort((a, b) => {
-      if (!a.expirationDate) return 1;
-      if (!b.expirationDate) return -1;
-      return new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime();
+    const documents = await prisma.prequalDocument.findMany({
+      where: {
+        userId,
+        ...(status ? { status } : {}),
+        ...(docType ? { documentType: docType } : {}),
+      },
+      orderBy: { expirationDate: 'asc' },
     });
 
-    return NextResponse.json(documents);
+    const formattedDocs = documents.map(doc => ({
+      id: doc.id,
+      name: doc.name,
+      documentType: doc.documentType,
+      fileUrl: doc.fileUrl,
+      expirationDate: doc.expirationDate?.toISOString().split('T')[0],
+      status: doc.status,
+      notes: doc.notes,
+      createdAt: doc.createdAt.toISOString(),
+      updatedAt: doc.updatedAt.toISOString(),
+    }));
+
+    return NextResponse.json({ documents: formattedDocs });
   } catch (error) {
     console.error('Error fetching documents:', error);
     return NextResponse.json({ error: 'Failed to fetch documents' }, { status: 500 });
@@ -39,39 +44,32 @@ export async function POST(request: NextRequest) {
     const userId = getMockUserId();
     const formData = await request.formData();
 
-    const documentType = formData.get('document_type') || formData.get('documentType');
-    const name = formData.get('name');
+    const documentType = (formData.get('document_type') || formData.get('documentType')) as string;
+    const name = formData.get('name') as string;
     const expirationDate = formData.get('expiration_date') || formData.get('expirationDate');
+    const notes = formData.get('notes') as string | null;
     const file = formData.get('file') as File | null;
 
     // Validation
     if (!documentType) {
-      return NextResponse.json(
-        { error: 'Document type is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Document type is required' }, { status: 400 });
     }
 
     if (!name) {
-      return NextResponse.json(
-        { error: 'Document name is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Document name is required' }, { status: 400 });
     }
 
     // In production, upload file to cloud storage
     let fileUrl = null;
-    let fileSize = null;
     if (file) {
-      // await uploadToStorage(file);
-      fileUrl = `/uploads/prequal/${generateId()}-${file.name}`;
-      fileSize = file.size;
+      fileUrl = `/uploads/prequal/${Date.now()}-${file.name}`;
     }
 
     // Calculate status based on expiration
     let status = 'valid';
+    let expDate: Date | null = null;
     if (expirationDate) {
-      const expDate = new Date(expirationDate as string);
+      expDate = new Date(expirationDate as string);
       const today = new Date();
       const daysUntilExpiry = Math.round((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
@@ -82,27 +80,32 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const newDocument = {
-      id: generateId(),
-      name: name as string,
-      documentType: documentType as string,
-      expirationDate: expirationDate ? (expirationDate as string) : null,
-      fileUrl,
-      fileSize,
-      status,
-      userId,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    const newDocument = await prisma.prequalDocument.create({
+      data: {
+        userId,
+        name,
+        documentType,
+        fileUrl,
+        expirationDate: expDate,
+        status,
+        notes,
+      },
+    });
 
-    mockDb.prequalDocuments.push(newDocument);
-
-    return NextResponse.json(newDocument, { status: 201 });
+    return NextResponse.json({
+      document: {
+        id: newDocument.id,
+        name: newDocument.name,
+        documentType: newDocument.documentType,
+        fileUrl: newDocument.fileUrl,
+        expirationDate: newDocument.expirationDate?.toISOString().split('T')[0],
+        status: newDocument.status,
+        notes: newDocument.notes,
+        createdAt: newDocument.createdAt.toISOString(),
+      },
+    }, { status: 201 });
   } catch (error) {
     console.error('Error uploading document:', error);
-    return NextResponse.json(
-      { error: 'Failed to upload document. Please try again.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to upload document. Please try again.' }, { status: 500 });
   }
 }

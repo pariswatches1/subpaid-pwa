@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import { getMockUserId } from '@/lib/db';
 
 // POST /api/snap-to-invoice/process - Process image and extract invoice data
@@ -9,10 +10,7 @@ export async function POST(request: NextRequest) {
     const image = formData.get('image') as File | null;
 
     if (!image) {
-      return NextResponse.json(
-        { error: 'Image is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Image is required' }, { status: 400 });
     }
 
     // Validate file type
@@ -29,15 +27,14 @@ export async function POST(request: NextRequest) {
     // 2. Call AI vision API (OpenAI GPT-4V, Claude, etc.) to extract data
     // 3. Return extracted invoice details
 
-    // For demo, return mock extracted data
     // Simulating AI processing delay
     await new Promise(resolve => setTimeout(resolve, 100));
 
     // Mock AI-extracted data (in production, use actual AI extraction)
     const extractedData = {
-      clientName: 'ABC General Contractors',
-      project: 'Downtown Office Tower - Electrical',
-      description: 'Completed electrical rough-in for floors 3-5, including panel installation and conduit runs',
+      vendorName: 'ABC General Contractors',
+      invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
+      invoiceDate: new Date().toISOString().split('T')[0],
       lineItems: [
         {
           id: '1',
@@ -60,39 +57,69 @@ export async function POST(request: NextRequest) {
           rate: 145,
           total: 725,
         },
-        {
-          id: '4',
-          description: 'Wire - 12 AWG THHN (1000ft)',
-          quantity: 2,
-          rate: 285,
-          total: 570,
-        },
-        {
-          id: '5',
-          description: 'Junction Boxes & Connectors',
-          quantity: 1,
-          rate: 435,
-          total: 435,
-        },
       ],
-      subtotal: 9700,
+      subtotal: 8695,
       tax: 0,
-      total: 9700,
-      confidence: 94,
-      paymentTerms: 'Net 30',
-      suggestedDueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      total: 8695,
     };
+
+    // Save to database
+    const snapInvoice = await prisma.snapInvoice.create({
+      data: {
+        userId,
+        originalImage: image.name,
+        extractedData: extractedData,
+        vendorName: extractedData.vendorName,
+        invoiceNumber: extractedData.invoiceNumber,
+        invoiceDate: new Date(extractedData.invoiceDate),
+        totalAmount: extractedData.total,
+        lineItems: extractedData.lineItems,
+        status: 'processed',
+      },
+    });
 
     return NextResponse.json({
       success: true,
-      data: extractedData,
+      data: {
+        id: snapInvoice.id,
+        ...extractedData,
+        confidence: 94,
+        paymentTerms: 'Net 30',
+        suggestedDueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      },
       message: 'Image processed successfully',
     });
   } catch (error) {
     console.error('Error processing image:', error);
-    return NextResponse.json(
-      { error: 'Failed to process image. Please try again.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to process image. Please try again.' }, { status: 500 });
+  }
+}
+
+// GET /api/snap-to-invoice/process - Get all processed invoices
+export async function GET(request: NextRequest) {
+  try {
+    const userId = getMockUserId();
+
+    const snapInvoices = await prisma.snapInvoice.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const formattedInvoices = snapInvoices.map(inv => ({
+      id: inv.id,
+      vendorName: inv.vendorName,
+      invoiceNumber: inv.invoiceNumber,
+      invoiceDate: inv.invoiceDate?.toISOString().split('T')[0],
+      totalAmount: inv.totalAmount ? Number(inv.totalAmount) : null,
+      lineItems: inv.lineItems,
+      status: inv.status,
+      convertedToInvoiceId: inv.convertedToInvoiceId,
+      createdAt: inv.createdAt.toISOString(),
+    }));
+
+    return NextResponse.json({ invoices: formattedInvoices });
+  } catch (error) {
+    console.error('Error fetching snap invoices:', error);
+    return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 });
   }
 }

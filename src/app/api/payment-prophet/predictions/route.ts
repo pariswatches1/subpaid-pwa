@@ -1,24 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockDb, getMockUserId } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+import { getMockUserId } from '@/lib/db';
 
 // GET /api/payment-prophet/predictions - Get payment predictions
 export async function GET(request: NextRequest) {
   try {
     const userId = getMockUserId();
 
-    // Get unpaid invoices
-    const unpaidInvoices = mockDb.invoices.filter(
-      inv => inv.userId === userId && ['sent', 'viewed', 'overdue'].includes(inv.status)
-    );
+    // Get unpaid invoices with client info
+    const unpaidInvoices = await prisma.invoice.findMany({
+      where: {
+        userId,
+        status: { in: ['sent', 'viewed', 'overdue'] },
+      },
+      include: {
+        client: true,
+      },
+      orderBy: { dueDate: 'asc' },
+    });
 
     // Calculate predictions for each invoice
-    const predictions = unpaidInvoices.map(invoice => {
-      const client = mockDb.clients.find(c => c.id === invoice.clientId);
+    const predictions = await Promise.all(unpaidInvoices.map(async (invoice) => {
+      const client = invoice.client;
 
       // Get client payment history
-      const paidInvoices = mockDb.invoices.filter(
-        inv => inv.clientId === invoice.clientId && inv.status === 'paid' && inv.sentAt && inv.paidAt
-      );
+      const paidInvoices = await prisma.invoice.findMany({
+        where: {
+          clientId: invoice.clientId,
+          status: 'paid',
+          sentAt: { not: null },
+          paidAt: { not: null },
+        },
+      });
 
       // Calculate average payment time
       let avgPaymentDays = 30;
@@ -59,7 +72,7 @@ export async function GET(request: NextRequest) {
         factors.push(`Good payment history (avg ${avgPaymentDays} days)`);
       }
 
-      if (invoice.total > 10000) {
+      if (Number(invoice.total) > 10000) {
         factors.push('Large invoice amount');
         if (riskLevel === 'low') confidence -= 5;
       }
@@ -93,8 +106,8 @@ export async function GET(request: NextRequest) {
         invoiceNumber: invoice.invoiceNumber,
         clientName: client?.name || 'Unknown Client',
         clientId: invoice.clientId,
-        amount: invoice.total,
-        dueDate: invoice.dueDate,
+        amount: Number(invoice.total),
+        dueDate: invoice.dueDate.toISOString().split('T')[0],
         status: invoice.status,
         prediction: {
           expectedDate: expectedPaymentDate.toISOString().split('T')[0],
@@ -105,7 +118,7 @@ export async function GET(request: NextRequest) {
           risk: riskLevel,
         },
       };
-    });
+    }));
 
     // Sort by risk level (high first) then by due date
     predictions.sort((a, b) => {
@@ -116,12 +129,9 @@ export async function GET(request: NextRequest) {
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     });
 
-    return NextResponse.json(predictions);
+    return NextResponse.json({ predictions });
   } catch (error) {
     console.error('Error generating predictions:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate predictions' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to generate predictions' }, { status: 500 });
   }
 }

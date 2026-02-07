@@ -33,6 +33,16 @@ model User {
   leadSources   LeadSource[]
   timeEntries   TimeEntry[]
   crewMembers   CrewMember[]
+
+  // Premium Features
+  lienProjects      LienProject[]
+  gcRatings         GCRating[]
+  profitGuardBids   ProfitGuardBid[]
+  aiaApplications   AIAApplication[]
+  snapInvoices      SnapInvoice[]
+  samAgentCalls     SAMAgentCall[]
+  callRecords       CallTrackingRecord[]
+  prequalDocs       PrequalDocument[]
 }
 
 // ============================================
@@ -331,4 +341,246 @@ model CrewMember {
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// ============================================
+// LIENGUARD - Lien Rights Protection
+// ============================================
+
+model LienProject {
+  id                  String    @id @default(cuid())
+  userId              String
+  projectName         String
+  gcName              String
+  address             String
+  state               String
+  startDate           DateTime
+  lastWorkDate        DateTime?
+  contractAmount      Decimal   @db.Decimal(10, 2)
+  amountOwed          Decimal   @db.Decimal(10, 2)
+  preNoticeRequired   Boolean   @default(true)
+  preNoticeDeadline   DateTime?
+  preNoticeSent       Boolean   @default(false)
+  preNoticeSentDate   DateTime?
+  lienDeadline        DateTime
+  lienFiled           Boolean   @default(false)
+  status              String    @default("protected")
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents           LienDocument[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model LienDocument {
+  id              String      @id @default(cuid())
+  lienProjectId   String
+  type            String
+  filename        String
+  content         String?     @db.Text
+  generatedAt     DateTime    @default(now())
+  sentAt          DateTime?
+
+  lienProject     LienProject @relation(fields: [lienProjectId], references: [id], onDelete: Cascade)
+
+  @@index([lienProjectId])
+}
+
+// ============================================
+// PAYSCORE / GCSCORE - Contractor Ratings
+// ============================================
+
+model GCRating {
+  id                 String    @id @default(cuid())
+  userId             String
+  gcName             String
+  projectName        String?
+  paymentScore       Int       @default(50)
+  communicationScore Int       @default(50)
+  fairnessScore      Int       @default(50)
+  overallScore       Int       @default(50)
+  review             String?
+  wouldWorkAgain     Boolean   @default(true)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([gcName])
+}
+
+// ============================================
+// PROFITGUARD - Bid Analysis
+// ============================================
+
+model ProfitGuardBid {
+  id              String    @id @default(cuid())
+  userId          String
+  projectName     String
+  clientName      String?
+  bidAmount       Decimal   @db.Decimal(10, 2)
+  materialCost    Decimal   @db.Decimal(10, 2) @default(0)
+  laborCost       Decimal   @db.Decimal(10, 2) @default(0)
+  overheadPercent Decimal   @db.Decimal(5, 2) @default(10)
+  profitMargin    Decimal   @db.Decimal(5, 2) @default(0)
+  status          String    @default("draft")
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ============================================
+// AIA BILLING - G702/G703 Applications
+// ============================================
+
+model AIAApplication {
+  id                  String    @id @default(cuid())
+  userId              String
+  applicationNumber   Int
+  projectName         String
+  contractSum         Decimal   @db.Decimal(12, 2)
+  changeOrdersTotal   Decimal   @db.Decimal(12, 2) @default(0)
+  completedToDate     Decimal   @db.Decimal(12, 2) @default(0)
+  retainagePercent    Decimal   @db.Decimal(5, 2) @default(10)
+  previousPayments    Decimal   @db.Decimal(12, 2) @default(0)
+  currentDue          Decimal   @db.Decimal(12, 2) @default(0)
+  periodFrom          DateTime?
+  periodTo            DateTime?
+  status              String    @default("draft")
+  lineItems           Json      @default("[]")
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ============================================
+// SNAP TO INVOICE - OCR Processing
+// ============================================
+
+model SnapInvoice {
+  id                   String    @id @default(cuid())
+  userId               String
+  originalImage        String?
+  extractedData        Json      @default("{}")
+  vendorName           String?
+  invoiceNumber        String?
+  invoiceDate          DateTime?
+  totalAmount          Decimal?  @db.Decimal(10, 2)
+  lineItems            Json      @default("[]")
+  status               String    @default("pending")
+  convertedToInvoiceId String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ============================================
+// SAM AGENT / AUTOPILOT - AI Call Handling
+// ============================================
+
+model SAMAgentCall {
+  id              String    @id @default(cuid())
+  userId          String
+  callId          String?   @unique
+  callerPhone     String?
+  callerName      String?
+  duration        Int       @default(0)
+  transcript      String?   @db.Text
+  summary         String?
+  intent          String?
+  leadCreated     Boolean   @default(false)
+  leadId          String?
+  status          String    @default("completed")
+  createdAt       DateTime  @default(now())
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ============================================
+// CALL TRACKING
+// ============================================
+
+model CallTrackingRecord {
+  id              String    @id @default(cuid())
+  userId          String
+  leadSourceId    String?
+  trackingNumber  String
+  callerNumber    String?
+  duration        Int       @default(0)
+  recording       String?
+  status          String    @default("completed")
+  createdAt       DateTime  @default(now())
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([leadSourceId])
+}
+
+// ============================================
+// PREQUAL - Document Management
+// ============================================
+
+model PrequalDocument {
+  id              String    @id @default(cuid())
+  userId          String
+  documentType    String
+  name            String
+  fileUrl         String?
+  expirationDate  DateTime?
+  status          String    @default("valid")
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([documentType])
+}
+
+// ============================================
+// CONTRACTORS DIRECTORY
+// ============================================
+
+model Contractor {
+  id              String    @id @default(cuid())
+  businessName    String
+  ownerName       String?
+  email           String?
+  phone           String?
+  address         String?
+  city            String?
+  state           String?
+  zipCode         String?
+  licenseNumber   String?
+  licenseState    String?
+  trades          Json      @default("[]")
+  insuranceExpiry DateTime?
+  rating          Decimal?  @db.Decimal(3, 2)
+  reviewCount     Int       @default(0)
+  verified        Boolean   @default(false)
+  claimedByUserId String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([state])
+  @@index([licenseNumber])
+  @@index([businessName])
 }
