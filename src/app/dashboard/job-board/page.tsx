@@ -118,6 +118,7 @@ export default function JobBoardPage() {
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [filterState, setFilterState] = useState('');
+  const [filterCity, setFilterCity] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterSource, setFilterSource] = useState('');
   const [filterJobType, setFilterJobType] = useState('');
@@ -129,6 +130,7 @@ export default function JobBoardPage() {
       const params = new URLSearchParams();
       if (searchQuery) params.append('q', searchQuery);
       if (filterState) params.append('state', filterState);
+      if (filterCity) params.append('city', filterCity);
       if (filterCategory) params.append('category', filterCategory);
       if (filterSource) params.append('source', filterSource);
       if (filterJobType) params.append('jobType', filterJobType);
@@ -148,7 +150,7 @@ export default function JobBoardPage() {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, filterState, filterCategory, filterSource, filterJobType, activeTab, pagination.page]);
+  }, [searchQuery, filterState, filterCity, filterCategory, filterSource, filterJobType, activeTab, pagination.page]);
 
   // Fetch sync status
   const fetchSyncStatus = useCallback(async () => {
@@ -369,58 +371,87 @@ export default function JobBoardPage() {
 
           {/* Filters */}
           {showFilters && (
-            <div className="px-4 pb-4 grid grid-cols-4 gap-4 border-t pt-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-                <select
-                  value={filterState}
-                  onChange={(e) => setFilterState(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"
-                >
-                  <option value="">All States</option>
-                  {US_STATES.map(state => (
-                    <option key={state.code} value={state.code}>{state.name}</option>
-                  ))}
-                </select>
+            <div className="px-4 pb-4 border-t pt-4">
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+                  <select
+                    value={filterState}
+                    onChange={(e) => setFilterState(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"
+                  >
+                    <option value="">All States</option>
+                    {US_STATES.map(state => (
+                      <option key={state.code} value={state.code}>{state.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                  <input
+                    type="text"
+                    placeholder="Enter city name..."
+                    value={filterCity}
+                    onChange={(e) => setFilterCity(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <select
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"
+                  >
+                    <option value="">All Categories</option>
+                    {CATEGORIES.map(cat => (
+                      <option key={cat.value} value={cat.value}>{cat.label}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <select
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"
-                >
-                  <option value="">All Categories</option>
-                  {CATEGORIES.map(cat => (
-                    <option key={cat.value} value={cat.value}>{cat.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
-                <select
-                  value={filterSource}
-                  onChange={(e) => setFilterSource(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"
-                >
-                  <option value="">All Sources</option>
-                  {Object.entries(SOURCE_LABELS).map(([value, { label }]) => (
-                    <option key={value} value={value}>{label}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Job Type</label>
-                <select
-                  value={filterJobType}
-                  onChange={(e) => setFilterJobType(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"
-                >
-                  <option value="">All Types</option>
-                  {JOB_TYPES.map(type => (
-                    <option key={type.value} value={type.value}>{type.label}</option>
-                  ))}
-                </select>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
+                  <select
+                    value={filterSource}
+                    onChange={(e) => setFilterSource(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"
+                  >
+                    <option value="">All Sources</option>
+                    {Object.entries(SOURCE_LABELS).map(([value, { label }]) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Job Type</label>
+                  <select
+                    value={filterJobType}
+                    onChange={(e) => setFilterJobType(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"
+                  >
+                    <option value="">All Types</option>
+                    {JOB_TYPES.map(type => (
+                      <option key={type.value} value={type.value}>{type.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-end">
+                  <button
+                    onClick={() => {
+                      setFilterState('');
+                      setFilterCity('');
+                      setFilterCategory('');
+                      setFilterSource('');
+                      setFilterJobType('');
+                      setSearchQuery('');
+                    }}
+                    className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border rounded-lg hover:bg-gray-50"
+                  >
+                    Clear Filters
+                  </button>
+                </div>
               </div>
             </div>
           )}

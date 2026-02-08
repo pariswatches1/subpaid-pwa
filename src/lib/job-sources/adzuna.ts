@@ -59,9 +59,11 @@ export const adzunaAdapter: JobSourceAdapter = {
         results_per_page: limit.toString(),
       });
 
-      // Add location filter if provided
+      // Add location filter if provided - prefer specific location over state
       if (params.location) {
         urlParams.append('where', params.location);
+      } else if (params.state) {
+        urlParams.append('where', params.state);
       }
 
       // Don't filter by category - the keyword search is sufficient

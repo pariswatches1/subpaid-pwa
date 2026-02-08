@@ -2,13 +2,13 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['localhost', 'subpaid-pwa.vercel.app'],
+    domains: ['localhost', 'subpaid-pwa.vercel.app', 'subpaid.com', 'www.subpaid.com', 'subpaid-complete.vercel.app'],
     // Enable image optimization for production
     unoptimized: process.env.NODE_ENV === 'development',
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost:3000', 'subpaid-pwa.vercel.app'],
+      allowedOrigins: ['localhost:3000', 'subpaid-pwa.vercel.app', 'subpaid.com', 'www.subpaid.com', 'subpaid-complete.vercel.app'],
     },
   },
   // Security and caching headers

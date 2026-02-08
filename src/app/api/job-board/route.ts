@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     // Parse query parameters
     const q = searchParams.get('q'); // Search keyword
     const state = searchParams.get('state');
+    const city = searchParams.get('city');
     const category = searchParams.get('category');
     const source = searchParams.get('source');
     const jobType = searchParams.get('jobType');
@@ -21,25 +22,62 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const savedOnly = searchParams.get('savedOnly') === 'true';
 
+    // Category keywords mapping for better search
+    const CATEGORY_KEYWORDS: Record<string, string[]> = {
+      electrical: ['electrician', 'electrical', 'wiring', 'voltage'],
+      plumbing: ['plumber', 'plumbing', 'pipe', 'drain'],
+      hvac: ['hvac', 'heating', 'cooling', 'air conditioning', 'ventilation'],
+      roofing: ['roofing', 'roofer', 'shingle', 'roof'],
+      carpentry: ['carpenter', 'carpentry', 'woodwork', 'framing'],
+      painting: ['painter', 'painting', 'coating'],
+      concrete: ['concrete', 'masonry', 'cement', 'mason'],
+      landscaping: ['landscaping', 'landscaper', 'lawn', 'garden'],
+      general: ['general contractor', 'construction', 'building', 'contractor'],
+    };
+
     // Build where clause
     const where: Prisma.JobListingWhereInput = {
       isActive: true,
     };
 
+    // Build AND conditions array for combining filters
+    const andConditions: Prisma.JobListingWhereInput[] = [];
+
     if (q) {
-      where.OR = [
-        { title: { contains: q, mode: 'insensitive' } },
-        { description: { contains: q, mode: 'insensitive' } },
-        { company: { contains: q, mode: 'insensitive' } },
-      ];
+      andConditions.push({
+        OR: [
+          { title: { contains: q, mode: 'insensitive' } },
+          { description: { contains: q, mode: 'insensitive' } },
+          { company: { contains: q, mode: 'insensitive' } },
+        ],
+      });
     }
 
     if (state) {
       where.state = state;
     }
 
-    if (category) {
-      where.category = category;
+    if (city) {
+      // Search in city field or location field
+      andConditions.push({
+        OR: [
+          { city: { contains: city, mode: 'insensitive' } },
+          { location: { contains: city, mode: 'insensitive' } },
+        ],
+      });
+    }
+
+    // Category filter - search by keywords in title/description
+    if (category && CATEGORY_KEYWORDS[category]) {
+      const keywords = CATEGORY_KEYWORDS[category];
+      andConditions.push({
+        OR: keywords.map(keyword => ({
+          OR: [
+            { title: { contains: keyword, mode: 'insensitive' as const } },
+            { description: { contains: keyword, mode: 'insensitive' as const } },
+          ],
+        })),
+      });
     }
 
     if (source) {
@@ -51,17 +89,21 @@ export async function GET(request: NextRequest) {
     }
 
     if (minSalary) {
-      where.OR = [
-        { salaryMin: { gte: parseFloat(minSalary) } },
-        { contractValue: { gte: parseFloat(minSalary) } },
-      ];
+      andConditions.push({
+        OR: [
+          { salaryMin: { gte: parseFloat(minSalary) } },
+          { contractValue: { gte: parseFloat(minSalary) } },
+        ],
+      });
     }
 
     if (maxSalary) {
-      where.OR = [
-        { salaryMax: { lte: parseFloat(maxSalary) } },
-        { contractValue: { lte: parseFloat(maxSalary) } },
-      ];
+      andConditions.push({
+        OR: [
+          { salaryMax: { lte: parseFloat(maxSalary) } },
+          { contractValue: { lte: parseFloat(maxSalary) } },
+        ],
+      });
     }
 
     // If savedOnly, filter to only saved jobs
@@ -69,6 +111,11 @@ export async function GET(request: NextRequest) {
       where.savedBy = {
         some: { userId },
       };
+    }
+
+    // Add all AND conditions to where clause
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
     }
 
     // Get total count

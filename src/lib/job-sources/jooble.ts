@@ -45,12 +45,12 @@ export const joobleAdapter: JobSourceAdapter = {
       // Use the first keyword as the primary search term
       const searchQuery = keywords[0] + ' ' + keywords.slice(1).join(' ');
 
-      // Build location string
+      // Build location string - prefer specific location over state
       let locationQuery = '';
-      if (params.state) {
-        locationQuery = params.state;
-      } else if (params.location) {
+      if (params.location) {
         locationQuery = params.location;
+      } else if (params.state) {
+        locationQuery = params.state;
       }
 
       const requestBody = {
