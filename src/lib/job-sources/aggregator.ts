@@ -4,12 +4,24 @@ import { JobSourceAdapter, JobListingInput, JobSearchParams } from './types';
 import { joobleAdapter } from './jooble';
 import { adzunaAdapter } from './adzuna';
 import { samGovAdapter } from './sam-gov';
+import { remotiveAdapter } from './remotive';
+import { remoteokAdapter } from './remoteok';
+import { arbeitnowAdapter } from './arbeitnow';
+import { usajobsAdapter } from './usajobs';
+import { reedAdapter } from './reed';
+import { careerjetAdapter } from './careerjet';
 
 // All available job source adapters
 const allAdapters: JobSourceAdapter[] = [
   joobleAdapter,
   adzunaAdapter,
   samGovAdapter,
+  remotiveAdapter,
+  remoteokAdapter,
+  arbeitnowAdapter,
+  usajobsAdapter,
+  reedAdapter,
+  careerjetAdapter,
 ];
 
 // Get only configured adapters (have API keys)
