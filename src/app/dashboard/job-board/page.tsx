@@ -191,14 +191,12 @@ export default function JobBoardPage() {
   const toggleSaveJob = async (job: Job) => {
     try {
       if (job.isSaved) {
-        // Need to find the save ID - for now just refetch
-        // In production, we'd track the save ID
-        await fetch(`/api/job-board/saved`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ jobId: job.id, status: 'unsaved' }),
+        // Unsave: DELETE the save record
+        await fetch(`/api/job-board/saved?jobId=${job.id}`, {
+          method: 'DELETE',
         });
       } else {
+        // Save: POST to create save record
         await fetch('/api/job-board/saved', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

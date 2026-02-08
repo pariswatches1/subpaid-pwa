@@ -150,3 +150,32 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to save job' }, { status: 500 });
   }
 }
+
+// DELETE /api/job-board/saved?jobId=xxx - Unsave a job
+export async function DELETE(request: NextRequest) {
+  try {
+    const userId = getMockUserId();
+    const { searchParams } = new URL(request.url);
+    const jobId = searchParams.get('jobId');
+
+    if (!jobId) {
+      return NextResponse.json({ error: 'Job ID is required' }, { status: 400 });
+    }
+
+    // Delete the save record
+    await prisma.jobSave.deleteMany({
+      where: {
+        userId,
+        jobListingId: jobId,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Job unsaved',
+    });
+  } catch (error) {
+    console.error('Error unsaving job:', error);
+    return NextResponse.json({ error: 'Failed to unsave job' }, { status: 500 });
+  }
+}

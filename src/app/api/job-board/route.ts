@@ -106,10 +106,13 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // If savedOnly, filter to only saved jobs
+    // If savedOnly, filter to only saved jobs with valid status
     if (savedOnly) {
       where.savedBy = {
-        some: { userId },
+        some: {
+          userId,
+          status: { in: ['saved', 'applied', 'won'] },
+        },
       };
     }
 
