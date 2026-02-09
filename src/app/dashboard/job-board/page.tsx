@@ -110,6 +110,7 @@ export default function JobBoardPage() {
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 });
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [bulkSyncing, setBulkSyncing] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'saved'>('all');
@@ -184,6 +185,32 @@ export default function JobBoardPage() {
       alert('Failed to sync jobs');
     } finally {
       setSyncing(false);
+    }
+  };
+
+  // Bulk sync for specific source (e.g., SAM.gov)
+  const bulkSyncSource = async (sourceName: string) => {
+    setBulkSyncing(sourceName);
+    try {
+      const res = await fetch('/api/job-board/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: sourceName, bulk: true }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        alert(`Imported ${data.imported} new jobs, updated ${data.updated} existing jobs from ${sourceName}`);
+        fetchJobs();
+        fetchSyncStatus();
+      } else {
+        alert(`Sync failed: ${data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error bulk syncing:', error);
+      alert('Failed to bulk sync');
+    } finally {
+      setBulkSyncing(null);
     }
   };
 
@@ -303,6 +330,22 @@ export default function JobBoardPage() {
                         </span>
                       )}
                     </span>
+                    {source.name === 'sam_gov' && source.configured && (
+                      <button
+                        onClick={() => bulkSyncSource('sam_gov')}
+                        disabled={bulkSyncing === 'sam_gov'}
+                        className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1"
+                      >
+                        {bulkSyncing === 'sam_gov' ? (
+                          <>
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            Importing...
+                          </>
+                        ) : (
+                          'Bulk Import'
+                        )}
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
