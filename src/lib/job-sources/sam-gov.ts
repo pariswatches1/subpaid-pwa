@@ -72,14 +72,19 @@ export const samGovAdapter: JobSourceAdapter = {
       // Use NAICS codes to filter for construction opportunities
       const naicsFilter = CONSTRUCTION_NAICS.slice(0, 5).join(',');
 
+      const limit = params.limit || 100; // SAM.gov allows up to 1000
       const urlParams = new URLSearchParams({
         api_key: apiKey,
-        limit: (params.limit || 25).toString(),
-        offset: (((params.page || 1) - 1) * (params.limit || 25)).toString(),
+        limit: limit.toString(),
+        offset: (((params.page || 1) - 1) * limit).toString(),
         postedFrom: getDateDaysAgo(90), // Last 90 days
         postedTo: getTodayDate(),
-        naics: naicsFilter,
       });
+
+      // Only add NAICS filter if not doing bulk import (to get more variety)
+      if (params.keywords?.length || params.state) {
+        urlParams.append('naics', naicsFilter);
+      }
 
       // Add location filter if provided
       if (params.state) {

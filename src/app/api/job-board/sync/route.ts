@@ -77,7 +77,39 @@ export async function POST(request: NextRequest) {
 
     let jobs: Awaited<ReturnType<typeof fetchJobsFromAllSources>> = [];
 
-    if (bulk) {
+    if (source === 'sam_gov' && bulk) {
+      // Special SAM.gov bulk sync - fetch many pages of government contracts
+      console.log('Starting SAM.gov bulk sync...');
+      const seenIds = new Set<string>();
+
+      // Fetch 50 pages of 100 jobs = 5000 jobs max
+      for (let page = 1; page <= 50; page++) {
+        try {
+          const pageJobs = await fetchJobsFromSource('sam_gov', {
+            limit: 100,
+            page
+          });
+
+          if (pageJobs.length === 0) {
+            console.log(`SAM.gov page ${page}: No more jobs, stopping`);
+            break;
+          }
+
+          for (const job of pageJobs) {
+            const key = `${job.source}-${job.externalId}`;
+            if (!seenIds.has(key)) {
+              seenIds.add(key);
+              jobs.push(job);
+            }
+          }
+          console.log(`SAM.gov page ${page}: ${pageJobs.length} jobs, total unique: ${jobs.length}`);
+          await new Promise(r => setTimeout(r, 200)); // Rate limit
+        } catch (e) {
+          console.error(`SAM.gov page ${page} error:`, e);
+        }
+      }
+      console.log(`SAM.gov bulk sync fetched ${jobs.length} unique jobs`);
+    } else if (bulk) {
       // Bulk sync: fetch from multiple keyword/state/city combinations
       console.log('Starting bulk sync...');
 
