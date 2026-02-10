@@ -102,8 +102,8 @@ export default function LandingPage() {
             {/* Left: Construction Image */}
             <div className="relative">
               <Image
-                src="/images/construction-tablet.png"
-                alt="Two subcontractors in hard hats and safety vests reviewing project details on a tablet at a construction job site - SubPaid mobile invoicing"
+                src="/images/construction-rooftop.png"
+                alt="Three construction contractors in yellow hard hats reviewing architectural blueprints on rooftop with city skyline background - professional subcontractor team planning"
                 width={600}
                 height={400}
                 className="rounded-2xl shadow-2xl object-cover"
