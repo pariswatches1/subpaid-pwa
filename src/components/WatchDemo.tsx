@@ -34,6 +34,8 @@ import {
   CreditCard,
   CircleDollarSign,
   Building2,
+  Video,
+  MousePointer,
 } from 'lucide-react';
 
 interface WatchDemoProps {
@@ -90,6 +92,7 @@ export function WatchDemo({ isOpen, onClose }: WatchDemoProps) {
   const [animPhase, setAnimPhase] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
+  const [activeView, setActiveView] = useState<'video' | 'interactive'>('video');
 
   useEffect(() => {
     if (isOpen) {
@@ -148,17 +151,59 @@ export function WatchDemo({ isOpen, onClose }: WatchDemoProps) {
             </div>
             <div>
               <h3 className="font-bold text-[#1a1a2e] text-base">SubPaid Full Demo</h3>
-              <p className="text-xs text-gray-400">{currentStep + 1} of {demoSteps.length} features</p>
+              <p className="text-xs text-gray-400">{activeView === 'video' ? 'Watch the video' : `${currentStep + 1} of ${demoSteps.length} features`}</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label={isPlaying ? 'Pause' : 'Play'}>
-              {isPlaying ? <Pause className="w-4 h-4 text-gray-500" /> : <Play className="w-4 h-4 text-gray-500" />}
-            </button>
+            {activeView === 'interactive' && (
+              <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label={isPlaying ? 'Pause' : 'Play'}>
+                {isPlaying ? <Pause className="w-4 h-4 text-gray-500" /> : <Play className="w-4 h-4 text-gray-500" />}
+              </button>
+            )}
             <button onClick={close} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Close"><X className="w-4 h-4 text-gray-500" /></button>
           </div>
         </div>
 
+        {/* View Toggle - Video vs Interactive */}
+        <div className="flex border-b border-gray-100 flex-shrink-0 bg-gray-50">
+          <button
+            onClick={() => setActiveView('video')}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-all ${
+              activeView === 'video'
+                ? 'text-[#1a1a2e] bg-white border-b-2 border-[#9FE870]'
+                : 'text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            <Video className="w-4 h-4" />
+            Video Demo
+          </button>
+          <button
+            onClick={() => setActiveView('interactive')}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-all ${
+              activeView === 'interactive'
+                ? 'text-[#1a1a2e] bg-white border-b-2 border-[#54A0FF]'
+                : 'text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            <MousePointer className="w-4 h-4" />
+            Interactive Tour
+          </button>
+        </div>
+
+        {/* Video View */}
+        {activeView === 'video' && (
+          <div className="flex-1 flex items-center justify-center bg-black p-4">
+            <video
+              src="/videos/demo.mp4"
+              controls
+              autoPlay
+              className="w-full max-h-[70vh] rounded-lg"
+            />
+          </div>
+        )}
+
+        {/* Interactive View - Category tabs */}
+        {activeView === 'interactive' && (<>
         {/* Category tabs */}
         <div className="flex border-b border-gray-100 flex-shrink-0">
           {categories.map((cat, ci) => {
@@ -269,6 +314,7 @@ export function WatchDemo({ isOpen, onClose }: WatchDemoProps) {
             </a>
           )}
         </div>
+        </>)}
       </div>
     </div>
   );
