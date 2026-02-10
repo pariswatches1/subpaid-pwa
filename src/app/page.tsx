@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Camera, Phone, Sparkles, ChevronRight, ArrowRight, Play } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { TrustBar } from '@/components/TrustBar';
@@ -97,16 +98,55 @@ export default function LandingPage() {
       {/* Product Demo / Screenshot Section */}
       <section className="py-20 bg-gradient-to-b from-white to-[#E8F4F8]">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <span className="inline-block px-4 py-1 bg-[#54A0FF]/20 text-[#2563EB] rounded-full text-sm font-medium mb-4">
-              See It In Action
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#1a1a2e] mb-4">
-              The Simplest Way to Get Paid
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-              From photo to payment in minutes, not weeks
-            </p>
+          <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
+            {/* Left: Construction Image */}
+            <div className="relative">
+              <Image
+                src="/images/construction-tablet.png"
+                alt="Two subcontractors in hard hats and safety vests reviewing project details on a tablet at a construction job site - SubPaid mobile invoicing"
+                width={600}
+                height={400}
+                className="rounded-2xl shadow-2xl object-cover"
+                priority
+              />
+              <div className="absolute -bottom-4 -right-4 bg-white rounded-xl shadow-lg p-4">
+                <p className="text-sm font-semibold text-[#1a1a2e]">Invoice sent!</p>
+                <p className="text-xs text-gray-500">$4,500 • Just now</p>
+              </div>
+            </div>
+
+            {/* Right: Text Content */}
+            <div className="text-left">
+              <span className="inline-block px-4 py-1 bg-[#54A0FF]/20 text-[#2563EB] rounded-full text-sm font-medium mb-4">
+                See It In Action
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#1a1a2e] mb-4">
+                The Simplest Way to Get Paid
+              </h2>
+              <p className="text-gray-600 text-lg mb-6">
+                From photo to payment in minutes, not weeks. Snap a picture of your completed work, and our AI creates a professional invoice instantly.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-center gap-3">
+                  <div className="w-6 h-6 bg-[#9FE870] rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                  </div>
+                  <span className="text-gray-700">Create invoices in 5 seconds</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <div className="w-6 h-6 bg-[#9FE870] rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                  </div>
+                  <span className="text-gray-700">AI calls clients for payment</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <div className="w-6 h-6 bg-[#9FE870] rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                  </div>
+                  <span className="text-gray-700">Get paid 2x faster</span>
+                </li>
+              </ul>
+            </div>
           </div>
 
           {/* App Screenshot Mockup */}
@@ -219,9 +259,26 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Stats Section with Construction Image */}
       <section className="py-20 px-6 bg-gradient-to-b from-[#E8F4F8] to-[#D4EBF2]">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
+          {/* Construction Image Banner */}
+          <div className="relative mb-12 rounded-3xl overflow-hidden">
+            <Image
+              src="/images/construction-concrete.png"
+              alt="Construction crew pouring concrete on a commercial building project with city skyline in background - professional subcontractors at work"
+              width={1200}
+              height={400}
+              className="w-full h-64 md:h-80 object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#1a1a2e]/80 to-transparent flex items-center">
+              <div className="px-8 md:px-12">
+                <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">Built for Real Contractors</h3>
+                <p className="text-white/80 text-lg max-w-md">From commercial projects to residential jobs, SubPaid helps you get paid faster.</p>
+              </div>
+            </div>
+          </div>
+
           <div className="bg-[#1a1a2e] rounded-3xl p-10 shadow-2xl">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <div>
@@ -251,16 +308,30 @@ export default function LandingPage() {
       {/* Use Cases / Industries */}
       <section className="py-20 bg-[#E8F4F8]">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1 bg-[#FF9F43]/20 text-[#1a1a2e] rounded-full text-sm font-medium mb-4">
-              Built For Your Trade
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#1a1a2e] mb-4">
-              Trusted by Contractors Across Every Trade
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-              Whether you&apos;re an electrician, plumber, or GC — SubPaid speaks your language
-            </p>
+          <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
+            {/* Left: Text Content */}
+            <div>
+              <span className="inline-block px-4 py-1 bg-[#FF9F43]/20 text-[#1a1a2e] rounded-full text-sm font-medium mb-4">
+                Built For Your Trade
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#1a1a2e] mb-4">
+                Trusted by Contractors Across Every Trade
+              </h2>
+              <p className="text-gray-600 text-lg">
+                Whether you&apos;re an electrician, plumber, or GC — SubPaid speaks your language. Join thousands of subcontractors who&apos;ve cut their payment time in half.
+              </p>
+            </div>
+
+            {/* Right: Team Image */}
+            <div className="relative">
+              <Image
+                src="/images/construction-team.png"
+                alt="Team of four construction workers in safety gear reviewing architectural blueprints at job site - professional collaboration"
+                width={600}
+                height={400}
+                className="rounded-2xl shadow-xl object-cover"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
