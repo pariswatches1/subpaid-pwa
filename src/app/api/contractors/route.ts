@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { mockDb } from '@/lib/db';
 
 // City coordinates lookup (major cities for distance calculation)
 const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
@@ -19,6 +19,14 @@ const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
   'Denver': { lat: 39.7392, lng: -104.9903 },
   'Seattle': { lat: 47.6062, lng: -122.3321 },
   'Las Vegas': { lat: 36.1699, lng: -115.1398 },
+  'Fort Lauderdale': { lat: 26.1224, lng: -80.1373 },
+  'West Palm Beach': { lat: 26.7153, lng: -80.0534 },
+  'San Diego': { lat: 32.7157, lng: -117.1611 },
+  'Sacramento': { lat: 38.5816, lng: -121.4944 },
+  'San Jose': { lat: 37.3382, lng: -121.8863 },
+  'Fresno': { lat: 36.7378, lng: -119.7871 },
+  'Long Beach': { lat: 33.7701, lng: -118.1937 },
+  'Oakland': { lat: 37.8044, lng: -122.2712 },
 };
 
 // Calculate distance between two points using Haversine formula
@@ -46,7 +54,10 @@ export async function GET(request: NextRequest) {
 
     const query = searchParams.get('query')?.toLowerCase() || '';
     const state = searchParams.get('state') || 'all';
+    const licenseType = searchParams.get('licenseType') || '';
     const city = searchParams.get('city') || '';
+    const status = searchParams.get('status') || '';
+    const minPayScore = parseInt(searchParams.get('minPayScore') || '0');
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
     const offset = parseInt(searchParams.get('offset') || '0');
 
@@ -55,40 +66,49 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get('sortBy') || '';
     const hasLocation = !isNaN(lat) && !isNaN(lng) && sortBy === 'distance';
 
-    // Build where clause
-    const where: Record<string, unknown> = {};
+    let results = [...mockDb.contractors];
 
+    // Filter by state
     if (state && state !== 'all') {
-      where.state = state;
+      results = results.filter((c) => c.state === state);
     }
 
+    // Filter by license status
+    if (status) {
+      results = results.filter((c) => c.licenseStatus === status);
+    }
+
+    // Filter by license type
+    if (licenseType) {
+      results = results.filter((c) =>
+        c.licenseType?.toLowerCase().includes(licenseType.toLowerCase()) ||
+        c.classifications?.some((cl) => cl.toLowerCase().includes(licenseType.toLowerCase()))
+      );
+    }
+
+    // Filter by city
     if (city) {
-      where.city = { contains: city, mode: 'insensitive' };
+      results = results.filter((c) => c.city?.toLowerCase().includes(city.toLowerCase()));
     }
 
+    // Filter by min PayScore
+    if (minPayScore > 0) {
+      results = results.filter((c) => (c.payScore || 0) >= minPayScore);
+    }
+
+    // Text search
     if (query) {
-      where.OR = [
-        { businessName: { contains: query, mode: 'insensitive' } },
-        { licenseNumber: { contains: query, mode: 'insensitive' } },
-        { city: { contains: query, mode: 'insensitive' } },
-        { ownerName: { contains: query, mode: 'insensitive' } },
-      ];
+      results = results.filter((c) =>
+        c.businessName.toLowerCase().includes(query) ||
+        c.licenseNumber.toLowerCase().includes(query) ||
+        c.city?.toLowerCase().includes(query) ||
+        c.ownerName?.toLowerCase().includes(query) ||
+        c.zipCode?.includes(query)
+      );
     }
-
-    const contractors = await prisma.contractor.findMany({
-      where,
-      orderBy: [
-        { rating: 'desc' },
-        { businessName: 'asc' },
-      ],
-      take: limit,
-      skip: offset,
-    });
-
-    const total = await prisma.contractor.count({ where });
 
     // Add distance if location provided
-    const contractorsWithDistance = contractors.map(c => {
+    const resultsWithDistance = results.map(c => {
       const cityCoords = c.city ? CITY_COORDS[c.city] : null;
       let distance: string | undefined;
       let distanceValue: number | undefined;
@@ -98,58 +118,37 @@ export async function GET(request: NextRequest) {
         distance = formatDistance(distanceValue);
       }
 
-      return {
-        id: c.id,
-        businessName: c.businessName,
-        ownerName: c.ownerName,
-        email: c.email,
-        phone: c.phone,
-        address: c.address,
-        city: c.city,
-        state: c.state,
-        zipCode: c.zipCode,
-        licenseNumber: c.licenseNumber,
-        licenseState: c.licenseState,
-        trades: c.trades,
-        insuranceExpiry: c.insuranceExpiry?.toISOString().split('T')[0],
-        rating: c.rating ? Number(c.rating) : null,
-        reviewCount: c.reviewCount,
-        verified: c.verified,
-        distance,
-        distanceValue,
-      };
+      return { ...c, distance, distanceValue };
     });
 
     // Sort by distance if requested
     if (hasLocation) {
-      contractorsWithDistance.sort((a, b) => {
+      resultsWithDistance.sort((a, b) => {
         if (a.distanceValue === undefined) return 1;
         if (b.distanceValue === undefined) return -1;
         return a.distanceValue - b.distanceValue;
       });
     }
 
-    // Get filter options
-    const states = await prisma.contractor.groupBy({
-      by: ['state'],
-      where: { state: { not: null } },
-    });
+    const total = resultsWithDistance.length;
+    const paginatedResults = resultsWithDistance.slice(offset, offset + limit);
 
-    const cities = await prisma.contractor.groupBy({
-      by: ['city'],
-      where: { city: { not: null } },
-      orderBy: { city: 'asc' },
-      take: 50,
-    });
+    // Get unique filter values
+    const states = [...new Set(mockDb.contractors.map(c => c.state))].filter(Boolean).sort();
+    const licenseTypes = [...new Set(mockDb.contractors.map(c => c.licenseType))].filter(Boolean).sort();
+    const cities = [...new Set(mockDb.contractors.filter(c =>
+      state === 'all' || c.state === state
+    ).map(c => c.city))].filter(Boolean).sort().slice(0, 50);
 
     return NextResponse.json({
-      contractors: contractorsWithDistance,
+      contractors: paginatedResults,
       total,
       offset,
       limit,
       filters: {
-        states: states.map(s => s.state).filter(Boolean).sort(),
-        cities: cities.map(c => c.city).filter(Boolean).sort(),
+        states,
+        licenseTypes,
+        cities,
       },
     });
   } catch (error) {
@@ -158,29 +157,38 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Add new contractor
+// POST - Add new contractor (still uses mock db for now)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const contractor = await prisma.contractor.create({
-      data: {
-        businessName: body.businessName,
-        ownerName: body.ownerName || null,
-        email: body.email || null,
-        phone: body.phone || null,
-        address: body.address || null,
-        city: body.city || null,
-        state: body.state || null,
-        zipCode: body.zipCode || null,
-        licenseNumber: body.licenseNumber || null,
-        licenseState: body.licenseState || null,
-        trades: body.trades || [],
-        verified: false,
-      },
-    });
+    const newContractor = {
+      id: `contractor-${Date.now()}`,
+      businessName: body.businessName,
+      ownerName: body.ownerName || undefined,
+      email: body.email || undefined,
+      phone: body.phone || undefined,
+      address: body.address || '',
+      city: body.city || '',
+      state: body.state || '',
+      zipCode: body.zipCode || '',
+      licenseNumber: body.licenseNumber || '',
+      licenseType: body.licenseType || 'General',
+      licenseStatus: 'active' as const,
+      classifications: body.trades || [],
+      issueDate: new Date().toISOString().split('T')[0],
+      expirationDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      lastUpdated: new Date().toISOString(),
+      verified: false,
+      claimed: false,
+      dataSource: 'USER' as const,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
 
-    return NextResponse.json({ contractor }, { status: 201 });
+    mockDb.contractors.push(newContractor);
+
+    return NextResponse.json({ contractor: newContractor }, { status: 201 });
   } catch (error) {
     console.error('Error creating contractor:', error);
     return NextResponse.json({ error: 'Failed to create contractor' }, { status: 500 });
