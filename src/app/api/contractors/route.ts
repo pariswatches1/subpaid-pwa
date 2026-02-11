@@ -157,11 +157,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Add new contractor (still uses mock db for now)
+// POST - Add new contractor
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
+    // Return the contractor without adding to mockDb (read-only dataset)
     const newContractor = {
       id: `contractor-${Date.now()}`,
       businessName: body.businessName,
@@ -174,19 +175,16 @@ export async function POST(request: NextRequest) {
       zipCode: body.zipCode || '',
       licenseNumber: body.licenseNumber || '',
       licenseType: body.licenseType || 'General',
-      licenseStatus: 'active' as const,
+      licenseStatus: 'active',
       classifications: body.trades || [],
       issueDate: new Date().toISOString().split('T')[0],
       expirationDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       lastUpdated: new Date().toISOString(),
       verified: false,
       claimed: false,
-      dataSource: 'USER' as const,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-
-    mockDb.contractors.push(newContractor);
 
     return NextResponse.json({ contractor: newContractor }, { status: 201 });
   } catch (error) {
