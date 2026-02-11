@@ -134,11 +134,11 @@ export async function GET(request: NextRequest) {
     const paginatedResults = resultsWithDistance.slice(offset, offset + limit);
 
     // Get unique filter values
-    const states = [...new Set(mockDb.contractors.map(c => c.state))].filter(Boolean).sort();
-    const licenseTypes = [...new Set(mockDb.contractors.map(c => c.licenseType))].filter(Boolean).sort();
-    const cities = [...new Set(mockDb.contractors.filter(c =>
+    const states = Array.from(new Set(mockDb.contractors.map(c => c.state))).filter(Boolean).sort();
+    const licenseTypes = Array.from(new Set(mockDb.contractors.map(c => c.licenseType))).filter(Boolean).sort();
+    const cities = Array.from(new Set(mockDb.contractors.filter(c =>
       state === 'all' || c.state === state
-    ).map(c => c.city))].filter(Boolean).sort().slice(0, 50);
+    ).map(c => c.city))).filter(Boolean).sort().slice(0, 50);
 
     return NextResponse.json({
       contractors: paginatedResults,
